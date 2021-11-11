@@ -12,6 +12,7 @@ import discord # discord bot implementation
 from discord.ext import commands
 import os # file handling
 import help # help handling
+from main import Main # main loop
 
 ## LOADING CONFIG - GETTING DISCORD TOKEN
 def load_config():
@@ -30,6 +31,8 @@ client = commands.Bot(command_prefix='-', help_command=help.Help())
 async def on_ready():
     return_data = ""
     print(f'{client.user} has connected to Discord!')
+    main = Main()
+
 
 ## DISCORD BOT DISCONNECTION
 @client.event

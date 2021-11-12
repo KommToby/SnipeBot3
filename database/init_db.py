@@ -18,7 +18,9 @@ class Database:
             CREATE TABLE IF NOT EXISTS users(
                 discord_id varchar(32) not null primary key,
                 user_id varchar(32),
-                last_score varchar(32)
+                last_score varchar(32),
+                snipes varchar(16),
+                times_sniped varchar(16)
             )
         ''') # discord_id is channel id, user id is users osu name / id
 
@@ -27,7 +29,9 @@ class Database:
                 discord_channel varchar(32) not null,
                 user_id varchar(32),
                 last_score varchar(32),
-                ping int2
+                ping int2,
+                snipes varchar(16),
+                times_sniped varchar(16)
             )
         ''') 
 
@@ -48,8 +52,8 @@ class Database:
         user_data = await self.osu._get_api_v2("/v2/users/" + str(user_id))
         user_id = user_data['id']
         self.cursor.execute(
-            "INSERT INTO users VALUES(?,?,?)",
-            (discord_id, user_id, 0)
+            "INSERT INTO users VALUES(?,?,?,?,?)",
+            (discord_id, user_id, 0, 0, 0)
         )
         self.db.commit()
 
@@ -79,7 +83,7 @@ class Database:
 
     def add_friend(self, discord_id, friend_id):
         self.cursor.execute(
-            "INSERT INTO friends VALUES(?,?,?,?)",
-            (discord_id,friend_id,0,0) # second 0 = no ping on snipe
+            "INSERT INTO friends VALUES(?,?,?,?,?,?)",
+            (discord_id,friend_id,0,0,0,0) # second 0 = no ping on snipe
         )
         self.db.commit()              

@@ -17,7 +17,10 @@ class Main():
             return 0
 
     async def check_friend_snipe(play):
-        pass # TODO
+        # GET LIST OF FRIENDS FROM DATABASE
+        # FOR EACH FRIEND, CHECK IF THEY HAVE A PLAY ON THE MAP AND
+        # IF THE PLAY BEATS THEM, IT COUNTS AS A SNIPE ETC
+        pass
 
     async def tracker(self):
         start_time = time.time()

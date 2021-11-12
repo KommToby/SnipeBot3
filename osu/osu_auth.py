@@ -27,9 +27,13 @@ class OsuAuth:
                             })
 
         data = json.loads(r.text)
-        self.token_type = data['token_type']
-        self.access_token = data['access_token']
-        self.expires_in = data['expires_in']
+        with open("authdata.json", "r") as jsonFile:
+            authData = json.load(jsonFile)
+        authData['token_type'] = data['token_type']
+        authData['access_token'] = data['access_token']
+        authData['expires_in'] = data['expires_in']
+        with open("authdata.json", "w") as jsonFile:
+            json.dump(authData, jsonFile)
 
     def _generate_headers(self):
         headers = {
@@ -37,8 +41,9 @@ class OsuAuth:
             "Content-Type": "application/json"
         }
 
-        if hasattr(self, 'access_token'):
-            headers['Authorization'] = 'Bearer ' + self.access_token
+        with open("authdata.json", "r") as jsonFile:
+            authData = json.load(jsonFile)
+        headers['Authorization'] = 'Bearer ' + authData['access_token']
 
         return headers
 

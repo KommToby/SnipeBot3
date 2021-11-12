@@ -1,0 +1,14 @@
+{
+    "osu": {
+        "apiv1_key": "api key here",
+        "client_id": "client id here",
+        "client_secret":"client secret here",
+        "redirect": "https://example.com",
+        "grant_type": "client_credentials",
+        "address":"https://osu.ppy.sh/api"
+    },
+    
+    "discord": {
+        "token": "Discord token id"
+    }
+}

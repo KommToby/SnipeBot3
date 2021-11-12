@@ -31,11 +31,9 @@ class Database:
                 discord_channel varchar(32) not null,
                 user_id varchar(32),
                 last_score varchar(32),
-                ping int2,
-                snipes varchar(16),
-                times_sniped varchar(16)
+                ping int2
             )
-        ''')
+        ''') # dont need to store snipes and sniped, since you can just count from the snipes table
 
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS beatmaps(

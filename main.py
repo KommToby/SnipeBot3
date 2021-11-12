@@ -71,8 +71,10 @@ class Main():
         for _, friend in enumerate(friends): # now we do the same but for friends
             friend_data = await self.osu._get_api_v2("/v2/users/" + str(friend[1]))
             if friend_data != {}:
+                main_user = self.database.get_main_from_friend(friend_data['id'])
                 recent_plays = await self.osu._get_api_v2("/v2/users/" + str(friend_data['id']) + "/scores/recent")
                 for _, play in enumerate(recent_plays):
+                    main_user_play = await self.osu._get_api_v2("/v2/beatmaps/" + str(play['beatmap']['id']) + "/scores/users/" + str(main_user[0]))
                     friend_play = self.database.get_user_beatmap_play(str(friend_data['id']), str(play['beatmap']['id']))
                     if friend_play != None:
                         if play['score'] > int(friend_play[2]):
@@ -80,14 +82,11 @@ class Main():
                     else:
                         self.database.add_score(str(friend_data['id']), str(play['beatmap']['id']), str(play['score']), 0)
                     
-                    main_user = self.database.get_main_from_friend(friend_data['id'])
-                    main_user_play = await self.osu._get_api_v2("/v2/beatmaps/" + str(play['beatmap']['id']) + "/scores/users/" + str(main_user[0]))
                     if main_user_play != {}:
                         if int(play['score']) > int(main_user_play['score']['score']):
                             if not(self.database.get_user_snipe_on_beatmap(play['user']['id'], play['beatmap']['id'], main_user[0])):
+                                main_user_username = main_user_play['score']['user']['username']
                                 self.database.add_snipe(play['user_id'], play['beatmap']['id'], main_user[0])
                                 discord_channel = self.database.get_main_discord(main_user[0])
-                                main_user_data = await self.osu._get_api_v2("/v2/users/" + str(main_user[0]))
-                                main_user_username = main_user_data['username']
                                 await self.snipe_embed.snipepost(play, client, discord_channel, main_user_username)
         print("Time to cycle all users and friends: " + str(round(time.time()-start_time,2)) + " seconds")

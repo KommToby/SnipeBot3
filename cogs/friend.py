@@ -17,7 +17,7 @@ class Friend(commands.Cog): # must have commands.cog or this wont work
             channels = self.database.get_all_discord()
             channel = 0
             for _, channel in enumerate(channels):
-                if channel == str(ctx.channel.id):
+                if channel[0] == str(ctx.channel.id):
                     channel = 1
                     user_data = await self.osu._get_api_v2("/v2/users/" + str(user_id))
                     userid = user_data['id']

@@ -54,16 +54,16 @@ class Main():
                         # this means the play DOES exist for this user in the database
                         # if its an improvement, replace it
                         if play['score'] > int(user_play[2]):
-                            self.database.replace_user_play(user_play[0], user_play[1], play['score'])
+                            await self.database.replace_user_play(user_play[0], user_play[1], play['score'])
                         else:
                             post = 0 # Do not post because its not a new best
                     else:
                         # if its a new play, add it directly to the database
                         self.database.add_score(str(user_data['id']), str(
                             play['beatmap']['id']), str(play['score']), 0)
+                    await self.check_beatmap(play) # check if map is stored in the database
                     if post == 1:
                         sniped_friends = await self.check_friend_snipe(play) # get friends sniped
-                        await self.check_beatmap(play) # check if map is stored in the database
                         discord_channel = self.database.get_main_discord(play['user']['id'])
                         await self.score_embed.scorepost(play, sniped_friends, client, discord_channel)
 
@@ -83,6 +83,7 @@ class Main():
                         self.database.add_score(str(friend_data['id']), str(play['beatmap']['id']), str(play['score']), 0)
                     
                     if main_user_play != {}:
+                        await self.check_beatmap(play)
                         if int(play['score']) > int(main_user_play['score']['score']):
                             if not(self.database.get_user_snipe_on_beatmap(play['user']['id'], play['beatmap']['id'], main_user[0])):
                                 main_user_username = main_user_play['score']['user']['username']

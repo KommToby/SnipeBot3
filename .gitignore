@@ -134,4 +134,5 @@ dmypy.json
 # Ignore
 *.txt
 config.json
+authdata.json
 *.db

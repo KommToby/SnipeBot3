@@ -1,7 +1,7 @@
 import discord
-from discord.ext import commands
-import sys
+from discord.ext import commands, tasks
 from database.init_db import Database
+from main import Main
 
 
 class Track(commands.Cog): # must have commands.cog or this wont work
@@ -21,13 +21,13 @@ class Track(commands.Cog): # must have commands.cog or this wont work
             )
             return
 
-        self.database.add_channel(ctx.channel.id, userid)
+        await self.database.add_channel(ctx.channel.id, userid)
         await ctx.send("Started Tracking user " + str(userid))
 
     @track.error
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send('Usage: `-track "username"`')    
+            await ctx.send('Usage: `-track "username"`')   
 
 
 def setup(client):

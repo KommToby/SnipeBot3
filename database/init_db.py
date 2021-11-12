@@ -16,13 +16,27 @@ class Database:
             CREATE TABLE IF NOT EXISTS users(
                 discord_id varchar(32) not null primary key,
                 user_id varchar(32),
-                ping int2
+                last_score varchar(32)
             )
-        ''')
+        ''') # discord_id is channel id, user id is users osu name / id
 
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS friends(
                 discord_channel varchar(32) not null,
-                user_id varchar(32)
+                user_id varchar(32),
+                last_score varchar(32),
+                ping int2
             )
-        ''')
+        ''') 
+    
+    def get_channel(self, discord_id):
+        return self.cursor.execute(
+            "SELECT * FROM users WHERE discord_id=?",
+            (discord_id,)).fetchone()
+
+    def add_channel(self, discord_id, user_id):
+        self.cursor.execute(
+            "INSERT INTO users VALUES(?,?,?)",
+            (discord_id, user_id, 0)
+        )
+        self.db.commit()

@@ -2,9 +2,6 @@ from embed.osu_profile import Profile
 import discord
 from discord.ext import commands
 
-import sys
-sys.path.append("..")
-
 
 class Osu(commands.Cog):  # must have commands.cog or this wont work
 

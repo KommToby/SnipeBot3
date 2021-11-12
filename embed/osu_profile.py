@@ -1,7 +1,6 @@
 from osu.osu_auth import OsuAuth
 import discord
 import sys
-sys.path.append("..")
 
 
 class Profile():

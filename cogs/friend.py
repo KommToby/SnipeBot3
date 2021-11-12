@@ -14,10 +14,20 @@ class Friend(commands.Cog): # must have commands.cog or this wont work
     @commands.has_permissions(administrator=True)
     async def friend(self, ctx, param : str, user_id : str):
         if param == "add":
-            user_data = await self.osu._get_api_v2("/v2/users/" + str(user_id))
-            userid = user_data['id']
-            self.database.add_friend(ctx.channel.id, userid)
-            await ctx.send(str(user_id) + " has been added as a friend!")
+            channels = self.database.get_all_discord()
+            channel = 0
+            for _, channel in enumerate(channels):
+                if channel[0] == str(ctx.channel.id):
+                    channel = 1
+                    user_data = await self.osu._get_api_v2("/v2/users/" + str(user_id))
+                    userid = user_data['id']
+                    if not(self.database.get_friend(userid, ctx.channel.id)):
+                        self.database.add_friend(ctx.channel.id, userid)
+                        await ctx.send(str(user_id) + " has been added as a friend!")
+                    else:
+                        await ctx.send("User is already added as a friend.")
+            if channel == 0:
+                await ctx.send("There is no main user being tracked in this channel")
 
 def setup(client):
     client.add_cog(Friend(client))

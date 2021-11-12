@@ -8,6 +8,7 @@ class OsuAuth:
     def __init__(self):
         self._load_config()
         self.api_timer = time.time()
+        self._get_auth_token()
 
     def _load_config(self):
         with open(os.path.dirname(__file__) + "/../config.json") as f:
@@ -17,49 +18,38 @@ class OsuAuth:
             self.client_id = data['client_id']
             self.client_secret = data['client_secret']
 
-    def generate_access_token(self):
-        r = requests.post('https://osu.ppy.sh/oauth/token',
-                            headers=self._generate_headers(), json={
-                                "grant_type": "client_credentials",
-                                "client_id": self.client_id,
-                                "client_secret": self.client_secret,
-                                "scope": "public"
-                            })
-
-        data = json.loads(r.text)
-        self.token_type = data['token_type']
-        self.access_token = data['access_token']
-        self.expires_in = data['expires_in']
-
-    def _generate_headers(self):
-        headers = {
-            "Accept": "application/json",
-            "Content-Type": "application/json"
+    def _get_auth_token(self) -> None:
+        params = {
+            "client_id": self.client_id,
+            "client_secret": self.client_secret,
+            "grant_type": "client_credentials",
+            "scope": "public",
         }
+        r = requests.post("https://osu.ppy.sh/oauth/token", data=params)
+        if r.status_code == 401:
+            raise requests.RequestException("Invalid Credentials Given")
+        response = r.json()
+        self.refresh_time = time.time()
+        self.token_type = response["token_type"]
+        self.expires_in = response["expires_in"]
+        self.access_token = response["access_token"]
 
-        if hasattr(self, 'access_token'):
-            headers['Authorization'] = 'Bearer ' + self.access_token
+    def auth_token_valid(self) -> bool:
+        return time.time() < self.refresh_time + self.expires_in
 
-        return headers
-
-    async def _get_api_v2(self, route, ctx):
-        # Make sure the rate limit is not reached
-        if (time.time() - self.api_timer) < 1:
-            await asyncio.sleep(1 - (time.time() - self.api_timer))
-        print("Time since last ping: ", "%.2f" %
-            (time.time() - self.api_timer) + "s", end="\r")
+    async def get_api_v2(self, url: str, params=None):
+        if time.time() - self.api_timer < 0.05:
+            await asyncio.sleep(0.05)
+        if params is None:
+            params = {}
+        if not self.auth_token_valid():
+            self._get_auth_token()
+        headers = {"Authorization": f"Bearer {self.access_token}"}
+        r = requests.get(
+            f"https://osu.ppy.sh/api/v2/{url}", headers=headers, params=params
+        )
         self.api_timer = time.time()
-        try:
-            r = requests.get(self.address + str(route),
-                            headers=self._generate_headers())
-        except(Exception):
-            return {}
         if r.status_code == 200:
-            dictionary = json.loads(r.text)
-            return dictionary
-        elif r.status_code == 401:
-            self.generate_access_token()
-            print("Resetting api key... expect bug.")
-            await ctx.send('`Resetting Api Key. Expect Slight Lag`')
-            return await self._get_api_v2(route, ctx)
-        return {}
+            return r.json()
+        else:
+            r.raise_for_status()

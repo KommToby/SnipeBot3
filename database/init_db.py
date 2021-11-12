@@ -12,7 +12,7 @@ class Database:
                 beatmap_id varchar(32),
                 score varchar(32)
             )
-        ''')
+        ''') ## potentially add mods to this db later on
 
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS users(
@@ -28,6 +28,14 @@ class Database:
                 user_id varchar(32),
                 last_score varchar(32),
                 ping int2
+            )
+        ''') 
+
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS beatmaps(
+                beatmap_id varchar(32) not null,
+                song_name varchar(32),
+                difficulty_name varchar(32)
             )
         ''') 
         
@@ -55,3 +63,23 @@ class Database:
             "SELECT * FROM users WHERE user_id=?",
             (user_id,)
         ).fetchone()
+
+    def get_user_beatmap_play(self, user_id, beatmap_id):
+        return self.cursor.execute(
+            "SELECT * FROM scores WHERE user_id=? AND beatmap_id=?",
+            (user_id,beatmap_id)
+        ).fetchone()
+
+    def add_score(self, user_id, beatmap_id, score):
+        self.cursor.execute(
+            "INSERT INTO scores VALUES(?,?,?)",
+            (user_id,beatmap_id,score)
+        )
+        self.db.commit()
+
+    def add_friend(self, discord_id, friend_id):
+        self.cursor.execute(
+            "INSERT INTO friends VALUES(?,?,?,?)",
+            (discord_id,friend_id,0,0) # second 0 = no ping on snipe
+        )
+        self.db.commit()              

@@ -16,6 +16,9 @@ class Main():
         if play == []:
             return 0
 
+    async def check_friend_snipe(play):
+        pass # TODO
+
     async def tracker(self):
         start_time = time.time()
         users = self.database.get_all_users()
@@ -24,6 +27,14 @@ class Main():
             if user_data != {}:
                 recent_plays = await self.osu._get_api_v2("/v2/users/" + str(user_data['id']) + "/scores/recent")
                 for num, play in enumerate(recent_plays):
+                    if self.database.get_user_beatmap_play(str(user_data['id']),str(play['id'])):
+                        ## this means the play DOES exist for this user in the database
+                        pass
+                        ## TODO ^
+                    else:
+                        self.database.add_score(str(user_data['id']), str(play['id']), str(play['score']))
+                        # post score in discord channel (check friends sniped first)
+
                     ## check if the user has played the map before (stored in db)
                     ## if they havent, add it to database
                     ## if they have, add it to database if new score

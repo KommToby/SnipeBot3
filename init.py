@@ -33,7 +33,7 @@ async def on_ready():
     print(f'{client.user} has connected to Discord!')
     main_function = Main()
     while True:
-        await main_loop(main_function)
+        await main_loop(main_function, client)
 
 ## DISCORD BOT DISCONNECTION
 @client.event
@@ -55,8 +55,8 @@ for filename in os.listdir('./cogs'):
     if filename.endswith('.py'): # ignore non-python files
         client.load_extension(f'cogs.{filename[:-3]}') # loads extension, without the '.py'
 
-async def main_loop(main_function):
-    await main_function.tracker()
+async def main_loop(main_function, client):
+    await main_function.tracker(client)
 
 ## Must be final line
 client.run(token)

@@ -12,8 +12,8 @@ class Friend(commands.Cog): # must have commands.cog or this wont work
 
     @commands.command(aliases=['f'])
     @commands.has_permissions(administrator=True)
-    async def friend(self, ctx, ar : str, user_id : str):
-        if ar == "add":
+    async def friend(self, ctx, param : str, user_id : str):
+        if param == "add":
             user_data = await self.osu._get_api_v2("/v2/users/" + str(user_id))
             userid = user_data['id']
             self.database.add_friend(ctx.channel.id, userid)

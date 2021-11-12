@@ -42,20 +42,12 @@ class Database:
                 difficulty_name varchar(32)
             )
         ''') 
-        
+
+    ## GETS
     def get_channel(self, discord_id):
         return self.cursor.execute(
             "SELECT * FROM users WHERE discord_id=?",
             (discord_id,)).fetchone()
-
-    async def add_channel(self, discord_id, user_id):
-        user_data = await self.osu._get_api_v2("/v2/users/" + str(user_id))
-        user_id = user_data['id']
-        self.cursor.execute(
-            "INSERT INTO users VALUES(?,?,?,?,?)",
-            (discord_id, user_id, 0, 0, 0)
-        )
-        self.db.commit()
 
     def get_all_users(self):
         return self.cursor.execute(
@@ -74,6 +66,26 @@ class Database:
             (user_id,beatmap_id)
         ).fetchone()
 
+    def get_user_friends(self, main_id):
+        main_discord = self.get_main_discord(main_id)
+        return self.cursor.execute(
+            "SELECT * FROM friends WHERE discord_channel=?",
+            (main_discord[0],)
+        ).fetchall()
+
+    def get_main_discord(self, main_id):
+        return self.cursor.execute(
+            "SELECT discord_id FROM users WHERE user_id=?",
+            (main_id,)
+        ).fetchone()
+
+    def get_friend_discord(self, friend_id):
+        return self.cursor.execute(
+            "SELECT discord_channel FROM friends WHERE user_id=?",
+            (friend_id,)
+        ).fetchone()        
+
+    ## ADDS
     def add_score(self, user_id, beatmap_id, score):
         self.cursor.execute(
             "INSERT INTO scores VALUES(?,?,?)",
@@ -86,4 +98,21 @@ class Database:
             "INSERT INTO friends VALUES(?,?,?,?,?,?)",
             (discord_id,friend_id,0,0,0,0) # second 0 = no ping on snipe
         )
-        self.db.commit()              
+        self.db.commit()       
+
+    async def add_channel(self, discord_id, user_id):
+        user_data = await self.osu._get_api_v2("/v2/users/" + str(user_id))
+        user_id = user_data['id']
+        self.cursor.execute(
+            "INSERT INTO users VALUES(?,?,?,?,?)",
+            (discord_id, user_id, 0, 0, 0)
+        )
+        self.db.commit()       
+
+    ## UPDATES
+    async def replace_user_play(self, user_id, beatmap_id, new_score):
+        self.cursor.execute(
+            "UPDATE scores SET score=? WHERE user_id=? AND beatmap_id=?",
+            (new_score, user_id, beatmap_id)
+        )
+        self.db.commit()    

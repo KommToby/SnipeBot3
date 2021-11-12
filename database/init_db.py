@@ -38,6 +38,7 @@ class Database:
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS beatmaps(
                 beatmap_id varchar(32) not null,
+                artist varchar(32),
                 song_name varchar(32),
                 difficulty_name varchar(32)
             )
@@ -160,10 +161,10 @@ class Database:
         )
         self.db.commit()
 
-    def add_beatmap(self, beatmap_id, song_name, difficulty_name):
+    def add_beatmap(self, beatmap_id, artist, song_name, difficulty_name):
         self.cursor.execute(
-            "INSERT INTO beatmaps VALUES(?,?,?)",
-            (beatmap_id, song_name, difficulty_name)
+            "INSERT INTO beatmaps VALUES(?,?,?,?)",
+            (beatmap_id, artist, song_name, difficulty_name)
         )
         self.db.commit()
 

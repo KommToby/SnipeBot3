@@ -38,7 +38,7 @@ class Main():
 
     async def check_beatmap(self, play):
         if not(self.database.get_beatmap(play['beatmap']['id'])): # if beatmap isnt in the db
-            self.database.add_beatmap(play['beatmap']['id'], play['beatmapset']['title'], play['beatmap']['version'])
+            self.database.add_beatmap(play['beatmap']['id'], play['beatmapset']['artist'], play['beatmapset']['title'], play['beatmap']['version'])
 
     async def tracker(self, client):
         start_time = time.time()

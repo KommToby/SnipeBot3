@@ -38,7 +38,7 @@ class Main():
 
     async def check_beatmap(self, play):
         if not(self.database.get_beatmap(play['beatmap']['id'])): # if beatmap isnt in the db
-            self.database.add_beatmap(play['beatmap']['id'], play['beatmapset']['artist'], play['beatmapset']['title'], play['beatmap']['version'])
+            self.database.add_beatmap(play['beatmap']['id'], play['beatmapset']['artist'], play['beatmapset']['title'], play['beatmap']['version'], play['beatmap']['url'])
 
     async def tracker(self, client):
         start_time = time.time()
@@ -78,7 +78,7 @@ class Main():
                     friend_play = self.database.get_user_beatmap_play(str(friend_data['id']), str(play['beatmap']['id']))
                     if friend_play != None:
                         if play['score'] > int(friend_play[2]):
-                            self.database.replace_user_play(friend_play[0], friend_play[1], play['score'])
+                            await self.database.replace_user_play(friend_play[0], friend_play[1], play['score'])
                     else:
                         self.database.add_score(str(friend_data['id']), str(play['beatmap']['id']), str(play['score']), 0)
                     

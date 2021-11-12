@@ -1,20 +1,21 @@
-from embed.osu_profile import Profile
-import discord
+from embed.osu_profile import create_osu_profile_embed
+from osu.osu import Osu
 from discord.ext import commands
 
 import sys
 sys.path.append("..")
 
 
-class Osu(commands.Cog):  # must have commands.cog or this wont work
-
+class OsuCommands(commands.Cog):  # must have commands.cog or this wont work
     def __init__(self, client):
         self.client = client
-        self.profile = Profile()
+        self.osu = Osu()
 
     @commands.command(aliases=['profile'])
-    async def osu(self, ctx, id: str):
-        await self.profile.profile(ctx, id)
+    async def osu(self, ctx, user: str):
+        user_data = await self.osu.get_user_data(user)
+        embed = create_osu_profile_embed(user_data)
+        await ctx.send(embed=embed)
 
     @osu.error
     async def on_command_error(self, ctx, error):
@@ -23,4 +24,4 @@ class Osu(commands.Cog):  # must have commands.cog or this wont work
 
 
 def setup(client):
-    client.add_cog(Osu(client))
+    client.add_cog(OsuCommands(client))

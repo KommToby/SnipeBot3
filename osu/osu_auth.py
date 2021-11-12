@@ -42,7 +42,7 @@ class OsuAuth:
 
         return headers
 
-    async def _get_api_v2(self, route, ctx):
+    async def _get_api_v2(self, route):
         # Make sure the rate limit is not reached
         if (time.time() - self.api_timer) < 1:
             await asyncio.sleep(1 - (time.time() - self.api_timer))
@@ -60,6 +60,5 @@ class OsuAuth:
         elif r.status_code == 401:
             self.generate_access_token()
             print("Resetting api key... expect bug.")
-            await ctx.send('`Resetting Api Key. Expect Slight Lag`')
-            return await self._get_api_v2(route, ctx)
+            return await self._get_api_v2(route)
         return {}

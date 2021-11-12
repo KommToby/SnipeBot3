@@ -8,7 +8,7 @@ class Profile():
         self.auth = OsuAuth()
 
     async def profile(self, ctx, userid: str):
-        dict = await self.auth._get_api_v2("/v2/users/" + str(userid), ctx)
+        dict = await self.auth._get_api_v2("/v2/users/" + str(userid))
         embed = discord.Embed(
             title=("osu! profile of " + dict['username']),
             color=discord.Colour.red()

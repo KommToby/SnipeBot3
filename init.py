@@ -4,12 +4,12 @@
 ## 3: Main loop that checks for new scores for every user
 ## 4: When ANYONE gets a new score, if the map hasnt been checked before, the map checks all the friends to see if they beat the main user after the main user set their play
 ## 5: Local, single database, called friends.db: DISCORD_ID, FRIEND_ID
-## 6: 
+## 6: Store all plays in a databse table USER_ID, BEATMAP_ID, SCORE
 
 ## IMPORTS
 import json # json handling
 import discord # discord bot implementation
-from discord.ext import commands
+from discord.ext import commands, tasks
 import os # file handling
 import help # help handling
 from main import Main # main loop
@@ -31,8 +31,9 @@ client = commands.Bot(command_prefix='-', help_command=help.Help())
 async def on_ready():
     return_data = ""
     print(f'{client.user} has connected to Discord!')
-    main = Main()
-
+    main_function = Main()
+    while True:
+        await main_loop(main_function)
 
 ## DISCORD BOT DISCONNECTION
 @client.event
@@ -53,6 +54,9 @@ async def unload(ctx, extension):
 for filename in os.listdir('./cogs'):
     if filename.endswith('.py'): # ignore non-python files
         client.load_extension(f'cogs.{filename[:-3]}') # loads extension, without the '.py'
+
+async def main_loop(main_function):
+    await main_function.tracker()
 
 ## Must be final line
 client.run(token)

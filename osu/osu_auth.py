@@ -60,5 +60,6 @@ class OsuAuth:
         elif r.status_code == 401:
             self.generate_access_token()
             print("Resetting api key... expect bug.")
-            await ctx.send('api key has been reset. please try the command again')
+            await ctx.send('`Resetting Api Key. Expect Slight Lag`')
+            return await self._get_api_v2(route, ctx)
         return {}

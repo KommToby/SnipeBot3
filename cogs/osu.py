@@ -19,7 +19,7 @@ class Osu(commands.Cog):  # must have commands.cog or this wont work
     @osu.error
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send('Usage: `-osu <username>`')
+            await ctx.send('Usage: `-osu "username"`')
 
 
 def setup(client):

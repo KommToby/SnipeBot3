@@ -14,8 +14,8 @@ class Profile():
             title=("osu! profile of " + dict['username']),
             color=discord.Colour.red()
         )
-        embed.description = "**Rank**: " + str(dict['statistics']['global_rank']) + "\n" + \
-                            "**Country Rank**: " + str(dict['statistics']['country_rank']) + "\n" + \
+        embed.description = "**Rank**: " + f"{(dict['statistics']['global_rank']):,}" + "\n" + \
+                            "**Country Rank**: " + f"{(dict['statistics']['country_rank']):,}" + "\n" + \
                             "**Accuracy**: " + \
                             str(round(dict['statistics']['hit_accuracy'], 2)) + "%"
         embed.set_author(name='Snipebot 3 by Komm',

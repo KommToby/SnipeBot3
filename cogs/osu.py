@@ -2,9 +2,6 @@ from embed.osu_profile import create_osu_profile_embed
 from osu.osu import Osu
 from discord.ext import commands
 
-import sys
-sys.path.append("..")
-
 
 class OsuCommands(commands.Cog):  # must have commands.cog or this wont work
     def __init__(self, client):

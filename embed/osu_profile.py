@@ -1,6 +1,5 @@
 import discord
 import sys
-sys.path.append("..")
 
 
 def create_osu_profile_embed(profile_info):

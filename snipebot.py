@@ -29,6 +29,7 @@ client = commands.Bot(command_prefix="-", help_command=Help())
 # called when bot is online
 @client.event
 async def on_ready():
+    print("Connected")
     for filename in os.listdir("./cogs"):
         if filename.endswith(".py"):
             client.load_extension(f"cogs.{filename[:-3]}")

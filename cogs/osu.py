@@ -11,7 +11,7 @@ class OsuCommands(commands.Cog):  # must have commands.cog or this wont work
     @commands.command(aliases=['profile'])
     async def osu(self, ctx, user: str):
         user_data = await self.osu.get_user_data(user)
-        embed = create_profile_embed(user_data)
+        embed = await create_profile_embed(user_data)
         await ctx.send(embed=embed)
 
     @osu.error

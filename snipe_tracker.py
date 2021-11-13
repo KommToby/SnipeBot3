@@ -1,6 +1,6 @@
 import time
 
-from discord.ext import commands, tasks
+from discord.ext import commands
 
 from osu.osu_auth import OsuAuth
 from database.init_db import Database
@@ -12,9 +12,6 @@ class SnipeTracker:
         self.bot = bot
         self.osu = auth
         self.database = database
-
-    def start_loop(self):
-        self.tracker_loop.start()
 
     async def get_sniped_friends(self, play):
         sniped = []
@@ -39,7 +36,6 @@ class SnipeTracker:
         if not(self.database.get_beatmap(play['beatmap']['id'])): # if beatmap isnt in the db
             self.database.add_beatmap(play['beatmap']['id'], play['beatmapset']['artist'], play['beatmapset']['title'], play['beatmap']['version'], play['beatmap']['url'])
 
-    @tasks.loop(seconds=30.0)
     async def tracker_loop(self):
         start_time = time.time()
         users = self.database.get_all_users()
@@ -91,7 +87,3 @@ class SnipeTracker:
                                 await channel.send(embed=create_snipe_embed(play, main_user_username))
 
         print(f"Snipe loop took {round(time.time() - start_time, 2)} seconds")
-
-    @tracker_loop.before_loop
-    async def before_tracker(self):
-        await self.bot.wait_until_ready()

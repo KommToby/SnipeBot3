@@ -1,11 +1,8 @@
 import discord
 from discord.ext import commands
 
-from snipebot import AUTH
 
-
-def create_profile_embed(user_id: str):
-    user = await AUTH.get_user_data(user_id)
+async def create_profile_embed(user):
     embed = discord.Embed(
         title=f"osu! profile for {user['username']}",
         color=discord.Colour.red()

@@ -1,6 +1,25 @@
 import discord
 from discord.ext import commands
 
+async def create_friend_leaderboard(leaderboard, main_user_name, main_snipes, main_sniped):
+    title_message = "Snipe Leaderboard for " + main_user_name + ": " + str(main_snipes) + " | " + str(main_sniped)
+    embed = discord.Embed(
+        title=title_message,
+        color=discord.Colour.purple()
+    )    
+
+    friend_message = ""
+    for i, friend in enumerate(leaderboard):
+        if i <= 9:
+            friend_message = str(i+1) + ": " + friend['username']
+            friend_description = "**Snipes: " + str(friend['snipes']) + \
+                " | Sniped: " + \
+                str(friend['sniped']) + " | Snipe Difference: " + \
+                str(int(friend['snipe difference'])) + "**"
+            embed.add_field(name=friend_message,
+                            value=friend_description, inline=False)
+    return embed  
+
 async def create_snipes_embed(user, snipes, sniped, total):
     snipes = len(snipes)
     sniped = len(sniped)

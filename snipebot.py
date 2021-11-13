@@ -1,10 +1,6 @@
 # TODO
-# 1: Local, single database, called scores.db: USER_ID, BEATMAP_ID, USER_SCORE
-# 2: Local, single database, called user.db: DISCORD_ID, USER_ID, PING_STATUS
-# 3: Main loop that checks for new scores for every user
-# 4: When ANYONE gets a new score, if the map hasn't been checked before, the map checks all the friends to see if they beat the main user after the main user set their play
-# 5: Local, single database, called friends.db: DISCORD_ID, FRIEND_ID
-# 6: Store all plays in a database table USER_ID, BEATMAP_ID, SCORE
+# 1: PASSIVE SNIPE TRACKER (FOR IDLE BEATMAP PROCESSING)
+# 2: SNIPES LEADERBOARD
 
 import json
 import os

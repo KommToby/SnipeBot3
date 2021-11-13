@@ -94,6 +94,18 @@ class Database:
             (main_user_id,)
         ).fetchall()
 
+    def get_main_snipes(self, main_user_id):
+        return self.cursor.execute(
+            "SELECT * FROM snipes WHERE user_id=?",
+            (main_user_id,)
+        ).fetchall()
+
+    def get_main_sniped(self, main_user_id):
+        return self.cursor.execute(
+            "SELECT * FROM snipes WHERE second_user_id=?",
+            (main_user_id,)
+        ).fetchall()
+
     def get_user_friends(self, main_id):
         main_discord = self.get_main_discord(main_id)
         return self.cursor.execute(

@@ -1,14 +1,15 @@
 import discord
 from discord.ext import commands
 from database.init_db import Database
-from osu.osu_auth import OsuAuth
+from snipebot import DATABASE, AUTH
+
 
 class Friend(commands.Cog): # must have commands.cog or this wont work
 
     def __init__(self, client):
         self.client = client
-        self.database = Database()
-        self.osu = OsuAuth()
+        self.database = DATABASE
+        self.osu = AUTH
 
     @commands.command(aliases=['f'])
     @commands.has_permissions(administrator=True)
@@ -28,6 +29,7 @@ class Friend(commands.Cog): # must have commands.cog or this wont work
                         await ctx.send("User is already added as a friend.")
             if channel == 0:
                 await ctx.send("There is no main user being tracked in this channel")
+
 
 def setup(client):
     client.add_cog(Friend(client))

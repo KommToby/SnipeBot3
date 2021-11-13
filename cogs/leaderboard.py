@@ -17,6 +17,7 @@ class Leaderboard(commands.Cog): # must have commands.cog or this wont work
 
     @commands.command(aliases=['best'])
     async def leaderboard(self, ctx):
+        await ctx.send("Loading Leaderboard, please wait..")
         leaderboard = []
         main_user_id = self.database.get_main_from_discord(ctx.channel.id)
         main_user_id = main_user_id[0]

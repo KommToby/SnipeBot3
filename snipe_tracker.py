@@ -74,25 +74,26 @@ class SnipeTracker:
                 main_user = self.database.get_main_from_friend(friend_data['id'])
                 main_user_id = f"{main_user[0]}"
                 recent_plays = await self.osu.get_recent_plays(user_id)
-                for play in recent_plays:
-                    beatmap_id = f"{play['beatmap']['id']}"
-                    main_user_play = await self.osu.get_score_data(beatmap_id, main_user_id)
-                    friend_play = self.database.get_user_beatmap_play(f"{friend_data['id']}", beatmap_id)
-                    if friend_play:
-                        if play['score'] > int(friend_play[2]):
-                            await self.database.replace_user_play(friend_play[0], friend_play[1], play['score'])
-                    else:
-                        self.database.add_score(str(friend_data['id']), str(play['beatmap']['id']), str(play['score']),
-                                                0)
-                    if main_user_play:
-                        await self.check_beatmap(play)
-                        if int(play['score']) > int(main_user_play['score']['score']):
-                            if not self.database.get_user_snipe_on_beatmap(play['user']['id'], play['beatmap']['id'], main_user[0]):
-                                main_user_username = main_user_play['score']['user']['username']
-                                self.database.add_snipe(play['user_id'], play['beatmap']['id'], main_user[0])
-                                discord_channel = self.database.get_main_discord(main_user[0])
-                                channel = await self.bot.get_channel(discord_channel)
-                                await channel.send(embed=create_snipe_embed(play, main_user_username))
+                if recent_plays:
+                    for play in recent_plays:
+                        beatmap_id = f"{play['beatmap']['id']}"
+                        main_user_play = await self.osu.get_score_data(beatmap_id, main_user_id)
+                        friend_play = self.database.get_user_beatmap_play(f"{friend_data['id']}", beatmap_id)
+                        if friend_play:
+                            if play['score'] > int(friend_play[2]):
+                                await self.database.replace_user_play(friend_play[0], friend_play[1], play['score'])
+                        else:
+                            self.database.add_score(str(friend_data['id']), str(play['beatmap']['id']), str(play['score']),
+                                                    0)
+                        if main_user_play:
+                            await self.check_beatmap(play)
+                            if int(play['score']) > int(main_user_play['score']['score']):
+                                if not self.database.get_user_snipe_on_beatmap(play['user']['id'], play['beatmap']['id'], main_user[0]):
+                                    main_user_username = main_user_play['score']['user']['username']
+                                    self.database.add_snipe(play['user_id'], play['beatmap']['id'], main_user[0])
+                                    discord_channel = self.database.get_main_discord(main_user[0])
+                                    channel = await self.bot.get_channel(discord_channel)
+                                    await channel.send(embed=create_snipe_embed(play, main_user_username))
 
         print(f"Snipe loop took {round(time.time() - start_time, 2)} seconds")
 

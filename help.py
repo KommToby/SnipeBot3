@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 
+
 class Help(commands.HelpCommand): # must have commands.cog or this wont work
 
     # def __init__(self):
@@ -17,7 +18,8 @@ class Help(commands.HelpCommand): # must have commands.cog or this wont work
         await self.get_destination().send(f'{group.name}: {[command.name for index, command in enumerate(group.commands)]}')
 
     async def send_command_help(self, command): # specific command within cog
-        await self.get_destination.send(command.name)
+        await self.get_destination().send(command.name)
+
 
 def setup(client):
     client.add_cog(Help(client))

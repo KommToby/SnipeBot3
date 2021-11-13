@@ -53,7 +53,7 @@ class OsuAuth:
         if r.status_code == 200:
             return r.json()
         else:
-            r.raise_for_status()
+            return False
 
     async def get_user_data(self, user_id: str):
         return await self.get_api_v2(f"users/{user_id}")

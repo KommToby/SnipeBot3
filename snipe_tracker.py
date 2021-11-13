@@ -51,7 +51,7 @@ class SnipeTracker:
                 for play in recent_plays:
                     await self.check_beatmap(play)
                     user_play = self.database.get_user_beatmap_play(user_id, f"{play['beatmap']['id']}")
-                    online_play = self.osu.get_score_data(play['beatmap']['id'], user_id)
+                    online_play = await self.osu.get_score_data(play['beatmap']['id'], user_id)
                     if user_play:
                         if play['score'] > int(user_play[2]):
                             await self.database.replace_user_play(user_play[0], user_play[1], play['score'])

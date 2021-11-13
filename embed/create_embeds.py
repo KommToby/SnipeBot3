@@ -1,10 +1,12 @@
 import discord
 from discord.ext import commands
 
-async def create_snipes_embed(user, snipes, sniped):
+async def create_snipes_embed(user, snipes, sniped, total):
     snipes = len(snipes)
     sniped = len(sniped)
+    total = len(total)
     snipe_difference = snipes - sniped
+    snipe_percentage = round(((snipes/total)*100), 2)
 
     # AVATAR HANDLING
     if user['avatar_url'][0] == "/":
@@ -24,7 +26,7 @@ async def create_snipes_embed(user, snipes, sniped):
         str(snipes) + "\n" + "**○ Times Sniped: **" + str(sniped) + \
         "\n▻ **Snipe Difference: **" + \
         str(snipe_difference) + \
-        "\n**► Contributed " + "TODO" + "%" + " of snipes!**"
+        "\n**► Contributed " + str(snipe_percentage) + "%" + " of snipes!**"
 
     embed = discord.Embed(
         title=titlemessage,

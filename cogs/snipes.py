@@ -17,7 +17,8 @@ class Snipes(commands.Cog): # must have commands.cog or this wont work
         user_data = await self.osu.get_user_data(user)
         snipes = self.database.get_user_snipes(str(user_data['id']), main_user_id)
         sniped = self.database.get_user_snipes(main_user_id, str(user_data['id']))
-        embed = await create_snipes_embed(user_data, snipes, sniped)
+        total_snipes = self.database.get_total_snipes(main_user_id)
+        embed = await create_snipes_embed(user_data, snipes, sniped, total_snipes)
         await ctx.send(embed=embed)
 
     @snipes.error

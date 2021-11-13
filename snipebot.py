@@ -33,8 +33,7 @@ async def on_ready():
         if filename.endswith(".py"):
             client.load_extension(f"cogs.{filename[:-3]}")
     snipe_bot_tracker = SnipeTracker(client, AUTH, DATABASE)
-    while True:
-        await snipe_bot_tracker.tracker_loop()
+    snipe_bot_tracker.start_loop()
 
 
 @client.command(name="load")
@@ -51,4 +50,5 @@ async def unload(ctx, extension):
 
 
 #  must be final line
-client.run(TOKEN)
+if __name__ == '__main__':
+    client.run(TOKEN)

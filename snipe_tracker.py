@@ -51,13 +51,15 @@ class SnipeTracker:
                 for play in recent_plays:
                     await self.check_beatmap(play)
                     user_play = self.database.get_user_beatmap_play(user_id, f"{play['beatmap']['id']}")
+                    online_play = self.osu.get_score_data(play['beatmap']['id'], user_id)
                     if user_play:
                         if play['score'] > int(user_play[2]):
                             await self.database.replace_user_play(user_play[0], user_play[1], play['score'])
-                            sniped_friends = await self.get_sniped_friends(play)
-                            discord_channel = self.database.get_main_discord(user_id)
-                            channel = self.bot.get_channel(int(discord_channel[0]))
-                            await channel.send(embed=create_score_embed(play, sniped_friends))
+                            if play['score'] > online_play['score']:
+                                sniped_friends = await self.get_sniped_friends(play)
+                                discord_channel = self.database.get_main_discord(user_id)
+                                channel = self.bot.get_channel(int(discord_channel[0]))
+                                await channel.send(embed=create_score_embed(play, sniped_friends))
                     else:
                         self.database.add_score(str(user_data['id']), str(
                             play['beatmap']['id']), str(play['score']), 0)

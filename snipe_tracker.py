@@ -63,10 +63,11 @@ class SnipeTracker:
                     else:
                         self.database.add_score(str(user_data['id']), str(
                             play['beatmap']['id']), str(play['score']), 0)
-                        sniped_friends = await self.get_sniped_friends(play)
-                        discord_channel = self.database.get_main_discord(user_id)
-                        channel = self.bot.get_channel(int(discord_channel[0]))
-                        await channel.send(embed=create_score_embed(play, sniped_friends))
+                        if play['score'] > online_play['score']:    
+                            sniped_friends = await self.get_sniped_friends(play)
+                            discord_channel = self.database.get_main_discord(user_id)
+                            channel = self.bot.get_channel(int(discord_channel[0]))
+                            await channel.send(embed=create_score_embed(play, sniped_friends))
 
         friends = self.database.get_all_friends()
         for friend in friends:

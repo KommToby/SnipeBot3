@@ -1,6 +1,39 @@
 import discord
 from discord.ext import commands
 
+async def create_snipes_embed(user, snipes, sniped):
+    snipes = len(snipes)
+    sniped = len(sniped)
+    snipe_difference = snipes - sniped
+
+    # AVATAR HANDLING
+    if user['avatar_url'][0] == "/":
+        image = "https://osu.ppy.sh" + \
+                str(user['avatar_url'])
+    else:
+        image = str(user['avatar_url'])    
+
+    # FLAG HANDLING
+    flag = "https://osu.ppy.sh/images/flags/" + \
+    user['country_code']+".png"
+
+    titlemessage = "Snipe Stats For "+user['username']
+    if sniped == 0:
+        sniped = ('0')
+    description = "**● Number of Snipes: **" + \
+        str(snipes) + "\n" + "**○ Times Sniped: **" + str(sniped) + \
+        "\n▻ **Snipe Difference: **" + \
+        str(snipe_difference) + \
+        "\n**► Contributed " + "TODO" + "%" + " of snipes!**"
+
+    embed = discord.Embed(
+        title=titlemessage,
+        color=discord.Color.gold()
+    )
+    embed.description = description
+    embed.set_author(name='Snipebot 3 by Komm', icon_url=flag)
+    embed.set_thumbnail(url=str(image))
+    return embed
 
 async def create_profile_embed(user):
     embed = discord.Embed(
@@ -13,7 +46,7 @@ async def create_profile_embed(user):
 **Accuracy**: {round(user['statistics']['hit_accuracy'], 2)}%
 """
     embed.set_author(name="Snipebot 3 by Komm",
-                     icon_url=f"https://osu.ppy.sh/images/flags/{user['country_code']}.png")
+                    icon_url=f"https://osu.ppy.sh/images/flags/{user['country_code']}.png")
     if user['avatar_url'][0] == "/":
         embed.set_thumbnail(url=f"https://osu.ppy.sh{user['avatar_url']}")
     else:
@@ -65,8 +98,8 @@ def create_snipe_embed(play, main_user):
 
     embed.add_field(
         name=score_message, value="[link to map]("
-                                  + str(play['beatmap']['url'])
-                                  + ")", inline=False)
+                                + str(play['beatmap']['url'])
+                                + ")", inline=False)
     return embed
 
 

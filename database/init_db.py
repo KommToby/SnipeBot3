@@ -82,6 +82,12 @@ class Database:
             (user_id, beatmap_id)
         ).fetchone()
 
+    def get_user_snipes(self, user_id, main_user_id):
+        return self.cursor.execute(
+            "SELECT * FROM snipes WHERE user_id=? AND second_user_id=?",
+            (user_id, main_user_id)
+        ).fetchall()
+
     def get_user_friends(self, main_id):
         main_discord = self.get_main_discord(main_id)
         return self.cursor.execute(
@@ -135,6 +141,12 @@ class Database:
         return self.cursor.execute(
             "SELECT user_id FROM users WHERE discord_id=?",
             (discord_id[0],)
+        ).fetchone()
+
+    def get_main_from_discord(self, discord_id):
+        return self.cursor.execute(
+            "SELECT user_id FROM users WHERE discord_id=?",
+            (discord_id,)
         ).fetchone()
 
     # ADDS

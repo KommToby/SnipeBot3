@@ -96,7 +96,7 @@ def create_score_embed(play, sniped_friends):
         friend_num_message = "no friends sniped :c"
     else:
         friend_num_message = f"{len(sniped_friends)} friend(s) sniped!"
-        friend_message = f"`{','.join(sniped_friends[:4])}{' and more!' if len(sniped_friends) > 4 else ''}`"
+        friend_message = f"`{', '.join(sniped_friends[:4])}{' and more!' if len(sniped_friends) > 4 else ''}`"
 
     # USER AVATAR HANDLING
     if play['user']['avatar_url'][0] == "/":

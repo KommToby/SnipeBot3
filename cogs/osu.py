@@ -1,17 +1,17 @@
-from embed.osu_profile import create_osu_profile_embed
-from osu.osu import Osu
+from embed.create_embeds import create_profile_embed
+from snipebot import AUTH
 from discord.ext import commands
 
 
 class OsuCommands(commands.Cog):  # must have commands.cog or this wont work
     def __init__(self, client):
         self.client = client
-        self.osu = Osu()
+        self.osu = AUTH
 
     @commands.command(aliases=['profile'])
     async def osu(self, ctx, user: str):
         user_data = await self.osu.get_user_data(user)
-        embed = create_osu_profile_embed(user_data)
+        embed = create_profile_embed(user_data)
         await ctx.send(embed=embed)
 
     @osu.error

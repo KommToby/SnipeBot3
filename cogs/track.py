@@ -1,24 +1,18 @@
-import discord
-from discord.ext import commands, tasks
-from database.init_db import Database
-from main import Main
+from discord.ext import commands
+from snipebot import DATABASE
 
 
 class Track(commands.Cog): # must have commands.cog or this wont work
 
     def __init__(self, client):
         self.client = client
-        self.database = Database()
+        self.database = DATABASE
 
     @commands.command(aliases=['t'])
     @commands.has_permissions(administrator=True)
     async def track(self, ctx, userid : str):
         if self.database.get_channel(ctx.channel.id):
-            await ctx.send(
-                "<@"+str(ctx.author.id) +
-                "> Channel is already being tracked!"
-                    + " (1 tracked user per channel)"
-            )
+            await ctx.send(f"<@{ctx.author.id}> channel is already being tracked! (1 tracked user per channel)")
             return
 
         await self.database.add_channel(ctx.channel.id, userid)

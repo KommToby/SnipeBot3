@@ -55,14 +55,14 @@ class SnipeTracker:
                         if play['score'] > int(user_play[2]):
                             await self.database.replace_user_play(user_play[0], user_play[1], play['score'])
                             sniped_friends = await self.get_sniped_friends(play)
-                            discord_channel = self.database.get_main_discord(play['user']['id'])
+                            discord_channel = self.database.get_main_discord(user_id)
                             channel = self.bot.get_channel(int(discord_channel[0]))
                             await channel.send(embed=create_score_embed(play, sniped_friends))
                     else:
                         self.database.add_score(str(user_data['id']), str(
                             play['beatmap']['id']), str(play['score']), 0)
                         sniped_friends = await self.get_sniped_friends(play)
-                        discord_channel = self.database.get_main_discord(play['user']['id'])
+                        discord_channel = self.database.get_main_discord(user_id)
                         channel = self.bot.get_channel(int(discord_channel[0]))
                         await channel.send(embed=create_score_embed(play, sniped_friends))
 
@@ -92,7 +92,7 @@ class SnipeTracker:
                                     main_user_username = main_user_play['score']['user']['username']
                                     self.database.add_snipe(play['user_id'], play['beatmap']['id'], main_user[0])
                                     discord_channel = self.database.get_main_discord(main_user[0])
-                                    channel = await self.bot.get_channel(discord_channel)
+                                    channel = await self.bot.get_channel(int(discord_channel[0]))
                                     await channel.send(embed=create_snipe_embed(play, main_user_username))
 
         print(f"Snipe loop took {round(time.time() - start_time, 2)} seconds")

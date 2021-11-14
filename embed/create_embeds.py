@@ -108,7 +108,7 @@ def create_snipe_embed(play, main_user):
 
     embed = discord.Embed(
         title=title_message,
-        description=f"{play['beatmap']['artist']} - {play['beatmapset']['title']} [{play['beatmap']['version']}]" +
+        description=f"{play['beatmapset']['artist']} - {play['beatmapset']['title']} [{play['beatmap']['version']}]" +
                     f" - {play['beatmap']['difficulty_rating']}:star:",
         colour=discord.Colour.green()
     )

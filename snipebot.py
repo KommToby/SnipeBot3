@@ -21,6 +21,7 @@ GUILD = None
 AUTH = osu_auth.OsuAuth()
 DATABASE = init_db.Database()
 client = commands.Bot(command_prefix="-", help_command=Help())
+snipe_bot_tracker = SnipeTracker(client, AUTH, DATABASE)
 
 
 # called when bot is online
@@ -30,7 +31,6 @@ async def on_ready():
     for filename in os.listdir("./cogs"):
         if filename.endswith(".py"):
             client.load_extension(f"cogs.{filename[:-3]}")
-    snipe_bot_tracker = SnipeTracker(client, AUTH, DATABASE)
     snipe_bot_tracker.start_loop()
 
 

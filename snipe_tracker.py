@@ -40,32 +40,41 @@ class SnipeTracker:
             for score in friend_data:
                 await self.check_beatmap(score)
 
+    async def scan_single_top(self, userid):
+        friend_data = await self.osu.get_user_scores(userid)
+        for score in friend_data:
+            await self.check_beatmap(score)
+
     async def check_beatmap(self, play): # passive tracking
         if not(self.database.get_beatmap(play['beatmap']['id'])): # if beatmap isnt in the db
             self.database.add_beatmap(play['beatmap']['id'], play['beatmapset']['artist'], play['beatmapset']['title'], play['beatmap']['version'], play['beatmap']['url'])
-            # get all main users
-            main_users = self.database.get_all_users()
-            for _, user in enumerate(main_users):
-                main_play = await self.osu.get_score_data(play['beatmap']['id'], user[1])
-                if main_play:
-                    friends = self.database.get_user_friends(user[1])
-                    main_date = await self.convert_date(main_play['score']['created_at'])
-                    for friend in friends:
-                        friend_play = await self.osu.get_score_data(play['beatmap']['id'], friend[1])
-                        if friend_play:
-                            friend_date = await self.convert_date(friend_play['score']['created_at'])
-                            if await self.date_earlier_than(friend_date, main_date):
-                                if friend_play['score']['score'] > main_play['score']['score']:
-                                    if play['beatmap']['id'] == 1059894:
-                                        if friend[1] == '4934554':
-                                            print("Aaa")
-                                    self.database.add_snipe(friend[1], play['beatmap']['id'], user[1])
-                            else:
-                                if play['beatmap']['id'] == 1059894:
-                                        if friend[1] == '4934554':
-                                            print("Aaa")
-                                if main_play['score']['score'] > friend_play['score']['score']:
-                                    self.database.add_snipe(user[1], play['beatmap']['id'], friend[1])
+            await self.add_snipes(play)
+
+    async def add_snipes(self, play):        
+        main_users = self.database.get_all_users()
+        for _, user in enumerate(main_users):
+            main_play = await self.osu.get_score_data(play['beatmap']['id'], user[1])
+            if main_play:
+                friends = self.database.get_user_friends(user[1])
+                main_date = await self.convert_date(main_play['score']['created_at'])
+                for friend in friends:
+                    friend_play = await self.osu.get_score_data(play['beatmap']['id'], friend[1])
+                    if friend_play:
+                        friend_date = await self.convert_date(friend_play['score']['created_at'])
+                        if await self.date_earlier_than(friend_date, main_date):
+                            if friend_play['score']['score'] > main_play['score']['score']:
+                                self.database.add_snipe(friend[1], play['beatmap']['id'], user[1])
+                        else:
+                            if main_play['score']['score'] > friend_play['score']['score']:
+                                self.database.add_snipe(user[1], play['beatmap']['id'], friend[1])
+
+    async def new_user(self, user_data):
+        beatmaps = self.database.get_all_beatmaps()
+        await self.scan_single_top(user_data)
+        for _, beatmap in enumerate(beatmaps):
+            play = await self.osu.get_score_data(user_data, beatmap[0])
+            if play:
+                self.add_snipes(play)
 
     async def check_main_beatmap(self, play):
         if not(self.database.get_beatmap(play['beatmap']['id'])): # if beatmap isnt in the db

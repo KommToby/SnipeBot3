@@ -33,6 +33,13 @@ class SnipeTracker:
                         self.database.add_snipe(play['user_id'], beatmap_id, user_id)
         return sniped
 
+    async def scan_top(self):
+        friends = self.database.get_all_friends()
+        for friend in friends:
+            friend_data = await self.osu.get_user_scores(friend[1])
+            for score in friend_data:
+                await self.check_beatmap(score)
+
     async def check_beatmap(self, play): # passive tracking
         if not(self.database.get_beatmap(play['beatmap']['id'])): # if beatmap isnt in the db
             self.database.add_beatmap(play['beatmap']['id'], play['beatmapset']['artist'], play['beatmapset']['title'], play['beatmap']['version'], play['beatmap']['url'])
@@ -101,6 +108,7 @@ class SnipeTracker:
 
     @tasks.loop(seconds=30.0)
     async def tracker_loop(self):
+        # await self.scan_top() # UNCOMMENT THIS WHEN RESETTING EVERYTHING AND RUN ONCE
         start_time = time.time()
         users = self.database.get_all_users()
         for data in users:

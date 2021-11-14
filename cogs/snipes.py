@@ -20,13 +20,20 @@ class Snipes(commands.Cog): # must have commands.cog or this wont work
         sniped = self.database.get_user_snipes(main_user_id, str(user_data['id']))
         total_snipes = self.database.get_total_snipes(main_user_id)
         user_snipes = self.database.get_user_snipes(user_data['id'], main_user_id)
+        user_sniped = self.database.get_user_snipes(main_user_id, user_data['id'])
         if user_snipes != []:
             random_play_index = random.randint(0, len(user_snipes)-1)
             random_play = user_snipes[random_play_index]
             random_play_data = await self.osu.get_score_data(random_play[1], random_play[0])
         else:
             random_play_data = False
-        embed = await create_snipes_embed(user_data, snipes, sniped, total_snipes, random_play_data)
+        if user_sniped != []:
+            random_play_index = random.randint(0, len(user_sniped)-1)
+            random_play = user_sniped[random_play_index]
+            random_sniped_data = await self.osu.get_score_data(random_play[1], random_play[0])
+        else:
+            random_sniped_data = False
+        embed = await create_snipes_embed(user_data, snipes, sniped, total_snipes, random_play_data, random_sniped_data)
         await ctx.send(embed=embed)
 
     @snipes.error

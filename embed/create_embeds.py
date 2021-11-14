@@ -20,7 +20,7 @@ async def create_friend_leaderboard(leaderboard, main_user_name, main_snipes, ma
                             value=friend_description, inline=False)
     return embed  
 
-async def create_snipes_embed(user, snipes, sniped, total, play):
+async def create_snipes_embed(user, snipes, sniped, total, play, sniped_play):
     snipes = len(snipes)
     sniped = len(sniped)
     total = len(total)
@@ -57,6 +57,9 @@ async def create_snipes_embed(user, snipes, sniped, total, play):
     if play != False:
         embed.add_field(name="Generated random map you sniped on below",
             value="[Link to map]("+str(play['score']['beatmap']['url'])+")", inline=False)
+    if sniped_play != False:
+                embed.add_field(name="Generated random you map were sniped on below",
+            value="[Link to map]("+str(sniped_play['score']['beatmap']['url'])+")", inline=False)
     return embed
 
 async def create_profile_embed(user):

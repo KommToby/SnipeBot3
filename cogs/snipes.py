@@ -16,11 +16,11 @@ class Snipes(commands.Cog): # must have commands.cog or this wont work
         main_user_id = self.database.get_main_from_discord(ctx.channel.id)
         main_user_id = main_user_id[0]
         user_data = await self.osu.get_user_data(user)
-        snipes = self.database.get_user_snipes(str(user_data['id']), main_user_id)
-        sniped = self.database.get_user_snipes(main_user_id, str(user_data['id']))
+        snipes = self.database.get_single_user_snipes(str(user_data['id']), main_user_id)
+        sniped = self.database.get_single_user_snipes(main_user_id, str(user_data['id']))
         total_snipes = self.database.get_total_snipes(main_user_id)
-        user_snipes = self.database.get_user_snipes(user_data['id'], main_user_id)
-        user_sniped = self.database.get_user_snipes(main_user_id, user_data['id'])
+        user_snipes = self.database.get_single_user_snipes(user_data['id'], main_user_id)
+        user_sniped = self.database.get_single_user_snipes(main_user_id, user_data['id'])
         if user_snipes != []:
             random_play_index = random.randint(0, len(user_snipes)-1)
             random_play = user_snipes[random_play_index]

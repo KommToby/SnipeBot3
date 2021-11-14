@@ -82,11 +82,17 @@ class Database:
             (user_id, beatmap_id)
         ).fetchone()
 
-    def get_user_snipes(self, user_id, main_user_id):
+    def get_single_user_snipes(self, user_id, main_user_id):
         return self.cursor.execute(
             "SELECT * FROM snipes WHERE user_id=? AND second_user_id=?",
             (user_id, main_user_id)
         ).fetchall()
+
+    def get_user_snipes(self, user_id, beatmap_id, second_user):
+        return self.cursor.execute(
+            "SELECT * FROM snipes WHERE user_id=? AND second_user_id=? AND beatmap_id=?",
+            (user_id, second_user, beatmap_id)
+        ).fetchone()
 
     def get_total_snipes(self, main_user_id):
         return self.cursor.execute(
@@ -188,14 +194,14 @@ class Database:
         )
         self.db.commit()
 
-    async def add_channel(self, discord_id, user_id):
-        user_data = await self.osu._get_api_v2("/v2/users/" + str(user_id))
-        user_id = user_data['id']
-        self.cursor.execute(
-            "INSERT INTO users VALUES(?,?,?,?,?)",
-            (discord_id, user_id, 0, 0, 0)
-        )
-        self.db.commit()
+    # async def add_channel(self, discord_id, user_id):
+    #     user_data = await self.osu._get_api_v2("/v2/users/" + str(user_id))
+    #     user_id = user_data['id']
+    #     self.cursor.execute(
+    #         "INSERT INTO users VALUES(?,?,?,?,?)",
+    #         (discord_id, user_id, 0, 0, 0)
+    #     )
+    #     self.db.commit()
 
     def add_beatmap(self, beatmap_id, artist, song_name, difficulty_name, url):
         self.cursor.execute(

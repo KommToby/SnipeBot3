@@ -29,7 +29,6 @@ class SnipeTracker:
                     self.database.add_score(user_id, beatmap_id, score, 0)
                 if friend_play['score']['score'] < play['score']:
                     sniped.append(friend_play['score']['user']['username'])
-                    discord_id = self.database.get_main_discord(play['user_id'])
                     if not(self.database.get_user_snipe_on_beatmap(play['user_id'], beatmap_id, user_id)): # can only be sniped once per map
                         self.database.add_snipe(play['user_id'], beatmap_id, user_id)
         return sniped
@@ -49,10 +48,16 @@ class SnipeTracker:
                         if friend_play:
                             friend_date = await self.convert_date(friend_play['score']['created_at'])
                             if await self.date_earlier_than(friend_date, main_date):
-                                if friend_play['score']['score'] > play['score']:
+                                if friend_play['score']['score'] > main_play['score']['score']:
+                                    if play['beatmap']['id'] == 1059894:
+                                        if friend[1] == '4934554':
+                                            print("Aaa")
                                     self.database.add_snipe(friend[1], play['beatmap']['id'], user[1])
                             else:
-                                if play['score'] > friend_play['score']['score']:
+                                if play['beatmap']['id'] == 1059894:
+                                        if friend[1] == '4934554':
+                                            print("Aaa")
+                                if main_play['score']['score'] > friend_play['score']['score']:
                                     self.database.add_snipe(user[1], play['beatmap']['id'], friend[1])
 
     async def check_main_beatmap(self, play):

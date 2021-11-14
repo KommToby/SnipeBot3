@@ -31,13 +31,66 @@ class SnipeTracker:
                     sniped.append(friend_play['score']['user']['username'])
                     discord_id = self.database.get_main_discord(play['user_id'])
                     if not(self.database.get_user_snipe_on_beatmap(play['user_id'], beatmap_id, user_id)): # can only be sniped once per map
-                        self.database.add_friend_sniped(user_id, discord_id[0])
                         self.database.add_snipe(play['user_id'], beatmap_id, user_id)
         return sniped
 
-    async def check_beatmap(self, play):
+    async def check_beatmap(self, play): # passive tracking
         if not(self.database.get_beatmap(play['beatmap']['id'])): # if beatmap isnt in the db
             self.database.add_beatmap(play['beatmap']['id'], play['beatmapset']['artist'], play['beatmapset']['title'], play['beatmap']['version'], play['beatmap']['url'])
+            # get all main users
+            main_users = self.database.get_all_users()
+            for _, user in enumerate(main_users):
+                main_play = await self.osu.get_score_data(play['beatmap']['id'], user[1])
+                if main_play:
+                    friends = self.database.get_user_friends(user[1])
+                    main_date = await self.convert_date(main_play['score']['created_at'])
+                    for friend in friends:
+                        friend_play = await self.osu.get_score_data(play['beatmap']['id'], friend[1])
+                        if friend_play:
+                            friend_date = await self.convert_date(friend_play['score']['created_at'])
+                            if not(await self.date_earlier_than(friend_date, main_date)):
+                                self.database.add_snipe(friend[1], play['beatmap']['id'], user[1])
+                            else:
+                                self.database.add_snipe(user[1], play['beatmap']['id'], friend[1])
+
+    async def check_main_beatmap(self, play):
+        if not(self.database.get_beatmap(play['beatmap']['id'])): # if beatmap isnt in the db
+            self.database.add_beatmap(play['beatmap']['id'], play['beatmapset']['artist'], play['beatmapset']['title'], play['beatmap']['version'], play['beatmap']['url'])        
+
+    async def date_earlier_than(self, date1, date2):
+        if date1['year'] == date2['year']:
+            if date1['month'] == date2['month']:
+                if date1['day'] == date2['day']:
+                    if date1['hour'] == date2['hour']:
+                        if date1['minute'] == date2['minute']:
+                            if date1['second'] >= date2['second']:
+                                return True
+                        if date1['minute'] > date2['minute']:
+                            return True
+                    if date1['hour'] > date2['hour']:
+                        return True
+                if date1['day'] > date2['day']:
+                    return True
+            if date1['month'] > date2['month']:
+                return True
+        if date1['year'] > date2['year']:
+            return True
+        else:
+            return False
+
+    async def convert_date(self, datetime):
+        date = datetime.split('-')
+        year = date[0]
+        month = date[1]
+        date = date[2].split('T')
+        day = date[0]
+        date = date[1].split(':')
+        hour = date[0]
+        minute = date[1]
+        date = date[2].split("+")
+        second = date[0]
+        return {'year': year, 'month': month, 'day': day, 'hour': hour, 'minute': minute, 'second': second}
+
 
     @tasks.loop(seconds=30.0)
     async def tracker_loop(self):
@@ -49,7 +102,7 @@ class SnipeTracker:
             if user_data:
                 recent_plays = await self.osu.get_recent_plays(user_id)
                 for play in recent_plays:
-                    await self.check_beatmap(play)
+                    await self.check_main_beatmap(play)
                     user_play = self.database.get_user_beatmap_play(user_id, f"{play['beatmap']['id']}")
                     online_play = await self.osu.get_score_data(play['beatmap']['id'], user_id)
                     if user_play:

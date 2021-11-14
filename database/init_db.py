@@ -214,12 +214,3 @@ class Database:
         )
         self.db.commit()
 
-    def add_friend_sniped(self, userid, discordid):
-        sniped = self.get_friend_times_sniped(userid, discordid)
-        sniped = int(sniped[0])
-        sniped += 1
-        self.cursor.execute(
-            "UPDATE friends SET times_sniped=? WHERE user_id=? AND discord_channel=?",
-            (sniped, userid, discordid)
-        )
-        self.db.commit()

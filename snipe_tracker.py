@@ -61,7 +61,7 @@ class SnipeTracker:
                     friend_play = await self.osu.get_score_data(play['beatmap']['id'], friend[1])
                     if friend_play:
                         friend_date = await self.convert_date(friend_play['score']['created_at'])
-                        if await self.date_earlier_than(friend_date, main_date):
+                        if await self.date_more_recent_than(friend_date, main_date):
                             if friend_play['score']['score'] > main_play['score']['score']:
                                 self.database.add_snipe(friend[1], play['beatmap']['id'], user[1])
                         else:
@@ -80,26 +80,23 @@ class SnipeTracker:
         if not(self.database.get_beatmap(play['beatmap']['id'])): # if beatmap isnt in the db
             self.database.add_beatmap(play['beatmap']['id'], play['beatmapset']['artist'], play['beatmapset']['title'], play['beatmap']['version'], play['beatmap']['url'])        
 
-    async def date_earlier_than(self, date1, date2):
-        if date1['year'] == date2['year']:
-            if date1['month'] == date2['month']:
-                if date1['day'] == date2['day']:
-                    if date1['hour'] == date2['hour']:
-                        if date1['minute'] == date2['minute']:
-                            if date1['second'] >= date2['second']:
-                                return True
-                        if date1['minute'] > date2['minute']:
-                            return True
-                    if date1['hour'] > date2['hour']:
-                        return True
-                if date1['day'] > date2['day']:
+    async def date_more_recent_than(self, date1, date2):
+        if type(date1) is dict and type(date2) is dict:
+            if date1.keys() == date2.keys():
+                if date1 == date2:
                     return True
-            if date1['month'] > date2['month']:
-                return True
-        if date1['year'] > date2['year']:
-            return True
-        else:
-            return False
+                return self._more_recent_than(list(date1.values()), list(date2.values()))
+
+
+    async def _more_recent_than(self, date1, date2):
+        if type(date1) is list and type(date2) is list:
+            if len(date1) == len(date2):
+                if (date1[0] > date2[0]):
+                    return True
+                elif len(date1) > 1 and len(date2) > 1:
+                    return self._more_recent_than(date1[1:], date2[1:])
+                else:
+                    return False
 
     async def convert_date(self, datetime):
         date = datetime.split('-')

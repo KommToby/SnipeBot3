@@ -31,6 +31,10 @@ class Friend(commands.Cog): # must have commands.cog or this wont work
             if channel == 0:
                 await ctx.send("There is no main user being tracked in this channel")
 
+    @friend.error
+    async def on_command_error(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send('Usage: `-friend add/remove "username"`') 
 
 def setup(client):
     client.add_cog(Friend(client))

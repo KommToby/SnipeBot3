@@ -63,3 +63,4 @@ class OsuAuth:
 
     async def get_recent_plays(self, user_id: str):
         return await self.get_api_v2(f"users/{user_id}/scores/recent")
+

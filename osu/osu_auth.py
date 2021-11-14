@@ -41,6 +41,8 @@ class OsuAuth:
     async def get_api_v2(self, url: str, params=None):
         if time.time() - self.api_timer < 0.05:
             await asyncio.sleep(0.05)
+        print("Ping Time: ", "%.2f" % (time.time()-self.api_timer) + "s", end="\r")
+        self.api_timer = time.time()
         if params is None:
             params = {}
         if not self.auth_token_valid():

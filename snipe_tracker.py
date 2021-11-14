@@ -48,10 +48,12 @@ class SnipeTracker:
                         friend_play = await self.osu.get_score_data(play['beatmap']['id'], friend[1])
                         if friend_play:
                             friend_date = await self.convert_date(friend_play['score']['created_at'])
-                            if not(await self.date_earlier_than(friend_date, main_date)):
-                                self.database.add_snipe(friend[1], play['beatmap']['id'], user[1])
+                            if await self.date_earlier_than(friend_date, main_date):
+                                if friend_play['score']['score'] > play['score']:
+                                    self.database.add_snipe(friend[1], play['beatmap']['id'], user[1])
                             else:
-                                self.database.add_snipe(user[1], play['beatmap']['id'], friend[1])
+                                if play['score'] > friend_play['score']['score']:
+                                    self.database.add_snipe(user[1], play['beatmap']['id'], friend[1])
 
     async def check_main_beatmap(self, play):
         if not(self.database.get_beatmap(play['beatmap']['id'])): # if beatmap isnt in the db

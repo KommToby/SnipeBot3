@@ -30,6 +30,7 @@ class SnipeTracker:
                 if friend_play['score']['score'] < play['score']:
                     sniped.append(friend_play['score']['user']['username'])
                     if not(self.database.get_user_snipe_on_beatmap(play['user_id'], beatmap_id, user_id)): # can only be sniped once per map
+                        print(f"Passive Snipe By {play['username']} against id {user_id}")
                         self.database.add_snipe(play['user_id'], beatmap_id, user_id)
         return sniped
 
@@ -66,10 +67,12 @@ class SnipeTracker:
                         if await self.date_more_recent_than(friend_date, main_date):
                             if friend_play['score']['score'] > main_play['score']['score']:
                                 if not(self.database.get_user_snipes(friend[1], play['beatmap']['id'], user[1])):
+                                    print(f"Passive Snipe By {main_play['user']['username']} against {friend_play['user']['username']}")
                                     self.database.add_snipe(friend[1], play['beatmap']['id'], user[1])
                         else:
                             if main_play['score']['score'] > friend_play['score']['score']:
                                 if not(self.database.get_user_snipes(user[1], play['beatmap']['id'], friend[1])):    
+                                    print(f"Passive Snipe By {friend_play['user']['username']} against {main_play['user']['username']}")
                                     self.database.add_snipe(user[1], play['beatmap']['id'], friend[1])
 
     async def add_single_snipe(self, play):
@@ -176,7 +179,7 @@ class SnipeTracker:
         for friend in friends:
             user_id = f"{friend[1]}"
             friend_data = await self.osu.get_user_data(user_id)
-            print(f"checking {friend_data['username']} \n")
+            print(f"     checking {friend_data['username']}")
             if friend_data:
                 main_user = self.database.get_main_from_friend(friend_data['id'])
                 main_user_id = f"{main_user[0]}"
@@ -199,6 +202,7 @@ class SnipeTracker:
                                     self.database.add_snipe(play['user_id'], play['beatmap']['id'], main_user[0])
                                     discord_channel = self.database.get_main_discord(main_user[0])
                                     channel = self.bot.get_channel(int(discord_channel[0]))
+                                    print(f"Posting snipe by {play['user']['username']} against {main_user_username}")
                                     await channel.send(embed=create_snipe_embed(play, main_user_username))
                                     await self.check_beatmap(play)
 

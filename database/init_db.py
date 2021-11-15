@@ -95,6 +95,12 @@ class Database:
             (user_id, second_user, beatmap_id)
         ).fetchone()
 
+    def get_beatmap_data(self, beatmap_id):
+        return self.cursor.execute(
+            "SELECT * FROM beatmaps WHERE beatmap_id=?",
+            (beatmap_id,)
+        ).fetchone()
+
     def get_total_snipes(self, main_user_id):
         return self.cursor.execute(
             "SELECT * FROM snipes WHERE second_user_id=?",

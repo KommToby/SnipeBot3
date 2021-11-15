@@ -66,7 +66,7 @@ class SnipeTracker:
                         if await self.date_more_recent_than(friend_date, main_date):
                             if friend_play['score']['score'] > main_play['score']['score']:
                                 if not(self.database.get_user_snipes(friend[1], play['beatmap']['id'], user[1])):
-                                    if str(play['user']['id']) == str(friend[1]) and str(play['score']) == str(friend_play['score']['score'] and friendstatus == False):
+                                    if str(play['user']['id']) == str(friend[1]) and str(play['score']) == str(friend_play['score']['score']) and friendstatus is False:
                                         await self.post_friend_snipe(main_play['score'], friend_play['score'], (user[1],))
                                     else:
                                         print(f"        [1] Passive Snipe By {friend_play['score']['user']['username']} against {main_play['score']['user']['username']}")
@@ -74,7 +74,7 @@ class SnipeTracker:
                         else:
                             if main_play['score']['score'] > friend_play['score']['score']:
                                 if not(self.database.get_user_snipes(user[1], play['beatmap']['id'], friend[1])):    
-                                    print(f"          [2] Passive Snipe By {main_play['score']['user']['username']} against {friend_play['score']['user']['username']}")
+                                    print(f"        [2] Passive Snipe By {main_play['score']['user']['username']} against {friend_play['score']['user']['username']}")
                                     self.database.add_snipe(user[1], play['beatmap']['id'], friend[1])
 
     async def add_single_snipe(self, play):

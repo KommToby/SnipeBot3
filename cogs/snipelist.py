@@ -23,12 +23,17 @@ class Snipelist(commands.Cog): # must have commands.cog or this wont work
             beatmaps = []
             links = []
             for got_sniped in sniped:
+                add = True
                 for snipe in snipes:
-                    if snipe[1] != got_sniped[1]:
-                        beatmap = self.database.get_beatmap_data(got_sniped[1])
-                        if beatmap[4] not in links:
-                            beatmaps.append(f"{beatmap[1]} - {beatmap[2]} [{beatmap[3]}]")
-                            links.append(beatmap[4])
+                    if snipe[1] != got_sniped[1] and add is not False:
+                        add = True
+                    else:
+                        add = False
+                if add == True:
+                    beatmap = self.database.get_beatmap_data(got_sniped[1])
+                    if beatmap[4] not in links:
+                        beatmaps.append(f"{beatmap[1]} - {beatmap[2]} [{beatmap[3]}]")
+                        links.append(beatmap[4])
             while len(beatmaps) > 10:
                 index = random.randint(0, len(beatmaps)-1)
                 beatmaps.pop(index)

@@ -67,7 +67,7 @@ class SnipeTracker:
                         if await self.date_more_recent_than(friend_date, main_date):
                             if friend_play['score']['score'] > main_play['score']['score']:
                                 if not(self.database.get_user_snipes(friend[1], play['beatmap']['id'], user[1])):
-                                    print(f"Passive Snipe By {main_play['user']['username']} against {friend_play['user']['username']}")
+                                    print(f"Passive Snipe By {main_play['score']['user']['username']} against {friend_play['score']['user']['username']}")
                                     self.database.add_snipe(friend[1], play['beatmap']['id'], user[1])
                         else:
                             if main_play['score']['score'] > friend_play['score']['score']:

@@ -68,8 +68,8 @@ async def create_profile_embed(user):
         color=discord.Colour.red()
     )
     embed.description = \
-        f"""**Rank**: {user['statistics']['global_rank']:,}
-**Country Rank**: {user['statistics']['country_rank']:,}
+        f"""**Rank**: #{user['statistics']['global_rank']:,} **Weighted pp**: {round(user['statistics']['pp']):,}
+**Country Rank**: #{user['statistics']['country_rank']:,}
 **Accuracy**: {round(user['statistics']['hit_accuracy'], 2)}%
 """
     embed.set_author(name="Snipebot 3 by Komm",

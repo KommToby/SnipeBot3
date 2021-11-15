@@ -203,8 +203,8 @@ class SnipeTracker:
                         await self.check_beatmap(play, False)
                         if main_user_play:
                             if int(play['score']) > int(main_user_play['score']['score']):
-                                if not self.database.get_user_snipe_on_beatmap(play['user']['id'], play['beatmap']['id'], main_user[0]):
-                                    await self.post_friend_snipe(main_user_play['score'], play, main_user)
+                                # if not self.database.get_user_snipe_on_beatmap(play['user']['id'], play['beatmap']['id'], main_user[0]):
+                                await self.post_friend_snipe(main_user_play['score'], play, main_user)
         print(f"Snipe loop took {round(time.time() - start_time, 2)} seconds")
 
     async def post_friend_snipe(self, main_user_play, play, main_user):

@@ -66,8 +66,8 @@ class SnipeTracker:
                         if await self.date_more_recent_than(friend_date, main_date):
                             if friend_play['score']['score'] > main_play['score']['score']:
                                 if not(self.database.get_user_snipes(friend[1], play['beatmap']['id'], user[1])):
-                                    if play['user']['id'] == friend[1]:
-                                        await self.post_friend_snipe(main_play, friend_play, user[1])
+                                    if str(play['user']['id']) == str(friend[1]):
+                                        await self.post_friend_snipe(main_play['score'], friend_play['score'], (user[1],))
                                     else:
                                         print(f"          Passive Snipe By {friend_play['score']['user']['username']} against {main_play['score']['user']['username']}")
                                         self.database.add_snipe(friend[1], play['beatmap']['id'], user[1])
@@ -146,7 +146,7 @@ class SnipeTracker:
 
     @tasks.loop(seconds=30.0)
     async def tracker_loop(self):
-        await self.scan_top() # UNCOMMENT THIS WHEN RESETTING EVERYTHING AND RUN ONCE
+        # await self.scan_top() # UNCOMMENT THIS WHEN RESETTING EVERYTHING AND RUN ONCE
         start_time = time.time()
         users = self.database.get_all_users()
         for data in users:
@@ -204,17 +204,17 @@ class SnipeTracker:
                         if main_user_play:
                             if int(play['score']) > int(main_user_play['score']['score']):
                                 if not self.database.get_user_snipe_on_beatmap(play['user']['id'], play['beatmap']['id'], main_user[0]):
-                                    await self.post_friend_snipe(main_user_play, play, main_user)
+                                    await self.post_friend_snipe(main_user_play['score'], play, main_user)
         print(f"Snipe loop took {round(time.time() - start_time, 2)} seconds")
 
     async def post_friend_snipe(self, main_user_play, play, main_user):
-        main_user_username = main_user_play['score']['user']['username']
-        self.database.add_snipe(play['score']['user']['id'], play['score']['beatmap']['id'], main_user[0])
-        discord_channel = self.database.get_main_discord(main_user)
+        main_user_username = main_user_play['user']['username']
+        self.database.add_snipe(play['user']['id'], play['beatmap']['id'], main_user[0])
+        discord_channel = self.database.get_main_discord(main_user[0])
         channel = self.bot.get_channel(int(discord_channel[0]))
-        print(f"Posting snipe by {play['score']['user']['username']} against {main_user_username}")
-        beatmap_data = await self.osu.get_beatmap(main_user_play['score']['beatmap']['id'])
-        await channel.send(embed=create_snipe_embed(play['score'], main_user_username, beatmap_data))
+        print(f"Posting snipe by {play['user']['username']} against {main_user_username}")
+        beatmap_data = await self.osu.get_beatmap(main_user_play['beatmap']['id'])
+        await channel.send(embed=create_snipe_embed(play, main_user_username, beatmap_data))
 
 
     @tracker_loop.before_loop

@@ -69,3 +69,5 @@ class OsuAuth:
     async def get_user_scores(self, user_id: str):
         return await self.get_api_v2(f"users/{user_id}/scores/best")
 
+    async def get_beatmap(self, beatmap_id: str):
+        return await self.get_api_v2(f"beatmaps/{beatmap_id}")

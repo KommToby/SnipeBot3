@@ -82,6 +82,12 @@ class Database:
             (user_id, beatmap_id)
         ).fetchone()
 
+    def get_user_beatmap_play_score(self, user_id, beatmap_id, score):
+        return self.cursor.execute(
+            "SELECT * FROM scores WHERE user_id=? AND beatmap_id=? AND score=?",
+            (user_id, beatmap_id, score)
+        ).fetchone()
+
     def get_single_user_snipes(self, user_id, main_user_id):
         return self.cursor.execute(
             "SELECT * FROM snipes WHERE user_id=? AND second_user_id=?",
@@ -196,8 +202,8 @@ class Database:
 
     def add_friend(self, discord_id, friend_id):
         self.cursor.execute(
-            "INSERT INTO friends VALUES(?,?,?,?,?,?)",
-            (discord_id, friend_id, 0, 0, 0, 0)  # second 0 = no ping on snipe
+            "INSERT INTO friends VALUES(?,?,?,?)",
+            (discord_id, friend_id, 0, 0)  # second 0 = no ping on snipe
         )
         self.db.commit()
 

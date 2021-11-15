@@ -38,21 +38,21 @@ class SnipeTracker:
         for friend in friends:
             friend_data = await self.osu.get_user_scores(friend[1])
             for score in friend_data:
-                await self.check_beatmap(score)
+                await self.check_beatmap(score, True)
 
     async def scan_single_top(self, userid):
         friend_data = await self.osu.get_user_scores(userid)
         for score in friend_data:
-            await self.check_beatmap(score)
+            await self.check_beatmap(score, True)
 
-    async def check_beatmap(self, play): # passive tracking
+    async def check_beatmap(self, play, friend): # passive tracking
         if not(self.database.get_beatmap(str(play['beatmap']['id']))): # if beatmap isnt in the db
             self.database.add_beatmap(str(play['beatmap']['id']), play['beatmapset']['artist'], play['beatmapset']['title'], play['beatmap']['version'], play['beatmap']['url'])
-            await self.add_snipes(play)
+            await self.add_snipes(play, friend)
         else:
             pass
 
-    async def add_snipes(self, play):        
+    async def add_snipes(self, play, friend):        
         main_users = self.database.get_all_users()
         for _, user in enumerate(main_users):
             main_play = await self.osu.get_score_data(play['beatmap']['id'], user[1])
@@ -66,7 +66,7 @@ class SnipeTracker:
                         if await self.date_more_recent_than(friend_date, main_date):
                             if friend_play['score']['score'] > main_play['score']['score']:
                                 if not(self.database.get_user_snipes(friend[1], play['beatmap']['id'], user[1])):
-                                    if str(play['user']['id']) == str(friend[1]):
+                                    if str(play['user']['id']) == str(friend[1]) and str(play['score']) == str(friend_play['score']['score'] and friend):
                                         await self.post_friend_snipe(main_play['score'], friend_play['score'], (user[1],))
                                     else:
                                         print(f"          Passive Snipe By {friend_play['score']['user']['username']} against {main_play['score']['user']['username']}")
@@ -146,7 +146,7 @@ class SnipeTracker:
 
     @tasks.loop(seconds=30.0)
     async def tracker_loop(self):
-        # await self.scan_top() # UNCOMMENT THIS WHEN RESETTING EVERYTHING AND RUN ONCE
+        await self.scan_top() # UNCOMMENT THIS WHEN RESETTING EVERYTHING AND RUN ONCE
         start_time = time.time()
         users = self.database.get_all_users()
         for data in users:
@@ -200,7 +200,7 @@ class SnipeTracker:
                         else:
                             self.database.add_score(str(friend_data['id']), str(play['beatmap']['id']), str(play['score']),
                                                     0)
-                        await self.check_beatmap(play)
+                        await self.check_beatmap(play, False)
                         if main_user_play:
                             if int(play['score']) > int(main_user_play['score']['score']):
                                 if not self.database.get_user_snipe_on_beatmap(play['user']['id'], play['beatmap']['id'], main_user[0]):

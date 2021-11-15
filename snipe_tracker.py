@@ -52,7 +52,7 @@ class SnipeTracker:
         else:
             pass
 
-    async def add_snipes(self, play, friend):        
+    async def add_snipes(self, play, friendstatus):        
         main_users = self.database.get_all_users()
         for _, user in enumerate(main_users):
             main_play = await self.osu.get_score_data(play['beatmap']['id'], user[1])
@@ -66,7 +66,7 @@ class SnipeTracker:
                         if await self.date_more_recent_than(friend_date, main_date):
                             if friend_play['score']['score'] > main_play['score']['score']:
                                 if not(self.database.get_user_snipes(friend[1], play['beatmap']['id'], user[1])):
-                                    if str(play['user']['id']) == str(friend[1]) and str(play['score']) == str(friend_play['score']['score'] and friend):
+                                    if str(play['user']['id']) == str(friend[1]) and str(play['score']) == str(friend_play['score']['score'] and not(friendstatus)):
                                         await self.post_friend_snipe(main_play['score'], friend_play['score'], (user[1],))
                                     else:
                                         print(f"          Passive Snipe By {friend_play['score']['user']['username']} against {main_play['score']['user']['username']}")
@@ -146,7 +146,7 @@ class SnipeTracker:
 
     @tasks.loop(seconds=30.0)
     async def tracker_loop(self):
-        await self.scan_top() # UNCOMMENT THIS WHEN RESETTING EVERYTHING AND RUN ONCE
+        # await self.scan_top() # UNCOMMENT THIS WHEN RESETTING EVERYTHING AND RUN ONCE
         start_time = time.time()
         users = self.database.get_all_users()
         for data in users:

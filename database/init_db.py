@@ -88,6 +88,12 @@ class Database:
             (user_id, beatmap_id, score)
         ).fetchone()
 
+    def get_all_scores(self, user_id):
+        return self.cursor.execute(
+            "SELECT * FROM scores WHERE user_id=?",
+            (user_id,)
+        ).fetchall()
+
     def get_single_user_snipes(self, user_id, main_user_id):
         return self.cursor.execute(
             "SELECT * FROM snipes WHERE user_id=? AND second_user_id=?",

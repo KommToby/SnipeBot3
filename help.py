@@ -9,7 +9,8 @@ class Help(commands.HelpCommand): # must have commands.cog or this wont work
 
     async def send_bot_help(self, mapping): # all cogs
         for cog in mapping:
-            await self.get_destination().send(f'{cog.qualified_name}: {[command.name for command in mapping[cog]]}')
+            if cog is not None:
+                await self.get_destination().send(f'{cog.qualified_name}: {[command.name for command in mapping[cog]]}')
     
     async def send_cog_help(self, cog): # specific cog
         await self.get_destination().send(f'{cog.qualified_name}: {[command.name for command in cog.get_commands()]}')

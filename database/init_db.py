@@ -94,6 +94,18 @@ class Database:
             (user_id, main_user_id)
         ).fetchall()
 
+    def get_user_snipe(self, user_id, beatmap_id):
+        return self.cursor.execute(
+            "SELECT * FROM snipes WHERE user_id=? AND beatmap_id=?",
+            (user_id, beatmap_id)
+        ).fetchall()
+
+    def get_user_sniped(self, user_id, beatmap_id):
+        return self.cursor.execute(
+            "SELECT * FROM snipes WHERE second_user_id=? AND beatmap_id=?",
+            (user_id, beatmap_id)
+        ).fetchall()
+
     def get_user_snipes(self, user_id, beatmap_id, second_user):
         # if theres a bug with this, try naming the function to the one above which doesnt require second user
         return self.cursor.execute(

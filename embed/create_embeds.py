@@ -20,7 +20,7 @@ async def create_friend_leaderboard(leaderboard, main_user_name, main_snipes, ma
                             value=friend_description, inline=False)
     return embed  
 
-async def create_snipes_embed(user, snipes, sniped, total, play, sniped_play):
+async def create_snipes_embed(user, snipes, sniped, total, play, sniped_play, position):
     snipes = len(snipes)
     sniped = len(sniped)
     total = len(total)
@@ -38,7 +38,7 @@ async def create_snipes_embed(user, snipes, sniped, total, play, sniped_play):
     flag = "https://osu.ppy.sh/images/flags/" + \
     user['country_code']+".png"
 
-    titlemessage = "Snipe Stats For "+user['username']
+    titlemessage = f"Snipe Stats For {user['username']} (#{position})"
     if sniped == 0:
         sniped = ('0')
     description = "**● Number of Snipes: **" + \

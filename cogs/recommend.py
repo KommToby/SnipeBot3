@@ -13,7 +13,6 @@ class Recommend(commands.Cog): # must have commands.cog or this wont work
         self.osu = AUTH
 
     @commands.command(aliases=['r'])
-    @commands.has_permissions(administrator=True)
     async def recommend(self, ctx, user_id : str):
         main_user = self.database.get_main_from_discord(ctx.channel.id)
         main_user = main_user[0]
@@ -37,17 +36,20 @@ class Recommend(commands.Cog): # must have commands.cog or this wont work
                         if beatmap[4] not in links:
                             beatmaps.append(f"{beatmap[1]} - {beatmap[2]} [{beatmap[3]}]")
                             links.append(beatmap[4])
-                index = random.randint(0, len(beatmaps)-1)
-                send_message = "**__Random map recommendation for "+str(user_data['username'])+"__**\n"
-                send_message += "`" + str(beatmaps[index]) + "`\n<" + str(links[index]) + ">\n"
-                await ctx.send(send_message)
+                if len(beatmaps) > 0:
+                    index = random.randint(0, len(beatmaps)-1)
+                    send_message = "**__Random map recommendation for "+str(user_data['username'])+"__**\n"
+                    send_message += "`" + str(beatmaps[index]) + "`\n<" + str(links[index]) + ">\n"
+                    await ctx.send(send_message)
+                else:
+                    await ctx.send("No recommendations at this time. Play some more maps and try again later.")
 
 
 
     @recommend.error
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send('Usage: `-recommend "username`') 
+            await ctx.send('Usage: `-recommend "username"`') 
 
 def setup(client):
     client.add_cog(Recommend(client))

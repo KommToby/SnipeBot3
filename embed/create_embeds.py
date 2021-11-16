@@ -38,7 +38,7 @@ async def create_snipes_embed(user, snipes, sniped, total, play, sniped_play, po
     flag = "https://osu.ppy.sh/images/flags/" + \
     user['country_code']+".png"
 
-    titlemessage = f"Snipe Stats For {user['username']} (#{position})"
+    titlemessage = f"Snipe Stats For {user['username']} (#{position+1})"
     if sniped == 0:
         sniped = ('0')
     description = "**● Number of Snipes: **" + \

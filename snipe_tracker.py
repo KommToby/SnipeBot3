@@ -51,7 +51,7 @@ class SnipeTracker:
             await self.add_snipes(play, friend)
         else:
             if not(self.database.get_user_snipe(play['user']['id'], play['beatmap']['id'])): # if this user doesnt have a snipe on the beatmap
-                if not(self.database.get_user_sniped(play['user']['id'], play['beatmap']['id'])):
+                if not(self.database.get_user_sniped(play['user']['id'], play['beatmap']['id'])): # and they have also never been sniped on the beatmap
                     await self.add_snipes(play, friend) # also do passive tracking
 
     async def add_snipes(self, play, friendstatus):        
@@ -210,8 +210,10 @@ class SnipeTracker:
                                     else:
                                         local_play = self.database.get_user_beatmap_play(play['user']['id'], play['beatmap']['id'])
                                         if str(play['score']) > str(local_play[2]):
-                                            self.database.replace_user_play(play['user']['id'], play['beatmap']['id'], play['score'])
-                                            await self.post_friend_snipe(main_user_play['score'], play, main_user)
+                                            friend_online_play = await self.osu.get_score_data(play['beatmap']['id'],friend_data['id'])
+                                            if str(play['score'] > str(friend_online_play['score']['score'])):
+                                                self.database.replace_user_play(play['user']['id'], play['beatmap']['id'], play['score'])
+                                                await self.post_friend_snipe(main_user_play['score'], play, main_user)
 
         print(f"Snipe loop took {round(time.time() - start_time, 2)} seconds")
 

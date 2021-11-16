@@ -198,7 +198,7 @@ class SnipeTracker:
                         if friend_play:
                             if play['score'] > int(friend_play[2]):
                                 await self.database.replace_user_play(friend_play[0], friend_play[1], play['score'])
-                        await self.check_beatmap(play, False)
+                        await self.check_beatmap(play, True)
                         if main_user_play:
                             if int(play['score']) > int(main_user_play['score']['score']):
                                 if not self.database.get_user_beatmap_play_score(play['user']['id'], play['beatmap']['id'], play['score']):

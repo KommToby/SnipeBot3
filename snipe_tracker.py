@@ -195,13 +195,14 @@ class SnipeTracker:
                 main_user_id = f"{main_user[0]}"
                 recent_plays = await self.osu.get_recent_plays(user_id)
                 if recent_plays:
-                    for play in recent_plays:
+                    for play in recent_plays: # For friends play in friends recent plays
                         beatmap_id = f"{play['beatmap']['id']}"
                         main_user_play = await self.osu.get_score_data(beatmap_id, main_user_id)
                         friend_play = self.database.get_user_beatmap_play(f"{friend_data['id']}", beatmap_id)
-                        if friend_play:
-                            if play['score'] > int(friend_play[2]):
-                                await self.database.replace_user_play(friend_play[0], friend_play[1], play['score'])
+                        # if friend_play:
+                        #     if play['score'] > int(friend_play[2]):
+                        #         await self.database.replace_user_play(friend_play[0], friend_play[1], play['score'])
+                        # above is uncommented because it replaces user on line 218 and if their online score is bigger than their local then it must be a snipe right?
                         await self.check_beatmap(play, True)
                         if main_user_play:
                             if int(play['score']) > int(main_user_play['score']['score']):

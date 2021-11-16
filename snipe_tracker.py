@@ -52,7 +52,9 @@ class SnipeTracker:
         else:
             if not(self.database.get_user_snipe(play['user']['id'], play['beatmap']['id'])): # if this user doesnt have a snipe on the beatmap
                 if not(self.database.get_user_sniped(play['user']['id'], play['beatmap']['id'])): # and they have also never been sniped on the beatmap
-                    await self.add_snipes(play, friend) # also do passive tracking
+                    if not(self.database.get_user_beatmap_play_score(play['user']['id'], play['beatmap']['id'], play['score'])):
+                        self.database.add_score(play['user_id'], play['beatmap']['id'], play['score'], 0)
+                        await self.add_snipes(play, friend) # also do passive tracking
 
     async def add_snipes(self, play, friendstatus):        
         main_users = self.database.get_all_users()

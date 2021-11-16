@@ -203,6 +203,11 @@ class Database:
             (discord_id,)
         ).fetchone()
 
+    def get_all_snipes(self):
+        return self.cursor.execute(
+            "SELECT * FROM snipes"
+        ).fetchall()
+
     # ADDS
 
     def add_score(self, user_id, beatmap_id, score, snipe):
@@ -247,6 +252,14 @@ class Database:
         self.cursor.execute(
             "UPDATE scores SET score=? WHERE user_id=? AND beatmap_id=?",
             (new_score, user_id, beatmap_id)
+        )
+        self.db.commit()
+
+    # DELETES
+    def delete_snipe(self, user_id, beatmap_id, second_user_id):
+        self.cursor.execute(
+            "DELETE FROM snipes WHERE user_id=? AND beatmap_id=? AND second_user_id=?",
+            (user_id, beatmap_id, second_user_id)
         )
         self.db.commit()
 

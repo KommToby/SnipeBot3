@@ -17,33 +17,35 @@ class MainRecommend(commands.Cog): # must have commands.cog or this wont work
     @commands.has_permissions(administrator=True)
     async def main_recommend(self, ctx, user_id : str):
         user_data = await self.osu.get_user_data(user_id)
-        username = user_data['username']
         userid = user_data['id']
-        friends = self.database.get_user_friends(userid)
         beatmaps = []
         links = []
+        friends = []
         if user_data:
-            if friends:
-                for friend in friends:
-                    main_scores = self.database.get_all_scores(userid)
-                    friend_scores = self.database.get_all_scores(friend[1])
-                    for score in main_scores:
+            all_scores = self.database.get_scores()
+            main_scores = self.database.get_all_scores(userid)
+            for score in all_scores:
+                add = True
+                for main_score in main_scores:
+                    if main_score[1] != score[1] and add is not False:
                         add = True
-                        for friend_score in friend_scores:
-                            if score[1] != friend_score[1] and add is not False:
-                                add = True
-                            else:
-                                add = False
-                        if add is True:
-                            beatmap = self.database.get_beatmap_data(score[1])
-                            if beatmap[4] not in links:
-                                beatmaps.append(f"{beatmap[1]} - {beatmap[2]} [{beatmap[3]}]")
-                                links.append(beatmap[4])
-                if len(beatmaps) > 0:
-                    embed = await create_embeds.create_recommendation_embed(beatmaps, user_data, links, ctx)
-                    await ctx.send(embed=embed)
-                else:
-                    await ctx.send("No recommendations at this time. Play some more maps and try again later.")
+                    else:
+                        add = False
+                if add is True:
+                    if not(self.database.get_user_beatmap_play(userid, score[1])):
+                        beatmap = self.database.get_beatmap_data(score[1])
+                        if beatmap[4] not in links:
+                            beatmaps.append(f"{beatmap[1]} - {beatmap[2]} [{beatmap[3]}]")
+                            links.append(beatmap[4])
+                            friends.append(score[0])
+            if len(beatmaps) > 0:
+                index = random.randint(0, len(beatmaps)-1)
+                frienddata = await self.osu.get_user_data(friends[index])
+                friend_name = frienddata['username']
+                embed = await create_embeds.create_recommendation_embed(beatmaps, user_data, links, ctx, friend_name, index)
+                await ctx.send(embed=embed)
+            else:
+                await ctx.send("No recommendations at this time. Play some more maps and try again later.")
 
 
 

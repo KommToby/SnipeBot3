@@ -24,8 +24,16 @@ async def create_friend_leaderboard(leaderboard, main_user_name, main_snipes, ma
 async def create_recommendation_embed(beatmaps, user_data, links, ctx):
     index = random.randint(0, len(beatmaps)-1)
     send_message = "**__Random map recommendation for "+str(user_data['username'])+"__**\n"
-    split = str(links[index]).split("/")
-    beatmap_id = split[len(split)-1]
+
+    embed = discord.Embed(
+        title=send_message,
+        color=discord.Color.purple()
+    )
+    embed.add_field(name=str(beatmaps[index]), value="[Link to map]("+(str(links[index]))+")")
+    return embed
+
+async def create_recommendation_embed(beatmaps, user_data, links, ctx, friend, index):
+    send_message = "**__Random map recommendation for "+str(user_data['username'])+" played by "+str(friend)+"__**\n"
 
     embed = discord.Embed(
         title=send_message,

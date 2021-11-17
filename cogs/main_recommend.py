@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from database.init_db import Database
 from snipebot import DATABASE, AUTH, snipe_bot_tracker
+from embed import create_embeds
 import random
 
 
@@ -39,10 +40,8 @@ class MainRecommend(commands.Cog): # must have commands.cog or this wont work
                                 beatmaps.append(f"{beatmap[1]} - {beatmap[2]} [{beatmap[3]}]")
                                 links.append(beatmap[4])
                 if len(beatmaps) > 0:
-                    index = random.randint(0, len(beatmaps)-1)
-                    send_message = "**__Random map recommendation for "+str(user_data['username'])+"__**\n"
-                    send_message += "`" + str(beatmaps[index]) + "`\n<" + str(links[index]) + ">\n"
-                    await ctx.send(send_message)
+                    embed = await create_embeds.create_recommendation_embed(beatmaps, user_data, links, ctx)
+                    await ctx.send(embed=embed)
                 else:
                     await ctx.send("No recommendations at this time. Play some more maps and try again later.")
 

@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+import random
 
 async def create_friend_leaderboard(leaderboard, main_user_name, main_snipes, main_sniped):
     title_message = "Snipe Leaderboard for " + main_user_name + ": " + str(main_snipes) + " | " + str(main_sniped)
@@ -19,6 +20,19 @@ async def create_friend_leaderboard(leaderboard, main_user_name, main_snipes, ma
             embed.add_field(name=friend_message,
                             value=friend_description, inline=False)
     return embed  
+
+async def create_recommendation_embed(beatmaps, user_data, links, ctx):
+    index = random.randint(0, len(beatmaps)-1)
+    send_message = "**__Random map recommendation for "+str(user_data['username'])+"__**\n"
+    split = str(links[index]).split("/")
+    beatmap_id = split[len(split)-1]
+
+    embed = discord.Embed(
+        title=send_message,
+        color=discord.Color.purple()
+    )
+    embed.add_field(name=str(beatmaps[index]), value="[Link to map]("+(str(links[index]))+")")
+    return embed
 
 async def create_snipes_embed(user, snipes, sniped, total, play, sniped_play, position):
     snipes = len(snipes)

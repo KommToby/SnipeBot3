@@ -9,7 +9,7 @@ import os
 
 from discord.ext import commands
 
-from osu import osu_auth
+from osuauth import osu_auth
 from help import Help
 from database import init_db
 from snipe_tracker import SnipeTracker

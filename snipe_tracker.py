@@ -2,7 +2,7 @@ import time
 
 from discord.ext import tasks
 
-from osu.osu_auth import OsuAuth
+from osuauth.osu_auth import OsuAuth
 from database.init_db import Database
 from embed.create_embeds import *
 
@@ -225,7 +225,7 @@ class SnipeTracker:
                                         if str(play['score']) > str(local_play[2]):
                                             friend_online_play = await self.osu.get_score_data(play['beatmap']['id'],friend_data['id'])
                                             if str(play['score']) > str(friend_online_play['score']['score']):
-                                                self.database.replace_user_play(play['user']['id'], play['beatmap']['id'], play['score'])
+                                                await self.database.replace_user_play(play['user']['id'], play['beatmap']['id'], play['score'])
                                                 if not(self.database.get_user_snipe_on_beatmap(play['user']['id'], main_user_play['score']['beatmap']['id'], main_user_play['score']['user']['id'])):
                                                     await self.post_friend_snipe(main_user_play['score'], play, main_user)
 

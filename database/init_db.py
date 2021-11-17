@@ -1,5 +1,5 @@
 import sqlite3
-from osu.osu_auth import OsuAuth
+from osuauth.osu_auth import OsuAuth
 
 
 class Database:

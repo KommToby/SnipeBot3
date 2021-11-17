@@ -203,7 +203,7 @@ class SnipeTracker:
                         #     if play['score'] > int(friend_play[2]):
                         #         await self.database.replace_user_play(friend_play[0], friend_play[1], play['score'])
                         # above is uncommented because it replaces user on line 218 and if their online score is bigger than their local then it must be a snipe right?
-                        await self.check_beatmap(play, True)
+                        await self.check_beatmap(play, False)
                         if main_user_play:
                             if int(play['score']) > int(main_user_play['score']['score']):
                                 if not self.database.get_user_beatmap_play_score(play['user']['id'], play['beatmap']['id'], play['score']):
@@ -216,7 +216,8 @@ class SnipeTracker:
                                             friend_online_play = await self.osu.get_score_data(play['beatmap']['id'],friend_data['id'])
                                             if str(play['score']) > str(friend_online_play['score']['score']):
                                                 self.database.replace_user_play(play['user']['id'], play['beatmap']['id'], play['score'])
-                                                await self.post_friend_snipe(main_user_play['score'], play, main_user)
+                                                if not(self.database.get_user_snipe_on_beatmap(play['user']['id'], main_user_play['score']['beatmap']['id'], main_user_play['score']['user']['id'])):
+                                                    await self.post_friend_snipe(main_user_play['score'], play, main_user)
 
         print(f"Snipe loop took {round(time.time() - start_time, 2)} seconds")
 

@@ -28,7 +28,7 @@ class CheckScores(commands.Cog): # must have commands.cog or this wont work
                         check = True
                     else:
                         check = False
-                if check == True and i > 21:
+                if check == True:
                     print(f"checking map id {score[1]}")
                     if not(self.database.get_user_beatmap_play(friend[1], score[1])): # if user does not have score saved for beatmap
                         friend_score = await self.osu.get_score_data(score[1], friend[1])

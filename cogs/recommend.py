@@ -28,8 +28,11 @@ class Recommend(commands.Cog): # must have commands.cog or this wont work
                 for score in main_scores:
                     add = True
                     for user_score in user_scores:
-                        if score[1] != user_score[1] and add is not False:
-                            add = True
+                        if str(score[2]) != "0":
+                            if str(score[1]) != str(user_score[1]) and add is not False:
+                                add = True
+                            else:
+                                add = False
                         else:
                             add = False
                     if add is True:
@@ -38,7 +41,7 @@ class Recommend(commands.Cog): # must have commands.cog or this wont work
                             beatmaps.append(f"{beatmap[1]} - {beatmap[2]} [{beatmap[3]}]")
                             links.append(beatmap[4])
                 if len(beatmaps) > 0:
-                    embed = await create_embeds.create_recommendation_embed(beatmaps, user_data, links, ctx)
+                    embed = await create_embeds.create_recommendation_embed2(beatmaps, user_data, links, ctx)
                     await ctx.send(embed=embed)
                 else:
                     await ctx.send("No recommendations at this time. Play some more maps and try again later.")

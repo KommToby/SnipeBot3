@@ -78,9 +78,27 @@ class Database:
 
     def get_user_beatmap_play(self, user_id, beatmap_id):
         return self.cursor.execute(
+            "SELECT * FROM scores WHERE user_id=? AND beatmap_id=? AND score!=?",
+            (user_id, beatmap_id, "0")
+        ).fetchone()
+
+    def get_user_beatmap_play_with_zeros(self, user_id, beatmap_id):
+        return self.cursor.execute(
             "SELECT * FROM scores WHERE user_id=? AND beatmap_id=?",
             (user_id, beatmap_id)
         ).fetchone()
+
+    def get_user_beatmap_plays(self, user_id, beatmap_id):
+        return self.cursor.execute(
+            "SELECT * FROM scores WHERE user_id=? AND beatmap_id=? AND score!=?",
+            (user_id, beatmap_id, "0")
+        ).fetchall()
+
+    def get_user_plays_from_beatmap(self, beatmap_id):
+        return self.cursor.execute(
+            "SELECT * FROM scores WHERE beatmap_id=? AND score!=?",
+            (beatmap_id, "0")
+        ).fetchall()
 
     def get_user_beatmap_play_score(self, user_id, beatmap_id, score):
         return self.cursor.execute(
@@ -271,6 +289,13 @@ class Database:
         self.cursor.execute(
             "DELETE FROM snipes WHERE user_id=? AND beatmap_id=? AND second_user_id=?",
             (user_id, beatmap_id, second_user_id)
+        )
+        self.db.commit()
+
+    def delete_score(self, user_id, beatmap_id, score):
+        self.cursor.execute(
+            "DELETE FROM scores WHERE user_id=? AND beatmap_id=? AND score=?",
+            (user_id, beatmap_id, score)
         )
         self.db.commit()
 

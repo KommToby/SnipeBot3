@@ -21,7 +21,7 @@ async def create_friend_leaderboard(leaderboard, main_user_name, main_snipes, ma
                             value=friend_description, inline=False)
     return embed  
 
-async def create_recommendation_embed(beatmaps, user_data, links, ctx):
+async def create_recommendation_embed2(beatmaps, user_data, links, ctx):
     index = random.randint(0, len(beatmaps)-1)
     send_message = "**__Random map recommendation for "+str(user_data['username'])+"__**\n"
 
@@ -33,13 +33,19 @@ async def create_recommendation_embed(beatmaps, user_data, links, ctx):
     return embed
 
 async def create_recommendation_embed(beatmaps, user_data, links, ctx, friend, index):
-    send_message = "**__Random map recommendation for "+str(user_data['username'])+" played by "+str(friend)+"__**\n"
+    if friend == "largestnum":
+        send_message = "**__map recommendation for "+str(user_data['username'])+"__**\n"
+    else:
+        send_message = "**__Random map recommendation for "+str(user_data['username'])+" played by "+str(friend)+"__**\n"
 
     embed = discord.Embed(
         title=send_message,
         color=discord.Color.purple()
     )
-    embed.add_field(name=str(beatmaps[index]), value="[Link to map]("+(str(links[index]))+")")
+    if friend == "largestnum":
+        embed.add_field(name=str(beatmaps), value="[Link to map]("+(str(links[index]))+")")
+    else:
+        embed.add_field(name=str(beatmaps[index]), value="[Link to map]("+(str(links[index]))+")")
     return embed
 
 async def create_snipes_embed(user, snipes, sniped, total, play, sniped_play, position):

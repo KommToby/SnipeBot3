@@ -77,7 +77,7 @@ class SnipeTracker:
                                     else:
                                         play_date = await self.convert_date(play['created_at'])
                                         # below if is if their snipe exists, but they have made a better snipe
-                                        if self.date_more_recent_than(play_date, friend_date) and str(play['user']['id']) == str(friend[1]):
+                                        if await self.date_more_recent_than(play_date, friend_date) and str(play['user']['id']) == str(friend[1]):
                                             if play['score'] > main_play['score']['score']:
                                                 await self.post_friend_snipe(main_play['score'], play, (user[1],))
                                                 print("Line 82 post")

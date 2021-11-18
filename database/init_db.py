@@ -112,6 +112,12 @@ class Database:
             (user_id,)
         ).fetchall()
 
+    def get_scores_from_beatmap(self, beatmap_id):
+        return self.cursor.execute(
+            "SELECT * FROM scores WHERE beatmap_id=?",
+            (beatmap_id,)
+        ).fetchall()
+
     def get_scores(self):
         return self.cursor.execute(
             "SELECT * FROM scores"
@@ -296,6 +302,13 @@ class Database:
         self.cursor.execute(
             "DELETE FROM scores WHERE user_id=? AND beatmap_id=? AND score=?",
             (user_id, beatmap_id, score)
+        )
+        self.db.commit()
+
+    def delete_beatmap(self, beatmap_id):
+        self.cursor.execute(
+            "DELETE FROM beatmaps WHERE beatmap_id=?",
+            (beatmap_id,)
         )
         self.db.commit()
 

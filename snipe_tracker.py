@@ -210,7 +210,7 @@ class SnipeTracker:
                 if recent_plays: # friend recent plays
                     for play in recent_plays: # For friends play in friends recent plays
                         beatmap_id = f"{play['beatmap']['id']}"
-                        main_user_play = await self.osu.get_score_data(beatmap_id, main_user_id)
+                        main_user_play = await self.osu.get_score_data(beatmap_id, main_user_id)#
                         if main_user_play:
                             await self.check_beatmap(play, False)
                             if int(play['score']) > int(main_user_play['score']['score']):
@@ -224,7 +224,7 @@ class SnipeTracker:
                                         local_play = self.database.get_user_beatmap_play(play['user']['id'], play['beatmap']['id'])
                                         if str(play['score']) > str(local_play[2]):
                                             friend_online_play = await self.osu.get_score_data(play['beatmap']['id'],friend_data['id'])
-                                            if str(play['score']) > str(friend_online_play['score']['score']):
+                                            if str(play['score']) == str(friend_online_play['score']['score']):
                                                 await self.database.replace_user_play(play['user']['id'], play['beatmap']['id'], play['score'])
                                                 if not(self.database.get_user_snipe_on_beatmap(play['user']['id'], main_user_play['score']['beatmap']['id'], main_user_play['score']['user']['id'])):
                                                     await self.post_friend_snipe(main_user_play['score'], play, main_user)

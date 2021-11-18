@@ -84,13 +84,15 @@ class SnipeTracker:
                                         else:    
                                             print(f"        [1] Passive Snipe By {friend_play['score']['user']['username']} against {main_play['score']['user']['username']}")
                                             self.database.add_snipe(friend[1], play['beatmap']['id'], user[1])
-                                            self.database.add_score(friend[1], play['beatmap']['id'], play['score'], 0)
+                                            if not(self.database.get_user_beatmap_play_score(friend[1], play['beatmap']['id'], play['score'])):
+                                                self.database.add_score(friend[1], play['beatmap']['id'], play['score'], 0)
                         else:
                             if main_play['score']['score'] > friend_play['score']['score']:
                                 if not(self.database.get_user_snipes(user[1], play['beatmap']['id'], friend[1])):    
                                     print(f"        [2] Passive Snipe By {main_play['score']['user']['username']} against {friend_play['score']['user']['username']}")
                                     self.database.add_snipe(user[1], play['beatmap']['id'], friend[1])
-                                    self.database.add_score(user[1], play['beatmap']['id'], main_play['score']['score'], 0)
+                                    if not(self.database.get_user_beatmap_play_score(user[1], play['beatmap']['id'], main_play['score']['score'])):
+                                        self.database.add_score(user[1], play['beatmap']['id'], main_play['score']['score'], 0)
 
     async def add_single_snipe(self, play):
         main_users = self.database.get_all_users()
@@ -208,11 +210,6 @@ class SnipeTracker:
                     for play in recent_plays: # For friends play in friends recent plays
                         beatmap_id = f"{play['beatmap']['id']}"
                         main_user_play = await self.osu.get_score_data(beatmap_id, main_user_id)
-                        # friend_play = self.database.get_user_beatmap_play(f"{friend_data['id']}", beatmap_id)
-                        # if friend_play:
-                        #     if play['score'] > int(friend_play[2]):
-                        #         await self.database.replace_user_play(friend_play[0], friend_play[1], play['score'])
-                        # above is uncommented because it replaces user on line 218 and if their online score is bigger than their local then it must be a snipe right?
                         if main_user_play:
                             await self.check_beatmap(play, False)
                             if int(play['score']) > int(main_user_play['score']['score']):

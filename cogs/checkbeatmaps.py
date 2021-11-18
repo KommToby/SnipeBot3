@@ -19,6 +19,7 @@ class CheckBeatmaps(commands.Cog): # must have commands.cog or this wont work
         beatmaps = self.database.get_all_beatmaps()
         for beatmap in beatmaps:
             if not(self.database.get_scores_from_beatmap(beatmap[0])):
+                self.database.delete_beatmap(beatmap[0])
                 counter += 1
         await ctx.send(f"Removed {counter} beatmaps that were unused")
 

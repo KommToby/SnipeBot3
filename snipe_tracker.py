@@ -89,10 +89,11 @@ class SnipeTracker:
                         else:
                             if main_play['score']['score'] > friend_play['score']['score']:
                                 if not(self.database.get_user_snipes(user[1], play['beatmap']['id'], friend[1])):    
-                                    print(f"        [2] Passive Snipe By {main_play['score']['user']['username']} against {friend_play['score']['user']['username']}")
-                                    self.database.add_snipe(user[1], play['beatmap']['id'], friend[1])
-                                    if not(self.database.get_user_beatmap_play_score(user[1], play['beatmap']['id'], main_play['score']['score'])):
-                                        self.database.add_score(user[1], play['beatmap']['id'], main_play['score']['score'], 0)
+                                    if main_play['score']['score'] > play['score']:
+                                        print(f"        [2] Passive Snipe By {main_play['score']['user']['username']} against {friend_play['score']['user']['username']}")
+                                        self.database.add_snipe(user[1], play['beatmap']['id'], friend[1])
+                                        if not(self.database.get_user_beatmap_play_score(user[1], play['beatmap']['id'], main_play['score']['score'])):
+                                            self.database.add_score(user[1], play['beatmap']['id'], main_play['score']['score'], 0)
 
     async def add_single_snipe(self, play):
         main_users = self.database.get_all_users()

@@ -3,6 +3,7 @@ from discord.ext import commands
 from embed.create_embeds import create_snipes_embed
 from snipebot import DATABASE, AUTH
 import random
+from embed import create_embeds
 
 class Snipelist(commands.Cog): # must have commands.cog or this wont work
 
@@ -35,14 +36,8 @@ class Snipelist(commands.Cog): # must have commands.cog or this wont work
                         if beatmap[4] not in links:
                             beatmaps.append(f"{beatmap[1]} - {beatmap[2]} [{beatmap[3]}]")
                             links.append(beatmap[4])
-                while len(beatmaps) > 10:
-                    index = random.randint(0, len(beatmaps)-1)
-                    beatmaps.pop(index)
-                    links.pop(index)
-                send_message = "**__Scores that "+str(username)+" has not sniped back__**\n"
-                for i, beatmap in enumerate(beatmaps):
-                    send_message += str(i+1) + ". `" + str(beatmap) + "`\n<" + str(links[i]) + ">\n"
-                await ctx.send(send_message)
+                embed = await create_embeds.create_snipelist_embed(beatmaps, username, links)
+                await ctx.send(embed=embed)
             else:
                 "error. wrong channel or bot issue - please contact admin"
 

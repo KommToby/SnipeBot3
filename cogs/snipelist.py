@@ -33,9 +33,12 @@ class Snipelist(commands.Cog): # must have commands.cog or this wont work
                             add = False
                     if add == True:
                         beatmap = self.database.get_beatmap_data(got_sniped[1])
-                        if beatmap[4] not in links:
-                            beatmaps.append(f"{beatmap[1]} - {beatmap[2]} [{beatmap[3]}]")
-                            links.append(beatmap[4])
+                        if beatmap:
+                            if beatmap[4] not in links:
+                                beatmaps.append(f"{beatmap[1]} - {beatmap[2]} [{beatmap[3]}]")
+                                links.append(beatmap[4])
+                            else:
+                                await ctx.send("An error occured. Snipelist may be inaccurate")
                 embed = await create_embeds.create_snipelist_embed(beatmaps, username, links, user_data)
                 await ctx.send(embed=embed)
             else:

@@ -64,7 +64,7 @@ class OsuAuth:
         return await self.get_api_v2(f"beatmaps/{beatmap_id}/scores/users/{user_id}")
 
     async def get_recent_plays(self, user_id: str):
-        return await self.get_api_v2(f"users/{user_id}/scores/recent")
+        return await self.get_api_v2(f"users/{user_id}/scores/recent?mode=osu")
 
     async def get_user_scores(self, user_id: str):
         return await self.get_api_v2(f"users/{user_id}/scores/best")

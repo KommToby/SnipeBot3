@@ -125,6 +125,7 @@ class SnipeTracker:
     async def check_main_beatmap(self, play):
         if not(self.database.get_beatmap(play['beatmap']['id'])): # if beatmap isnt in the db
             self.database.add_beatmap(play['beatmap']['id'], play['beatmapset']['artist'], play['beatmapset']['title'], play['beatmap']['version'], play['beatmap']['url'])        
+            await self.add_snipes(play, False)
 
     async def date_more_recent_than(self, date1, date2):
         if date1['year'] == date2['year']:

@@ -36,7 +36,7 @@ class Snipelist(commands.Cog): # must have commands.cog or this wont work
                         if beatmap[4] not in links:
                             beatmaps.append(f"{beatmap[1]} - {beatmap[2]} [{beatmap[3]}]")
                             links.append(beatmap[4])
-                embed = await create_embeds.create_snipelist_embed(beatmaps, username, links)
+                embed = await create_embeds.create_snipelist_embed(beatmaps, username, links, user_data)
                 await ctx.send(embed=embed)
             else:
                 "error. wrong channel or bot issue - please contact admin"

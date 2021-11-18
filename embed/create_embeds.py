@@ -21,18 +21,26 @@ async def create_friend_leaderboard(leaderboard, main_user_name, main_snipes, ma
                             value=friend_description, inline=False)
     return embed  
 
-async def create_snipelist_embed(beatmaps, username, links):
+async def create_snipelist_embed(beatmaps, username, links, user):
     while len(beatmaps) > 10:
         index = random.randint(0, len(beatmaps)-1)
         beatmaps.pop(index)
         links.pop(index)
-    send_message = "**__Scores that "+str(username)+" has not sniped back__**\n"
+    send_message = "**__Scores that "+str(username)+" has not sniped back__**\n"  
+    
     embed = discord.Embed(
         title=send_message,
         color=discord.Color.orange()
     )
     for i, beatmap in enumerate(beatmaps):
         embed.add_field(name=str(i+1) + ". " + str(beatmap), value="[Link to map](" + str(links[i]) + ")", inline=False)
+    if user['cover_url']:
+        embed.set_image(url=user["cover_url"])
+    if user['avatar_url'][0] == "/":
+        thumbnail = f"https://osu.ppy.sh{user['avatar_url']}"
+    else:
+        thumbnail = user['avatar_url']
+    embed.set_author(name='Snipebot 3 by Komm', icon_url=thumbnail)
     return embed
 
 async def create_recommendation_embed2(beatmaps, user_data, links, ctx):

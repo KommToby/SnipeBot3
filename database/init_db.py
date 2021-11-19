@@ -112,6 +112,12 @@ class Database:
             (user_id,"0")
         ).fetchall()
 
+    def get_user_scores_with_zeros(self, user_id):
+        return self.cursor.execute(
+            "SELECT * FROM scores WHERE user_id=?",
+            (user_id,)
+        ).fetchall()
+
     def get_scores_from_beatmap(self, beatmap_id):
         return self.cursor.execute(
             "SELECT * FROM scores WHERE beatmap_id=?",

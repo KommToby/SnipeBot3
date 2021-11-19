@@ -23,8 +23,8 @@ class CheckScores(commands.Cog): # must have commands.cog or this wont work
         print("checking scores")
         for i, friend in enumerate(friends):
             print("Checking next friend..")
+            await asyncio.sleep(0.001)
             for score in scores:
-                await asyncio.sleep(0.1)
                 check = True
                 for snipe in snipes:
                     if str(score[1]) != str(snipe[0]) and check != False and friend[1] != scores[0]: # if map is not in scores but is in snipes

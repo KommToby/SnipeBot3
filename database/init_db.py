@@ -108,8 +108,8 @@ class Database:
 
     def get_all_scores(self, user_id):
         return self.cursor.execute(
-            "SELECT * FROM scores WHERE user_id=?",
-            (user_id,)
+            "SELECT * FROM scores WHERE user_id=? AND score!=?",
+            (user_id,"0")
         ).fetchall()
 
     def get_scores_from_beatmap(self, beatmap_id):
@@ -120,7 +120,8 @@ class Database:
 
     def get_scores(self):
         return self.cursor.execute(
-            "SELECT * FROM scores"
+            "SELECT * FROM scores WHERE score!=?",
+            ("0",)
         ).fetchall()
 
     def get_single_user_snipes(self, user_id, main_user_id):

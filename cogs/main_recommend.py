@@ -15,11 +15,11 @@ class MainRecommend(commands.Cog): # must have commands.cog or this wont work
 
     @commands.command(aliases=['mr'])
     @commands.has_permissions(administrator=True)
-    async def main_recommend(self, ctx, user_id : str):
-        if user_id == "Komm2":
-            user_data = await self.osu.get_user_data(user_id[:-1])
+    async def main_recommend(self, ctx, *args):
+        if not args:
+            await ctx.send('Usage: `main_recommend "username" -[most/player]') 
         else:
-            user_data = await self.osu.get_user_data(user_id)
+            user_data = await self.osu.get_user_data(args[0])
         if user_data:
             userid = user_data['id']
             beatmaps = []
@@ -73,7 +73,7 @@ class MainRecommend(commands.Cog): # must have commands.cog or this wont work
                                         friends_num.append(friendnum)
 
                 if len(beatmaps) > 0:
-                    if user_id == "Komm2":
+                    if args[1] and args[1].lower() == "-most":
                         maxvalue = max(friends_num)
                         index = friends_num.index(maxvalue)
                         embed = await create_embeds.create_recommendation_embed(beatmaps[index], user_data, links, ctx, "largestnum", index)

@@ -30,6 +30,7 @@ class SnipeTracker:
                 if friend_play['score']['score'] < play['score']:
                     sniped.append(friend_play['score']['user']['username'])
                     if not(self.database.get_user_snipe_on_beatmap(play['user_id'], beatmap_id, user_id)): # can only be sniped once per map
+                        print(f"        [4] Adding active snipe for {friend_play['score']['user']['username']}")
                         self.database.add_snipe(play['user_id'], beatmap_id, user_id)
         return sniped
 
@@ -94,6 +95,10 @@ class SnipeTracker:
                                         self.database.add_snipe(user[1], play['beatmap']['id'], friend[1])
                                         if not(self.database.get_user_beatmap_play_score(user[1], play['beatmap']['id'], main_play['score']['score'])):
                                             self.database.add_score(user[1], play['beatmap']['id'], main_play['score']['score'], 0)
+                    else:
+                        if not(self.database.get_user_beatmap_play_with_zeros(friend[1], play['beatmap']['id'])):
+                            print(f"        [3] Adding empty score for friend who hasnt played map")
+                            self.database.add_score(friend[1], play['beatmap']['id'], 0, 0)
 
     async def add_single_snipe(self, play):
         main_users = self.database.get_all_users()

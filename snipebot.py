@@ -5,6 +5,7 @@
 # 4: -link COMMAND TO LINK USERS DISCORD ID TO THEIR OSU ID
 # 5: MAKE IT SO WHEN CHECKING A BEATMAP, IF THE BEATMAPSET EXISTS, CHECK EVERY MAP IN BEATMAPSET (MIGHT NOT BE POSSIBLE)
 # 6: -mr -p "playername" for plays main user hasnt played but friend has
+# 7: timeout time for osu api pings
 
 import json
 import os

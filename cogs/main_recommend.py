@@ -85,13 +85,18 @@ class MainRecommend(commands.Cog): # must have commands.cog or this wont work
                                 friend_data = await self.osu.get_user_data(args[2])
                                 if friend_data:
                                     friend_list = []
-                                    for friend in friends:
+                                    new_links = []
+                                    new_beatmaps = []
+                                    for j, friend in enumerate(friends):
                                         if friend == str(friend_data['id']):
-                                            friend_list.append(friend)
+                                            if friend_data['id'] not in friend_list:
+                                                friend_list.append(friend)
+                                                new_links.append(links[j])
+                                                new_beatmaps.append(beatmaps[j])
                                     if friend_list != []:
                                         index = random.randint(0, len(friend_list)-1)
                                         friend_name = friend_data['username']
-                                        embed = await create_embeds.create_recommendation_embed(beatmaps, user_data, links, ctx, friend_name, index)
+                                        embed = await create_embeds.create_recommendation_embed(new_beatmaps, user_data, new_links, ctx, friend_name, index)
                                         await ctx.send(embed=embed)
                                     else:
                                         all_friends = self.database.get_all_friends()

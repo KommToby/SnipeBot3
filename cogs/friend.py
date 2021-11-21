@@ -26,7 +26,11 @@ class Friend(commands.Cog): # must have commands.cog or this wont work
                         if not(self.database.get_friend(userid, ctx.channel.id)):
                             self.database.add_friend(ctx.channel.id, userid)
                             await ctx.send(str(user_id) + " has been added as a friend!")
-                            await snipe_bot_tracker.new_user(user_data['id'])
+                            beatmaps = self.database.get_all_beatmaps()
+                            time1 = round(len(beatmaps) * 0.5, 2)
+                            time2 = round(len(beatmaps) * 0.63, 2)
+                            await ctx.send(f"scanning {str(user_id)}'s plays for snipes, this could take between {time1} and {time2} seconds to complete.")
+                            await snipe_bot_tracker.add_new_user(user_data['id'], ctx, user_id)
                         else:
                             await ctx.send("User is already added as a friend.")
             if channel == 0:

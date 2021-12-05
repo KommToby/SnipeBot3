@@ -183,37 +183,38 @@ class SnipeTracker:
             if user_data:
                 recent_plays = await self.osu.get_recent_plays(user_id)
                 print(f"     checking main user {user_data['username']}")
-                for play in recent_plays:
-                    await self.check_main_beatmap(play)
-                    user_play = self.database.get_user_beatmap_play(user_id, f"{play['beatmap']['id']}")
-                    online_play = await self.osu.get_score_data(play['beatmap']['id'], user_id)
-                    if user_play:
-                        if online_play:
-                            if play['score'] > int(user_play[2]):
-                                await self.database.replace_user_play(user_play[0], user_play[1], play['score'])
-                                if play['score'] >= online_play['score']['score']:
+                if recent_plays:
+                    for play in recent_plays:
+                        await self.check_main_beatmap(play)
+                        user_play = self.database.get_user_beatmap_play(user_id, f"{play['beatmap']['id']}")
+                        online_play = await self.osu.get_score_data(play['beatmap']['id'], user_id)
+                        if user_play:
+                            if online_play:
+                                if play['score'] > int(user_play[2]):
+                                    await self.database.replace_user_play(user_play[0], user_play[1], play['score'])
+                                    if play['score'] >= online_play['score']['score']:
+                                        sniped_friends = await self.get_sniped_friends(play)
+                                        discord_channel = self.database.get_main_discord(user_id)
+                                        channel = self.bot.get_channel(int(discord_channel[0]))
+                                        print(f"Posting new best for {user_data['username']}")
+                                        await channel.send(embed=create_score_embed(play, sniped_friends))
+                        else:
+                            self.database.add_score(str(user_data['id']), str(
+                                play['beatmap']['id']), str(play['score']), 0)
+                            if online_play:
+                                if play['score'] >= online_play['score']['score']:    
                                     sniped_friends = await self.get_sniped_friends(play)
                                     discord_channel = self.database.get_main_discord(user_id)
                                     channel = self.bot.get_channel(int(discord_channel[0]))
                                     print(f"Posting new best for {user_data['username']}")
                                     await channel.send(embed=create_score_embed(play, sniped_friends))
-                    else:
-                        self.database.add_score(str(user_data['id']), str(
-                            play['beatmap']['id']), str(play['score']), 0)
-                        if online_play:
-                            if play['score'] >= online_play['score']['score']:    
-                                sniped_friends = await self.get_sniped_friends(play)
-                                discord_channel = self.database.get_main_discord(user_id)
-                                channel = self.bot.get_channel(int(discord_channel[0]))
-                                print(f"Posting new best for {user_data['username']}")
-                                await channel.send(embed=create_score_embed(play, sniped_friends))
 
         friends = self.database.get_all_friends()
         for friend in friends:
             user_id = f"{friend[1]}"
             friend_data = await self.osu.get_user_data(user_id)
-            print(f"     checking {friend_data['username']}")
             if friend_data:
+                print(f"     checking {friend_data['username']}")
                 main_user = self.database.get_main_from_friend(friend_data['id'])
                 main_user_id = f"{main_user[0]}"
                 recent_plays = await self.osu.get_recent_plays(user_id)
@@ -232,7 +233,7 @@ class SnipeTracker:
                                 
                                     else:
                                         local_play = self.database.get_user_beatmap_play(play['user']['id'], play['beatmap']['id'])
-                                        if str(play['score']) > str(local_play[2]):
+                                        if play['score'] > int(local_play[2]):
                                             friend_online_play = await self.osu.get_score_data(play['beatmap']['id'],friend_data['id'])
                                             if str(play['score']) == str(friend_online_play['score']['score']):
                                                 await self.database.replace_user_play(play['user']['id'], play['beatmap']['id'], play['score'])
@@ -246,11 +247,10 @@ class SnipeTracker:
         if not(self.database.get_user_snipe_on_beatmap(play['user']['id'], play['beatmap']['id'], main_user[0])):
             self.database.add_snipe(play['user']['id'], play['beatmap']['id'], main_user[0])
         discord_channel = self.database.get_main_discord(main_user[0])
-        channel = self.bot.get_channel(discord_channel)
-        if discord_channel == channel.id:
-            print(f"Posting snipe by {play['user']['username']} against {main_user_username}")
-            beatmap_data = await self.osu.get_beatmap(main_user_play['beatmap']['id'])
-            await channel.send(embed=create_snipe_embed(play, main_user_username, beatmap_data))
+        channel = await self.bot.fetch_channel(discord_channel[0])
+        print(f"Posting snipe by {play['user']['username']} against {main_user_username}")
+        beatmap_data = await self.osu.get_beatmap(main_user_play['beatmap']['id'])
+        await channel.send(embed=create_snipe_embed(play, main_user_username, beatmap_data))
 
 
     @tracker_loop.before_loop

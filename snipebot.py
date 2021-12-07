@@ -7,6 +7,7 @@
 # 6: timeout time for osu api pings
 # 7: Map-specific statistics
 # 8: Fix multi-server synchronisation (leaderboards, score checking, etc.)
+# 9: Fix snipes only posting in one server, not both
 
 import json
 import os

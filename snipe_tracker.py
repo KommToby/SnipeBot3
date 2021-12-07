@@ -33,6 +33,11 @@ class SnipeTracker:
                     if not(self.database.get_user_snipe_on_beatmap(play['user_id'], beatmap_id, user_id)): # can only be sniped once per map
                         print(f"        [4] Adding active snipe for {friend_play['score']['user']['username']}")
                         self.database.add_snipe(play['user_id'], beatmap_id, user_id)
+                        main_users = self.database.get_all_users()
+                        for main_user in main_users:
+                            if str(friend_play['score']['user']['id']) == str(main_user[1]):
+                                friend_play = await self.osu.get_score_data(beatmap_id, play["user_id"])
+                                await self.post_friend_snipe(play, friend_play, play["user_id"])
         return sniped
 
     async def scan_top(self):

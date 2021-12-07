@@ -39,7 +39,7 @@ class Snipes(commands.Cog): # must have commands.cog or this wont work
 
     async def handle_leaderboard(self, main_user_id, friend_id):
         leaderboard = []
-        friends = self.database.get_all_friends()
+        friends = self.database.get_user_friends(main_user_id)
         for _, friend in enumerate(friends):
             snipes = self.database.get_single_user_snipes(friend[1], main_user_id)
             sniped = self.database.get_single_user_snipes(main_user_id, friend[1])

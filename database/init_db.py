@@ -266,14 +266,14 @@ class Database:
         )
         self.db.commit()
 
-    # async def add_channel(self, discord_id, user_id):
-    #     user_data = await self.osu._get_api_v2("/v2/users/" + str(user_id))
-    #     user_id = user_data['id']
-    #     self.cursor.execute(
-    #         "INSERT INTO users VALUES(?,?,?,?,?)",
-    #         (discord_id, user_id, 0, 0, 0)
-    #     )
-    #     self.db.commit()
+    async def add_channel(self, discord_id, user_id):
+        user_data = await self.osu.get_user_data(str(user_id))
+        user_id = user_data['id']
+        self.cursor.execute(
+            "INSERT INTO users VALUES(?,?,?,?,?)",
+            (discord_id, user_id, 0, 0, 0)
+        )
+        self.db.commit()
 
     def add_beatmap(self, beatmap_id, artist, song_name, difficulty_name, url):
         self.cursor.execute(

@@ -6,6 +6,7 @@
 # 5: MAKE IT SO WHEN CHECKING A BEATMAP, IF THE BEATMAPSET EXISTS, CHECK EVERY MAP IN BEATMAPSET (MIGHT NOT BE POSSIBLE)
 # 6: timeout time for osu api pings
 # 7: Map-specific statistics
+# 8: Fix multi-server synchronisation (leaderboards, score checking, etc.)
 
 import json
 import os

@@ -61,45 +61,65 @@ class SnipeTracker:
     async def add_snipes(self, play, friendstatus):        
         main_users = self.database.get_all_users()
         for _, user in enumerate(main_users):
+            is_friend = False # Initialise as false
             main_play = await self.osu.get_score_data(play['beatmap']['id'], user[1])
             if main_play:
-                friends = self.database.get_user_friends(user[1])
+                main_user_friends = self.database.get_user_friends(user[1])
+                all_friends = self.database.get_all_friends()
                 main_date = await self.convert_date(main_play['score']['created_at'])
-                for friend in friends:
+                for main_friend in main_user_friends:
+                    if str(main_friend[1]) == str(play['user']['id']):
+                        is_friend = True # if the person is a friend of the main user, set to true
+                for friend in all_friends:
                     friend_play = await self.osu.get_score_data(play['beatmap']['id'], friend[1])
                     if friend_play:
-                        friend_date = await self.convert_date(friend_play['score']['created_at'])
-                        if await self.date_more_recent_than(friend_date, main_date):
-                            if friend_play['score']['score'] > main_play['score']['score']:
-                                if not(self.database.get_user_snipes(friend[1], play['beatmap']['id'], user[1])):
-                                    if str(play['user']['id']) == str(friend[1]) and str(play['score']) == str(friend_play['score']['score']) and friendstatus is False and str(self.new_user) != str(play['user']['id']):
-                                        if not(self.database.get_user_snipe_on_beatmap(friend_play['score']['user']['id'], main_play['score']['beatmap']['id'], main_play['score']['user']['id'])):
-                                            await self.post_friend_snipe(main_play['score'], friend_play['score'], (user[1],))
-                                            print("Line 75 post")
-                                    else:
-                                        play_date = await self.convert_date(play['created_at'])
-                                        # below if is if their snipe exists, but they have made a better snipe
-                                        if await self.date_more_recent_than(play_date, friend_date) and str(play['user']['id']) == str(friend[1]) and str(self.new_user) != str(play['user_id']):
-                                            if play['score'] > main_play['score']['score']:
-                                                await self.post_friend_snipe(main_play['score'], play, (user[1],))
-                                                print("Line 82 post")
-                                        else:    
-                                            print(f"        [1] Passive Snipe By {friend_play['score']['user']['username']} against {main_play['score']['user']['username']}")
-                                            self.database.add_snipe(friend[1], play['beatmap']['id'], user[1])
-                                            if not(self.database.get_user_beatmap_play_score(friend[1], play['beatmap']['id'], play['score'])):
-                                                self.database.add_score(friend[1], play['beatmap']['id'], play['score'], 0)
+                        if is_friend:
+                            friend_date = await self.convert_date(friend_play['score']['created_at'])
+                            if await self.date_more_recent_than(friend_date, main_date):
+                                if friend_play['score']['score'] > main_play['score']['score']:
+                                    if not(self.database.get_user_snipes(friend[1], play['beatmap']['id'], user[1])):
+                                        if str(play['user']['id']) == str(friend[1]) and str(play['score']) == str(friend_play['score']['score']) and friendstatus is False and str(self.new_user) != str(play['user']['id']):
+                                            if not(self.database.get_user_snipe_on_beatmap(friend_play['score']['user']['id'], main_play['score']['beatmap']['id'], main_play['score']['user']['id'])):
+                                                await self.post_friend_snipe(main_play['score'], friend_play['score'], (user[1],))
+                                                print("Line 75 post")
+                                        else:
+                                            play_date = await self.convert_date(play['created_at'])
+                                            # below if is if their snipe exists, but they have made a better snipe
+                                            if await self.date_more_recent_than(play_date, friend_date) and str(play['user']['id']) == str(friend[1]) and str(self.new_user) != str(play['user_id']):
+                                                if play['score'] > main_play['score']['score']:
+                                                    await self.post_friend_snipe(main_play['score'], play, (user[1],))
+                                                    print("Line 82 post")
+                                            else:    
+                                                print(f"        [1] Passive Snipe By {friend_play['score']['user']['username']} against {main_play['score']['user']['username']}")
+                                                self.database.add_snipe(friend[1], play['beatmap']['id'], user[1])
+                                                if not(self.database.get_user_beatmap_play_score(friend[1], play['beatmap']['id'], play['score'])):
+                                                    self.database.add_score(friend[1], play['beatmap']['id'], play['score'], 0)
+                            else:
+                                if main_play['score']['score'] > friend_play['score']['score']:
+                                    if not(self.database.get_user_snipes(user[1], play['beatmap']['id'], friend[1])):    
+                                        if main_play['score']['score'] > play['score']:
+                                            print(f"        [2] Passive Snipe By {main_play['score']['user']['username']} against {friend_play['score']['user']['username']}")
+                                            self.database.add_snipe(user[1], play['beatmap']['id'], friend[1])
+                                            if not(self.database.get_user_beatmap_play_score(user[1], play['beatmap']['id'], main_play['score']['score'])):
+                                                self.database.add_score(user[1], play['beatmap']['id'], main_play['score']['score'], 0)
                         else:
-                            if main_play['score']['score'] > friend_play['score']['score']:
-                                if not(self.database.get_user_snipes(user[1], play['beatmap']['id'], friend[1])):    
-                                    if main_play['score']['score'] > play['score']:
-                                        print(f"        [2] Passive Snipe By {main_play['score']['user']['username']} against {friend_play['score']['user']['username']}")
-                                        self.database.add_snipe(user[1], play['beatmap']['id'], friend[1])
-                                        if not(self.database.get_user_beatmap_play_score(user[1], play['beatmap']['id'], main_play['score']['score'])):
-                                            self.database.add_score(user[1], play['beatmap']['id'], main_play['score']['score'], 0)
+                            pass
                     else:
                         if not(self.database.get_user_beatmap_play_with_zeros(friend[1], play['beatmap']['id'])):
                             print(f"        [3] Adding empty score for friend who hasnt played map")
                             self.database.add_score(friend[1], play['beatmap']['id'], 0, 0)
+        for friend in all_friends: # now to check the score for all friends stored (even if theyre not the friend of the main user)
+            if not(self.database.get_user_beatmap_play_with_zeros(friend[1], play['beatmap']['id'])):
+                print(f"        [4] Adding empty score for friend who hasnt played map for no main user")
+                self.database.add_score(friend[1], play['beatmap']['id'], 0, 0)
+            else: # the user has got a play on the beatmap
+                friend_play = await self.osu.get_score_data(play['beatmap']['id'], friend[1])
+                if friend_play:
+                    friend_score = friend_play['score']['score']
+                    local_score = self.database.get_user_beatmap_play(friend[1], play['beatmap']['id'])
+                    if friend_score > int(local_score[2]):
+                        self.database.replace_user_play(friend[1], play['beatmap']['id'], friend_play['score']['score'])
+                        print(f"        [5] Updating score for user whos main user hasnt played the map")
 
     async def add_single_snipe(self, play):
         main_users = self.database.get_all_users()

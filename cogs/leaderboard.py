@@ -21,7 +21,7 @@ class Leaderboard(commands.Cog): # must have commands.cog or this wont work
         leaderboard = []
         main_user_id = self.database.get_main_from_discord(ctx.channel.id)
         main_user_id = main_user_id[0]
-        friends = self.database.get_all_friends()
+        friends = self.database.get_user_friends(main_user_id) # specifically get the list of friends for that user
         for _, friend in enumerate(friends):
             friend_data = await self.osu.get_user_data(friend[1])
             snipes = self.database.get_single_user_snipes(friend[1], main_user_id)

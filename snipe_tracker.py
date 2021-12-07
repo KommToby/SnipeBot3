@@ -36,8 +36,7 @@ class SnipeTracker:
                         main_users = self.database.get_all_users()
                         for main_user in main_users:
                             if str(friend_play['score']['user']['id']) == str(main_user[1]):
-                                friend_play = await self.osu.get_score_data(beatmap_id, play["user_id"])
-                                await self.post_friend_snipe(play, friend_play, play["user_id"])
+                                await self.post_friend_snipe(friend_play['score'], play, (friend_play['score']['user']['id'],))
         return sniped
 
     async def scan_top(self):
@@ -229,6 +228,14 @@ class SnipeTracker:
                                         channel = self.bot.get_channel(int(discord_channel[0]))
                                         print(f"Posting new best for {user_data['username']}")
                                         await channel.send(embed=create_score_embed(play, sniped_friends))
+                                        friends = self.database.get_all_friends()
+                                        main_users = self.database.get_all_users()
+                                        for friend in friends:
+                                            if friend[1] in sniped_friends:
+                                                for main_user in main_users:
+                                                    if str(main_user[1]) == str(friend[1]):
+                                                        friend_play = await self.osu.get_score_data(play['beatmap']['id'], play["user_id"])
+                                                        await self.post_friend_snipe(play, friend_play['score'], play['user_id'])
                         else:
                             self.database.add_score(str(user_data['id']), str(
                                 play['beatmap']['id']), str(play['score']), 0)
@@ -261,6 +268,12 @@ class SnipeTracker:
                                         self.database.add_score(str(friend_data['id']), str(play['beatmap']['id']), str(play['score']),0)
                                         if not(self.database.get_user_snipe_on_beatmap(play['user']['id'], main_user_play['score']['beatmap']['id'], main_user_play['score']['user']['id'])) and str(self.new_user) != str(play['user']['id']):
                                             await self.post_friend_snipe(main_user_play['score'], play, main_user)
+                                            main_users = self.database.get_all_users()
+                                            for main_user in main_users:
+                                                if str(main_user[1]) == str(play['user']['id']):
+                                                    sniped_friends = await self.get_sniped_friends(play)
+                                                    print(f"Posting new best for {play['user']['username']}")
+                                                    await channel.send(embed=create_score_embed(play, sniped_friends))
                                 
                                     else:
                                         local_play = self.database.get_user_beatmap_play(play['user']['id'], play['beatmap']['id'])

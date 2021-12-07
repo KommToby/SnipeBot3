@@ -273,6 +273,8 @@ class SnipeTracker:
                                                 if str(main_user[1]) == str(play['user']['id']):
                                                     sniped_friends = await self.get_sniped_friends(play)
                                                     print(f"Posting new best for {play['user']['username']}")
+                                                    discord_channel = self.database.get_main_discord(main_user[1])
+                                                    channel = self.bot.get_channel(int(discord_channel[0]))
                                                     await channel.send(embed=create_score_embed(play, sniped_friends))
                                 
                                     else:

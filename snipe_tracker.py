@@ -117,9 +117,10 @@ class SnipeTracker:
                 if friend_play:
                     friend_score = friend_play['score']['score']
                     local_score = self.database.get_user_beatmap_play(friend[1], play['beatmap']['id'])
-                    if friend_score > int(local_score[2]):
-                        self.database.replace_user_play(friend[1], play['beatmap']['id'], friend_play['score']['score'])
-                        print(f"        [5] Updating score for user whos main user hasnt played the map")
+                    if local_score is not None:
+                        if friend_score > int(local_score[2]):
+                            await self.database.replace_user_play(friend[1], play['beatmap']['id'], friend_play['score']['score'])
+                            print(f"        [5] Updating score for user whos main user hasnt played the map")
 
     async def add_single_snipe(self, play):
         main_users = self.database.get_all_users()

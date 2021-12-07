@@ -58,7 +58,8 @@ class SnipeTracker:
                         self.database.add_score(play['user_id'], play['beatmap']['id'], play['score'], 0)
                         await self.add_snipes(play, friend) # also do passive tracking
 
-    async def add_snipes(self, play, friendstatus):        
+    async def add_snipes(self, play, friendstatus):
+        skip_friends = []        
         main_users = self.database.get_all_users()
         for _, user in enumerate(main_users):
             is_friend = False # Initialise as false
@@ -108,19 +109,23 @@ class SnipeTracker:
                         if not(self.database.get_user_beatmap_play_with_zeros(friend[1], play['beatmap']['id'])):
                             print(f"        [3] Adding empty score for friend who hasnt played map")
                             self.database.add_score(friend[1], play['beatmap']['id'], 0, 0)
+                        skip_friends.append(friend[1])
         for friend in all_friends: # now to check the score for all friends stored (even if theyre not the friend of the main user)
             if not(self.database.get_user_beatmap_play_with_zeros(friend[1], play['beatmap']['id'])):
                 print(f"        [4] Adding empty score for friend who hasnt played map for no main user")
                 self.database.add_score(friend[1], play['beatmap']['id'], 0, 0)
             else: # the user has got a play on the beatmap
-                friend_play = await self.osu.get_score_data(play['beatmap']['id'], friend[1])
-                if friend_play:
-                    friend_score = friend_play['score']['score']
-                    local_score = self.database.get_user_beatmap_play(friend[1], play['beatmap']['id'])
-                    if local_score is not None:
-                        if friend_score > int(local_score[2]):
-                            await self.database.replace_user_play(friend[1], play['beatmap']['id'], friend_play['score']['score'])
-                            print(f"        [5] Updating score for user whos main user hasnt played the map")
+                if friend[1] not in skip_friends:
+                    friend_play = await self.osu.get_score_data(play['beatmap']['id'], friend[1])
+                    if friend_play:
+                        friend_score = friend_play['score']['score']
+                        local_score = self.database.get_user_beatmap_play(friend[1], play['beatmap']['id'])
+                        if local_score is not None:
+                            if friend_score > int(local_score[2]):
+                                await self.database.replace_user_play(friend[1], play['beatmap']['id'], friend_play['score']['score'])
+                                print(f"        [5] Updating score for user whos main user hasnt played the map")
+                else:
+                    print(f"        [6] Skipping user who hasnt played the map and has a 0 score stored")
 
     async def add_single_snipe(self, play):
         main_users = self.database.get_all_users()

@@ -114,6 +114,7 @@ class SnipeTracker:
                             print(f"        [3] Adding empty score for friend who hasnt played map")
                             self.database.add_score(friend[1], play['beatmap']['id'], 0, 0)
                         skip_friends.append(friend[1])
+        all_friends = self.database.get_all_friends()
         for friend in all_friends: # now to check the score for all friends stored (even if theyre not the friend of the main user)
             if not(self.database.get_user_beatmap_play_with_zeros(friend[1], play['beatmap']['id'])):
                 print(f"        [4] Adding empty score for friend who hasnt played map for no main user")

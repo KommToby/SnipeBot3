@@ -54,14 +54,12 @@ class SnipeTracker:
     async def check_beatmap(self, play, friend): # passive tracking
         if not(self.database.get_beatmap(str(play['beatmap']['id']))): # if beatmap isnt in the db
             self.database.add_beatmap(str(play['beatmap']['id']), play['beatmapset']['artist'], play['beatmapset']['title'], play['beatmap']['version'], play['beatmap']['url'])
-            play = await self.osu.get_score_data(play['beatmap']['id'], play['user']['id'])
             await self.add_snipes(play, friend)
         else:
             if not(self.database.get_user_snipe(play['user']['id'], play['beatmap']['id'])): # if this user doesnt have a snipe on the beatmap
                 if not(self.database.get_user_sniped(play['user']['id'], play['beatmap']['id'])): # and they have also never been sniped on the beatmap
                     if not(self.database.get_user_beatmap_play_score(play['user']['id'], play['beatmap']['id'], play['score'])):
                         self.database.add_score(play['user_id'], play['beatmap']['id'], play['score'], 0)
-                        play = await self.osu.get_score_data(play['beatmap']['id'], play['user']['id'])
                         await self.add_snipes(play, friend) # also do passive tracking
 
     async def check_single_beatmap(self, play):

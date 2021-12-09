@@ -37,6 +37,7 @@ class CheckScores(commands.Cog): # must have commands.cog or this wont work
                         if friend_score:
                             print(f"adding friend score for {friend_score['score']['user']['username']}")
                             self.database.add_score(friend[1], score[1], friend_score['score']['score'], 0)
+                            await snipe_bot_tracker.add_snipes(friend_score, True)
                         else:
                             if not(self.database.get_user_beatmap_play_score(friend[1], score[1], "0")):
                                 print(f"adding empty score for friend")

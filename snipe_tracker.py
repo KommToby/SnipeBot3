@@ -75,12 +75,13 @@ class SnipeTracker:
 
     ## Same as check_beatmap, but it only checks a single play, and then scans all users for that beatmap (General Passive Tracking)
     async def check_single_beatmap(self, play):
-        if not(await self.database.get_beatmap(str(play['beatmap']['id']))): # if beatmap isnt in the db
-            await self.database.add_beatmap(str(play['beatmap']['id']), play['beatmapset']['artist'], play['beatmapset']['title'], play['beatmap']['version'], play['beatmap']['url'])
-            play = await self.osu.get_score_data(play['beatmap']['id'], play['user']['id'])
+        play2 = play
+        play = await self.osu.get_score_data(play['beatmap']['id'], play['user']['id'])
+        if not(await self.database.get_beatmap(str(play2['beatmap']['id']))): # if beatmap isnt in the db
+            await self.database.add_beatmap(str(play2['beatmap']['id']), play2['beatmapset']['artist'], play2['beatmapset']['title'], play2['beatmap']['version'], play2['beatmap']['url'])
             await self.add_single_snipe(play)
         else:
-            if await self.verify_user(play):
+            if await self.verify_user(play2):
                 await self.add_single_snipe(play) # also do passive tracking
 
 

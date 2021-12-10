@@ -70,7 +70,7 @@ class SnipeTracker:
             await self.database.add_beatmap(str(play['beatmap']['id']), play['beatmapset']['artist'], play['beatmapset']['title'], play['beatmap']['version'], play['beatmap']['url'])
             await self.add_snipes(play, friend)
         else: # if the beatmap is in the database
-            if self.verify_user(play):
+            if await self.verify_user(play):
                 await self.add_snipes(play, friend) # also do passive tracking
 
     ## Same as check_beatmap, but it only checks a single play, and then scans all users for that beatmap (General Passive Tracking)

@@ -11,7 +11,7 @@ class Track(commands.Cog): # must have commands.cog or this wont work
     @commands.command(aliases=['t'])
     @commands.has_permissions(administrator=True)
     async def track(self, ctx, userid : str):
-        if self.database.get_channel(ctx.channel.id):
+        if await self.database.get_channel(ctx.channel.id):
             await ctx.send(f"<@{ctx.author.id}> channel is already being tracked! (1 tracked user per channel)")
             return
 

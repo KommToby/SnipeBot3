@@ -15,11 +15,11 @@ class CheckScores(commands.Cog): # must have commands.cog or this wont work
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def checkscores(self, ctx):
-        scores = self.database.get_scores()
-        snipes = self.database.get_all_snipes()
-        main_user = self.database.get_main_from_discord(ctx.channel.id)
+        scores = await self.database.get_scores()
+        snipes = await self.database.get_all_snipes()
+        main_user = await self.database.get_main_from_discord(ctx.channel.id)
         main_user = main_user[0]
-        friends = self.database.get_user_friends(main_user)
+        friends = await self.database.get_user_friends(main_user)
         print("checking scores")
         for i, friend in enumerate(friends):
             print("Checking next friend..")
@@ -32,27 +32,27 @@ class CheckScores(commands.Cog): # must have commands.cog or this wont work
                     else:
                         check = False
                 if check == True:
-                    if not(self.database.get_user_beatmap_play_with_zeros(friend[1], score[1])): # if user does not have score saved for beatmap
+                    if not(await self.database.get_user_beatmap_play_with_zeros(friend[1], score[1])): # if user does not have score saved for beatmap
                         friend_score = await self.osu.get_score_data(score[1], friend[1])
                         if friend_score:
                             print(f"adding friend score for {friend_score['score']['user']['username']}")
-                            self.database.add_score(friend[1], score[1], friend_score['score']['score'], 0)
+                            await self.database.add_score(friend[1], score[1], friend_score['score']['score'], 0)
                             await snipe_bot_tracker.add_snipes(friend_score, True)
                         else:
-                            if not(self.database.get_user_beatmap_play_score(friend[1], score[1], "0")):
+                            if not(await self.database.get_user_beatmap_play_score(friend[1], score[1], "0")):
                                 print(f"adding empty score for friend")
-                                self.database.add_score(friend[1], score[1], 0, 0)
+                                await self.database.add_score(friend[1], score[1], 0, 0)
                 # print(f"checking map id {score[1]}")
-                if not(self.database.get_user_beatmap_play_with_zeros(main_user, score[1])):
+                if not(await self.database.get_user_beatmap_play_with_zeros(main_user, score[1])):
                     main_user_play = await self.osu.get_score_data(score[1], main_user)
                     if main_user_play:
                         print(f"adding main score for {main_user_play['score']['user']['username']}")
-                        self.database.add_score(main_user, score[1], main_user_play['score']['score'], 0)
+                        await self.database.add_score(main_user, score[1], main_user_play['score']['score'], 0)
                     else:
-                        if not(self.database.get_user_beatmap_play_score(main_user, score[1], "0")):
+                        if not(await self.database.get_user_beatmap_play_score(main_user, score[1], "0")):
                         # this will speed it up in the future
                             print(f"adding empty score for main user")
-                            self.database.add_score(main_user, score[1], 0, 0)
+                            await self.database.add_score(main_user, score[1], 0, 0)
         await ctx.send("Score list has been updated successfully")
 
     @checkscores.error

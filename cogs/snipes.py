@@ -13,14 +13,14 @@ class Snipes(commands.Cog): # must have commands.cog or this wont work
 
     @commands.command(aliases=['s'])
     async def snipes(self, ctx, user: str):
-        main_user_id = self.database.get_main_from_discord(ctx.channel.id)
+        main_user_id = await self.database.get_main_from_discord(ctx.channel.id)
         main_user_id = main_user_id[0]
         user_data = await self.osu.get_user_data(user)
-        snipes = self.database.get_single_user_snipes(str(user_data['id']), main_user_id)
-        sniped = self.database.get_single_user_snipes(main_user_id, str(user_data['id']))
-        total_snipes = self.database.get_total_snipes(main_user_id)
-        user_snipes = self.database.get_single_user_snipes(user_data['id'], main_user_id)
-        user_sniped = self.database.get_single_user_snipes(main_user_id, user_data['id'])
+        snipes = await self.database.get_single_user_snipes(str(user_data['id']), main_user_id)
+        sniped = await self.database.get_single_user_snipes(main_user_id, str(user_data['id']))
+        total_snipes = await self.database.get_total_snipes(main_user_id)
+        user_snipes = await self.database.get_single_user_snipes(user_data['id'], main_user_id)
+        user_sniped = await self.database.get_single_user_snipes(main_user_id, user_data['id'])
         if user_snipes != []:
             random_play_index = random.randint(0, len(user_snipes)-1)
             random_play = user_snipes[random_play_index]
@@ -39,10 +39,10 @@ class Snipes(commands.Cog): # must have commands.cog or this wont work
 
     async def handle_leaderboard(self, main_user_id, friend_id):
         leaderboard = []
-        friends = self.database.get_user_friends(main_user_id)
+        friends = await self.database.get_user_friends(main_user_id)
         for _, friend in enumerate(friends):
-            snipes = self.database.get_single_user_snipes(friend[1], main_user_id)
-            sniped = self.database.get_single_user_snipes(main_user_id, friend[1])
+            snipes = await self.database.get_single_user_snipes(friend[1], main_user_id)
+            sniped = await self.database.get_single_user_snipes(main_user_id, friend[1])
             snipes = len(snipes)
             sniped = len(sniped)
             snipe_difference = snipes - sniped

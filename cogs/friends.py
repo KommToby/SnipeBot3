@@ -16,11 +16,10 @@ class Friends(commands.Cog): # must have commands.cog or this wont work
         await ctx.send("Loading friends list, please wait..")
         main_user = await self.osu.get_user_data(user_id)
         main_user_id = main_user['id']
-        friends = self.database.get_user_friends(main_user_id)
+        friends = await self.database.get_user_friends(main_user_id)
         if main_user_id is not None:
             main_username = main_user['username']
             friendmessage = ""
-            friend_array = []
             for friend in friends:
                 friend_data = await self.osu.get_user_data(friend[1])
                 friendmessage += f"{friend_data['username']} \n"

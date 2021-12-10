@@ -15,7 +15,7 @@ class Friend(commands.Cog): # must have commands.cog or this wont work
     @commands.has_permissions(administrator=True)
     async def friend(self, ctx, param : str, user_id : str):
         if param == "add":
-            channels = self.database.get_all_discord()
+            channels = await self.database.get_all_discord()
             channel = 0
             for _, channel in enumerate(channels):
                 if channel[0] == str(ctx.channel.id):
@@ -23,10 +23,10 @@ class Friend(commands.Cog): # must have commands.cog or this wont work
                     user_data = await self.osu.get_user_data(str(user_id))
                     if user_data:
                         userid = user_data['id']
-                        if not(self.database.get_friend(userid, ctx.channel.id)):
-                            self.database.add_friend(ctx.channel.id, userid)
+                        if not(await self.database.get_friend(userid, ctx.channel.id)):
+                            await self.database.add_friend(ctx.channel.id, userid)
                             await ctx.send(str(user_id) + " has been added as a friend!")
-                            beatmaps = self.database.get_all_beatmaps()
+                            beatmaps = await self.database.get_all_beatmaps()
                             time1 = round(len(beatmaps) * 0.8, 2)
                             time2 = round(len(beatmaps) * 1.2, 2)
                             await ctx.send(f"scanning {str(user_id)}'s plays for snipes, this could take between {round((time1/60), 2)} and {round((time2/60), 2)} minutes to complete.")

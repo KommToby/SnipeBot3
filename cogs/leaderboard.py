@@ -19,20 +19,20 @@ class Leaderboard(commands.Cog): # must have commands.cog or this wont work
     async def leaderboard(self, ctx):
         await ctx.send("Loading Leaderboard, please wait..")
         leaderboard = []
-        main_user_id = self.database.get_main_from_discord(ctx.channel.id)
+        main_user_id = await self.database.get_main_from_discord(ctx.channel.id)
         main_user_id = main_user_id[0]
-        friends = self.database.get_user_friends(main_user_id) # specifically get the list of friends for that user
+        friends = await self.database.get_user_friends(main_user_id) # specifically get the list of friends for that user
         for _, friend in enumerate(friends):
             friend_data = await self.osu.get_user_data(friend[1])
-            snipes = self.database.get_single_user_snipes(friend[1], main_user_id)
-            sniped = self.database.get_single_user_snipes(main_user_id, friend[1])
+            snipes = await self.database.get_single_user_snipes(friend[1], main_user_id)
+            sniped = await self.database.get_single_user_snipes(main_user_id, friend[1])
             snipes = len(snipes)
             sniped = len(sniped)
             snipe_difference = snipes - sniped
             leaderboard.append({'username': friend_data['username'], 'snipes': snipes, 'sniped': sniped, 'snipe difference': snipe_difference})
         self.sort_friend_snipes(leaderboard)
-        main_snipes = self.database.get_main_snipes(main_user_id)
-        main_sniped = self.database.get_main_sniped(main_user_id)
+        main_snipes = await self.database.get_main_snipes(main_user_id)
+        main_sniped = await self.database.get_main_sniped(main_user_id)
         main_snipes = len(main_snipes)
         main_sniped = len(main_sniped)
         main_data = await self.osu.get_user_data(main_user_id)

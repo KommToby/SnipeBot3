@@ -15,7 +15,7 @@ class Recommend(commands.Cog): # must have commands.cog or this wont work
 
     @commands.command(aliases=['r'])
     async def recommend(self, ctx, user_id : str):
-        main_user = self.database.get_main_from_discord(ctx.channel.id)
+        main_user = await self.database.get_main_from_discord(ctx.channel.id)
         main_user = main_user[0]
         user_data = await self.osu.get_user_data(user_id)
         beatmaps = []
@@ -23,8 +23,8 @@ class Recommend(commands.Cog): # must have commands.cog or this wont work
         if user_data:
             user = user_data['id']
             if main_user:
-                main_scores = self.database.get_all_scores(main_user)
-                user_scores = self.database.get_all_scores(user)
+                main_scores = await self.database.get_all_scores(main_user)
+                user_scores = await self.database.get_all_scores(user)
                 for score in main_scores:
                     add = True
                     for user_score in user_scores:
@@ -36,7 +36,7 @@ class Recommend(commands.Cog): # must have commands.cog or this wont work
                         else:
                             add = False
                     if add is True:
-                        beatmap = self.database.get_beatmap_data(score[1])
+                        beatmap = await self.database.get_beatmap_data(score[1])
                         if beatmap[4] not in links:
                             beatmaps.append(f"{beatmap[1]} - {beatmap[2]} [{beatmap[3]}]")
                             links.append(beatmap[4])

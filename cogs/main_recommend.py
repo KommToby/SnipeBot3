@@ -27,8 +27,8 @@ class MainRecommend(commands.Cog): # must have commands.cog or this wont work
                 friends = []
                 friends_num = []
                 if user_data:
-                    all_scores = self.database.get_scores()
-                    main_scores = self.database.get_all_scores(userid)
+                    all_scores = await self.database.get_scores()
+                    main_scores = await self.database.get_all_scores(userid)
                     for score in all_scores:
                         add = True
                         for main_score in main_scores:
@@ -40,13 +40,13 @@ class MainRecommend(commands.Cog): # must have commands.cog or this wont work
                                 else:
                                     add = True
                         if add is True:
-                            if not(self.database.get_user_beatmap_play(userid, score[1])):
-                                beatmap = self.database.get_beatmap_data(score[1])
+                            if not(await self.database.get_user_beatmap_play(userid, score[1])):
+                                beatmap = await self.database.get_beatmap_data(score[1])
                                 if beatmap[4] not in links:
                                     beatmaps.append(f"{beatmap[1]} - {beatmap[2]} [{beatmap[3]}]")
                                     links.append(beatmap[4])
                                     friends.append(score[0])
-                                    all_friends = self.database.get_user_plays_from_beatmap(score[1])
+                                    all_friends = await self.database.get_user_plays_from_beatmap(score[1])
                                     localfriends = []
                                     for friend in all_friends:
                                         localfriends.append(friend[0])
@@ -54,18 +54,18 @@ class MainRecommend(commands.Cog): # must have commands.cog or this wont work
                                     friends_num.append(friendnum)
                             else:
                                 post2 = True
-                                if self.database.get_user_beatmap_play_score(userid, score[1], '0'):
-                                    plays = self.database.get_user_beatmap_plays(userid, score[1])
+                                if await self.database.get_user_beatmap_play_score(userid, score[1], '0'):
+                                    plays = await self.database.get_user_beatmap_plays(userid, score[1])
                                     for play in plays:
                                         if play[2] != "0":
                                             post2 = False
                                     if post2 is True:
-                                        beatmap = self.database.get_beatmap_data(score[1])
+                                        beatmap = await self.database.get_beatmap_data(score[1])
                                         if beatmap[4] not in links:
                                             beatmaps.append(f"{beatmap[1]} - {beatmap[2]} [{beatmap[3]}]")
                                             links.append(beatmap[4])
                                             friends.append(score[0])
-                                            all_friends = self.database.get_user_plays_from_beatmap(score[1])
+                                            all_friends = await self.database.get_user_plays_from_beatmap(score[1])
                                             localfriends = []
                                             for friend in all_friends:
                                                 localfriends.append(friend[0])
@@ -99,7 +99,7 @@ class MainRecommend(commands.Cog): # must have commands.cog or this wont work
                                         embed = await create_embeds.create_recommendation_embed(new_beatmaps, user_data, new_links, ctx, friend_name, index)
                                         await ctx.send(embed=embed)
                                     else:
-                                        all_friends = self.database.get_all_friends()
+                                        all_friends = await self.database.get_all_friends()
                                         friendcheck = False
                                         for f in all_friends:
                                             if str(friend_data['id']) == f[1]:

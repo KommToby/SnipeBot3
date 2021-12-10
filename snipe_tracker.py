@@ -80,7 +80,7 @@ class SnipeTracker:
             play = await self.osu.get_score_data(play['beatmap']['id'], play['user']['id'])
             await self.add_single_snipe(play)
         else:
-            if self.verify_user(play):
+            if await self.verify_user(play):
                 await self.add_single_snipe(play) # also do passive tracking
 
 

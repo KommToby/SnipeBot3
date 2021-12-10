@@ -180,7 +180,10 @@ class Database:
         ).fetchall()
 
     async def get_user_friends(self, main_id):
-        main_discord = await self.get_main_discord(main_id)
+        main_discord = self.cursor.execute(
+            "SELECT discord_id FROM users WHERE user_id=?",
+            (main_id,)
+        ).fetchone()
         return self.cursor.execute(
             "SELECT * FROM friends WHERE discord_channel=?",
             (main_discord[0],)
@@ -233,7 +236,10 @@ class Database:
         ).fetchone()
 
     async def get_main_from_friend(self, friend_id):
-        discord_id = await self.get_friend_discord(friend_id)
+        discord_id =  self.cursor.execute(
+            "SELECT discord_channel FROM friends WHERE user_id=?",
+            (friend_id,)
+        ).fetchone()
         return self.cursor.execute(
             "SELECT user_id FROM users WHERE discord_id=?",
             (discord_id[0],)
@@ -266,7 +272,7 @@ class Database:
         )
         self.db.commit()
 
-    async def add_channel(self, discord_id, user_id):
+    async def add_channel(self, discord_id, user_id, user_data):
         user_data = await self.osu.get_user_data(str(user_id))
         user_id = user_data['id']
         self.cursor.execute(

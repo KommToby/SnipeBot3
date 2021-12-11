@@ -84,7 +84,7 @@ class SnipeTracker:
             if await self.verify_user(play2):
                 await self.add_single_snipe(play) # also do passive tracking
 
-
+    ## When given a play, it checks ALL users for snipes on that map, without specific comparison to that user. This contains both active and passive snipes
     async def add_snipes(self, play, friendstatus):
         skip_friends = []        
         main_users = await self.database.get_all_users()
@@ -114,9 +114,10 @@ class SnipeTracker:
                                             # below if is if their snipe exists, but they have made a better snipe
                                             if await self.date_more_recent_than(play_date, friend_date) and str(play['user']['id']) == str(friend[1]) and str(self.new_user) != str(play['user_id']):
                                                 if play['score'] > main_play['score']['score']:
+                                                    ## Active snipe via database
                                                     await self.post_friend_snipe(main_play['score'], play, (user[1],))
-                                                    print("Line 82 post")
                                             else:    
+                                                ## Passive snipe via database
                                                 print(f"        [1] Passive Snipe By {friend_play['score']['user']['username']} against {main_play['score']['user']['username']}")
                                                 await self.database.add_snipe(friend[1], play['beatmap']['id'], user[1])
                                                 if not(await self.database.get_user_beatmap_play_score(friend[1], play['beatmap']['id'], play['score'])):
@@ -125,6 +126,7 @@ class SnipeTracker:
                                 if main_play['score']['score'] > friend_play['score']['score']:
                                     if not(await self.database.get_user_snipes(user[1], play['beatmap']['id'], friend[1])):    
                                         if main_play['score']['score'] > play['score']:
+                                            ## Passive snipe via global plays
                                             print(f"        [2] Passive Snipe By {main_play['score']['user']['username']} against {friend_play['score']['user']['username']}")
                                             await self.database.add_snipe(user[1], play['beatmap']['id'], friend[1])
                                             if not(await self.database.get_user_beatmap_play_score(user[1], play['beatmap']['id'], main_play['score']['score'])):
@@ -150,8 +152,10 @@ class SnipeTracker:
                         if local_score is not None:
                             if friend_score > int(local_score[2]):
                                 await self.database.replace_user_play(friend[1], play['beatmap']['id'], friend_play['score']['score'])
+                                ## Non-snipe via global play
                                 print(f"        [5] Updating score for user whos main user hasnt played the map")
                 else:
+                    ## Non-play via global play
                     print(f"        [6] Skipping user who hasnt played the map and has a 0 score stored")
 
     ## (for new added users) handles the passive snipes

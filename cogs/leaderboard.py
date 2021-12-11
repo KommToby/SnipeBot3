@@ -28,8 +28,8 @@ class Leaderboard(commands.Cog): # must have commands.cog or this wont work
             sniped = await self.database.get_single_user_snipes(main_user_id, friend[1])
             snipes = len(snipes)
             sniped = len(sniped)
-            snipe_difference = snipes - sniped
-            leaderboard.append({'username': friend_data['username'], 'snipes': snipes, 'sniped': sniped, 'snipe difference': snipe_difference})
+            snipe_weight = (2*snipes)/(sniped+10)
+            leaderboard.append({'username': friend_data['username'], 'snipes': snipes, 'sniped': sniped, 'snipe difference': snipe_weight})
         self.sort_friend_snipes(leaderboard)
         main_snipes = await self.database.get_main_snipes(main_user_id)
         main_sniped = await self.database.get_main_sniped(main_user_id)

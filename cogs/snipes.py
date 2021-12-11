@@ -45,7 +45,7 @@ class Snipes(commands.Cog): # must have commands.cog or this wont work
             sniped = await self.database.get_single_user_snipes(main_user_id, friend[1])
             snipes = len(snipes)
             sniped = len(sniped)
-            snipe_difference = snipes - sniped
+            snipe_difference = (2*snipes)/(sniped+10)
             if str(friend_id) == friend[1]:
                 friend_data = await self.osu.get_user_data(friend[1])
                 friend_dict = {'username': friend_data['username'], 'snipes': snipes, 'sniped': sniped, 'snipe difference': snipe_difference}

@@ -15,8 +15,8 @@ async def create_friend_leaderboard(leaderboard, main_user_name, main_snipes, ma
             friend_message = str(i+1) + ": " + friend['username']
             friend_description = "**Snipes: " + str(friend['snipes']) + \
                 " | Sniped: " + \
-                str(friend['sniped']) + " | Snipe Difference: " + \
-                str(int(friend['snipe difference'])) + "**"
+                str(friend['sniped']) + " | Snipe Weight: " + \
+                str(round(friend['snipe difference'], 2)) + "**"
             embed.add_field(name=friend_message,
                             value=friend_description, inline=False)
     return embed  

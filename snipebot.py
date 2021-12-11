@@ -4,10 +4,8 @@
 # 3: -ping COMMAND TO ENABLE PINGS FOR USERS WHEN THEY ARE SNIPED
 # 4: -link COMMAND TO LINK USERS DISCORD ID TO THEIR OSU ID
 # 5: MAKE IT SO WHEN CHECKING A BEATMAP, IF THE BEATMAPSET EXISTS, CHECK EVERY MAP IN BEATMAPSET (MIGHT NOT BE POSSIBLE)
-# 6: timeout time for osu api pings
-# 7: Map-specific statistics
-# 8: Fix multi-server synchronisation (leaderboards, score checking, etc.)
-# 9: Fix snipes only posting in one server, not both
+# 6: Map-specific statistics
+# 7: Efficiency fixes, theres probably redundent api pings being checked. (Mainly friends could check for both main users instead of being checked twice)
 
 import json
 import os

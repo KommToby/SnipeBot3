@@ -95,13 +95,11 @@ class SnipeTracker:
                 main_user_friends = await self.database.get_user_friends(user[1])
                 all_friends = await self.database.get_all_friends()
                 main_date = await self.convert_date(main_play['score']['created_at'])
-                for main_friend in main_user_friends:
+                for main_friend in main_user_friends: # Only check friends of the main user (I think lmao)
                     if str(main_friend[1]) == str(play['user']['id']):
-                        is_friend = True # if the person is a friend of the main user, set to true
-                for friend in all_friends:
-                    friend_play = await self.osu.get_score_data(play['beatmap']['id'], friend[1])
-                    if friend_play:
-                        if is_friend:
+                        friend = main_friend
+                        friend_play = await self.osu.get_score_data(play['beatmap']['id'], friend[1])
+                        if friend_play: 
                             friend_date = await self.convert_date(friend_play['score']['created_at'])
                             if await self.date_more_recent_than(friend_date, main_date):
                                 if friend_play['score']['score'] > main_play['score']['score']:
@@ -266,6 +264,23 @@ class SnipeTracker:
                     print(f"Posting new best for {user_data['username']}")
                     await channel.send(embed=create_score_embed(play, sniped_friends))
 
+    async def check_duplicate_friends(self, friends):
+        ## Check for duplicates in the friends list
+        for i, friend in enumerate(friends):
+            friend_counter = 0
+            for _, jfriend in enumerate(friends):
+                if friend[1] == jfriend[1]:
+                    friend_counter += 1
+            if friend_counter > 1:
+                friends.pop(i)
+        ## Then check if any of the friends are a main user, and prune them if they are
+        main_users = await self.database.get_all_users()
+        for main_user in main_users:
+            for i, friend in enumerate(friends):
+                if main_user[1] == friend[1]:
+                    friends.pop(i)
+        return friends
+
     @tasks.loop(seconds=30.0)
     async def tracker_loop(self):
         # await self.scan_top() # UNCOMMENT THIS WHEN RESETTING EVERYTHING AND RUN ONCE
@@ -282,12 +297,16 @@ class SnipeTracker:
                         await self.check_main_play(play, user_id, user_data)
 
         friends = await self.database.get_all_friends()
+        # Dupe removal for friends since we dont need to check them twice as it scans every main user below
+        # It also removes any main users, since they get checked in a different section of the program
+        friends = await self.check_duplicate_friends(friends)
         for friend in friends:
             user_id = f"{friend[1]}"
             friend_data = await self.osu.get_user_data(user_id)
             if friend_data:
                 print(f"     checking {friend_data['username']}")
                 main_users = await self.database.get_all_users()
+                ## Scans all main users here, which is why we dont need to check a user twice
                 for main_user in main_users:
                     main_user_friends = await self.database.get_user_friends(main_user[1])
                     go_ahead = False

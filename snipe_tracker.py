@@ -96,8 +96,8 @@ class SnipeTracker:
                 all_friends = await self.database.get_all_friends()
                 main_date = await self.convert_date(main_play['score']['created_at'])
                 for main_friend in main_user_friends: # Only check friends of the main user (I think lmao)
+                    friend = main_friend
                     if str(main_friend[1]) == str(play['user']['id']):
-                        friend = main_friend
                         friend_play = await self.osu.get_score_data(play['beatmap']['id'], friend[1])
                         if friend_play: 
                             friend_date = await self.convert_date(friend_play['score']['created_at'])

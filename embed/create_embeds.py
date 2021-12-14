@@ -92,7 +92,7 @@ async def create_recommendation_embed(beatmaps, user_data, links, ctx, friend, i
         embed.add_field(name=str(beatmaps[index]), value="[Link to map]("+(str(links[index]))+")")
     return embed
 
-async def create_snipes_embed(user, snipes, sniped, total, play, sniped_play, position):
+async def create_snipes_embed(user, snipes, sniped, total, play, sniped_play, position, score, not_sniped):
     snipes = len(snipes)
     sniped = len(sniped)
     total = len(total)
@@ -117,7 +117,11 @@ async def create_snipes_embed(user, snipes, sniped, total, play, sniped_play, po
         str(snipes) + "\n" + "**○ Times Sniped: **" + str(sniped) + \
         "\n▻ **Snipe Difference: **" + \
         str(snipe_difference) + \
-        "\n**► Contributed " + str(snipe_percentage) + "%" + " of snipes!**"
+        "\n► **Snipe Weight: **" + \
+        str(score) + \
+        "\n⯀ **Held Snipes: **" + \
+        str(not_sniped) + \
+        "\nContributed **" + str(snipe_percentage) + "%**" + " of snipes!"
 
     embed = discord.Embed(
         title=titlemessage,

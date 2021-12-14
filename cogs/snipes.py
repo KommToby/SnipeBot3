@@ -33,8 +33,8 @@ class Snipes(commands.Cog): # must have commands.cog or this wont work
             random_sniped_data = await self.osu.get_score_data(random_play[1], random_play[0])
         else:
             random_sniped_data = False
-        position = await self.handle_leaderboard(main_user_id, user_data['id'])
-        embed = await create_snipes_embed(user_data, snipes, sniped, total_snipes, random_play_data, random_sniped_data, position)
+        position, score, not_sniped = await self.handle_leaderboard(main_user_id, user_data['id'])
+        embed = await create_snipes_embed(user_data, snipes, sniped, total_snipes, random_play_data, random_sniped_data, position, score, not_sniped)
         await ctx.send(embed=embed)
 
     async def handle_leaderboard(self, main_user_id, friend_id):
@@ -43,9 +43,18 @@ class Snipes(commands.Cog): # must have commands.cog or this wont work
         for _, friend in enumerate(friends):
             snipes = await self.database.get_single_user_snipes(friend[1], main_user_id)
             sniped = await self.database.get_single_user_snipes(main_user_id, friend[1])
+            not_sniped_back = []
+            for snipe in snipes:
+                add = True
+                for sniped_play in sniped:
+                    if snipe[1] == sniped_play[1]:
+                        add = False
+                if add == True:
+                    not_sniped_back.append(snipe)
             snipes = len(snipes)
             sniped = len(sniped)
-            snipe_difference = (2*snipes)/(sniped+10)
+            not_sniped_back = len(not_sniped_back)
+            snipe_difference = (not_sniped_back * (1/16)*snipes) / (sniped + 100 + snipes)
             if str(friend_id) == friend[1]:
                 friend_data = await self.osu.get_user_data(friend[1])
                 friend_dict = {'username': friend_data['username'], 'snipes': snipes, 'sniped': sniped, 'snipe difference': snipe_difference}
@@ -56,7 +65,21 @@ class Snipes(commands.Cog): # must have commands.cog or this wont work
         leaderboard.sort(
             reverse=True, key=lambda friends_data: friends_data['snipe difference']
         )
-        return leaderboard.index(friend_dict)
+        snipes = await self.database.get_single_user_snipes(friend_id, main_user_id)
+        sniped = await self.database.get_single_user_snipes(main_user_id, friend_id)
+        not_sniped_back = []
+        for snipe in snipes:
+            add = True
+            for sniped_play in sniped:
+                if snipe[1] == sniped_play[1]:
+                    add = False
+            if add == True:
+                not_sniped_back.append(snipe)
+        snipes = len(snipes)
+        sniped = len(sniped)
+        not_sniped_back = len(not_sniped_back)
+        snipe_difference = round(((not_sniped_back * (1/16)*snipes) / (sniped + 100 + snipes)), 2)
+        return leaderboard.index(friend_dict), snipe_difference, not_sniped_back
 
     @snipes.error
     async def on_command_error(self, ctx, error):

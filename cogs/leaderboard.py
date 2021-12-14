@@ -26,9 +26,18 @@ class Leaderboard(commands.Cog): # must have commands.cog or this wont work
             friend_data = await self.osu.get_user_data(friend[1])
             snipes = await self.database.get_single_user_snipes(friend[1], main_user_id)
             sniped = await self.database.get_single_user_snipes(main_user_id, friend[1])
+            not_sniped_back = []
+            for snipe in snipes:
+                add = True
+                for sniped_play in sniped:
+                    if snipe[1] == sniped_play[1]:
+                        add = False
+                if add == True:
+                    not_sniped_back.append(snipe)
             snipes = len(snipes)
             sniped = len(sniped)
-            snipe_weight = (2*snipes)/(sniped+10)
+            not_sniped_back = len(not_sniped_back)
+            snipe_weight = (not_sniped_back * (1/16)*snipes) / (sniped + 100 + snipes)
             leaderboard.append({'username': friend_data['username'], 'snipes': snipes, 'sniped': sniped, 'snipe difference': snipe_weight})
         self.sort_friend_snipes(leaderboard)
         main_snipes = await self.database.get_main_snipes(main_user_id)

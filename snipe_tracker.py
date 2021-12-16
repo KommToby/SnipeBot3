@@ -67,7 +67,7 @@ class SnipeTracker:
     ## When given a play, it checks if the beatmap is already in the database or not (Specific User Passive Tracking - for newly added friends -)
     async def check_beatmap(self, play, friend): # passive tracking
         if not(await self.database.get_beatmap(str(play['beatmap']['id']))): # if beatmap isnt in the db
-            await self.database.add_beatmap(str(play['beatmap']['id']), play['beatmapset']['artist'], play['beatmapset']['title'], play['beatmap']['version'], play['beatmap']['url'])
+            await self.database.add_beatmap(str(play['beatmap']['id']), play['beatmapset']['artist'], play['beatmapset']['title'], play['beatmap']['version'], play['beatmap']['url'], play['beatmap']['difficulty_rating'], play['beatmap']['total_length'],play['beatmap']['bpm'])
             await self.add_snipes(play, friend)
         else: # if the beatmap is in the database
             if await self.verify_user(play):
@@ -78,7 +78,7 @@ class SnipeTracker:
         play2 = play
         play = await self.osu.get_score_data(play['beatmap']['id'], play['user']['id'])
         if not(await self.database.get_beatmap(str(play2['beatmap']['id']))): # if beatmap isnt in the db
-            await self.database.add_beatmap(str(play2['beatmap']['id']), play2['beatmapset']['artist'], play2['beatmapset']['title'], play2['beatmap']['version'], play2['beatmap']['url'])
+            await self.database.add_beatmap(str(play2['beatmap']['id']), play2['beatmapset']['artist'], play2['beatmapset']['title'], play2['beatmap']['version'], play2['beatmap']['url'],play2['beatmap']['difficulty_rating'], play2['beatmap']['total_length'],play2['beatmap']['bpm'])
             await self.add_single_snipe(play)
         else:
             if await self.verify_user(play2):
@@ -192,7 +192,7 @@ class SnipeTracker:
     ## Check beatmap submethod, but for a main user (so it passes false into add_snipes)
     async def check_main_beatmap(self, play):
         if not(await self.database.get_beatmap(play['beatmap']['id'])): # if beatmap isnt in the db
-            await self.database.add_beatmap(play['beatmap']['id'], play['beatmapset']['artist'], play['beatmapset']['title'], play['beatmap']['version'], play['beatmap']['url'])        
+            await self.database.add_beatmap(play['beatmap']['id'], play['beatmapset']['artist'], play['beatmapset']['title'], play['beatmap']['version'], play['beatmap']['url'],play['beatmap']['difficulty_rating'], play['beatmap']['total_length'],play['beatmap']['bpm'])        
             await self.add_snipes(play, False)
 
     ## I think the osu api returns a weird ass version of datetime, so after the conversion this checks if one play is set more recently than another

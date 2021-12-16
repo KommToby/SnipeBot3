@@ -41,7 +41,10 @@ class Database:
                 artist varchar(32),
                 song_name varchar(32),
                 difficulty_name varchar(32),
-                url varchar(32)
+                url varchar(32),
+                stars int,
+                length int,
+                bpm int
             )
         ''')
 
@@ -281,10 +284,10 @@ class Database:
         )
         self.db.commit()
 
-    async def add_beatmap(self, beatmap_id, artist, song_name, difficulty_name, url):
+    async def add_beatmap(self, beatmap_id, artist, song_name, difficulty_name, url, stars, length, bpm):
         self.cursor.execute(
-            "INSERT INTO beatmaps VALUES(?,?,?,?,?)",
-            (beatmap_id, artist, song_name, difficulty_name, url)
+            "INSERT INTO beatmaps VALUES(?,?,?,?,?,?,?,?)",
+            (beatmap_id, artist, song_name, difficulty_name, url, stars, length, bpm)
         )
         self.db.commit()
 
@@ -300,6 +303,27 @@ class Database:
         self.cursor.execute(
             "UPDATE scores SET score=? WHERE user_id=? AND beatmap_id=?",
             (new_score, user_id, beatmap_id)
+        )
+        self.db.commit()
+
+    async def update_beatmap_stars(self, stars, beatmap_id):
+        self.cursor.execute(
+            "UPDATE beatmaps SET stars=? WHERE beatmap_id=?",
+            (stars, beatmap_id)
+        )
+        self.db.commit()
+
+    async def update_beatmap_length(self, length, beatmap_id):
+        self.cursor.execute(
+            "UPDATE beatmaps SET length=? WHERE beatmap_id=?",
+            (length, beatmap_id)
+        )
+        self.db.commit()
+
+    async def update_beatmap_bpm(self, bpm, beatmap_id):
+        self.cursor.execute(
+            "UPDATE beatmaps SET bpm=? WHERE beatmap_id=?",
+            (bpm, beatmap_id)
         )
         self.db.commit()
 

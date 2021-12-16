@@ -5,7 +5,6 @@
 # 4: -link COMMAND TO LINK USERS DISCORD ID TO THEIR OSU ID
 # 5: MAKE IT SO WHEN CHECKING A BEATMAP, IF THE BEATMAPSET EXISTS, CHECK EVERY MAP IN BEATMAPSET (MIGHT NOT BE POSSIBLE)
 # 6: Map-specific statistics
-# 7: Efficiency fixes, theres probably redundent api pings being checked. (Mainly friends could check for both main users instead of being checked twice)
 
 import json
 import os
@@ -16,6 +15,7 @@ from osuauth import osu_auth
 from help import Help
 from database import init_db
 from snipe_tracker import SnipeTracker
+
 
 with open("config.json") as f:
     DISCORD_CONFIG_DATA = json.load(f)["discord"]

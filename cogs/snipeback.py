@@ -14,6 +14,7 @@ class Snipeback(commands.Cog): # must have commands.cog or this wont work
 
     @commands.command()
     async def snipeback(self, ctx, username: str):
+        snipe_warning = False
         main_user = await self.database.get_main_from_discord(ctx.channel.id)
         main_user = main_user[0]
         user_data = await self.osu.get_user_data(username)
@@ -38,7 +39,9 @@ class Snipeback(commands.Cog): # must have commands.cog or this wont work
                                 beatmaps.append(f"{beatmap[1]} - {beatmap[2]} [{beatmap[3]}]")
                                 links.append(beatmap[4])
                             else:
-                                await ctx.send("An error occured. Snipelist may be inaccurate")
+                                if snipe_warning is False:
+                                    await ctx.send("An error occured. There may be duplicate Snipes. Please let `Komm#4701` Know")
+                                    snipe_warning = True
                 embed = await create_embeds.create_snipeback_embed(beatmaps, username, links, user_data)
                 await ctx.send(embed=embed)
             else:

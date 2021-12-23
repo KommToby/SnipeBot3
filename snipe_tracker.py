@@ -84,6 +84,20 @@ class SnipeTracker:
             if await self.verify_user(play2):
                 await self.add_single_snipe(play) # also do passive tracking
 
+    async def check_specific_beatmap(self, beatmap_id):
+        print(f"Checking Beatmap {beatmap_id}")
+        main_users = await self.database.get_all_users()
+        beatmap_data = await self.osu.get_beatmap(beatmap_id)
+        await self.database.add_beatmap(beatmap_data['id'], beatmap_data['beatmapset']['artist'], beatmap_data['beatmapset']['title'], beatmap_data['version'], beatmap_data['url'], beatmap_data['difficulty_rating'], beatmap_data['total_length'], beatmap_data['bpm'])
+        for i, main_user in enumerate(main_users):
+            if i == 0:
+                main_user_play = await self.osu.get_score_data(beatmap_id, main_user[1])
+                if main_user_play:
+                    main_user_play['score']['beatmapset'] = beatmap_data['beatmapset']
+                    await self.add_new_beatmap_snipes(main_user_play)
+            else:
+                pass
+
     ## When given a play, it checks ALL users for snipes on that map, without specific comparison to that user. This contains both active and passive snipes
     async def add_snipes(self, play, friendstatus):
         skip_friends = []        
@@ -175,6 +189,33 @@ class SnipeTracker:
                         if not(await self.database.get_user_snipes(user[1], play['score']['beatmap']['id'], play['score']['user']['id'])):
                             print(f"Adding passive snipe for main user against new user")
                             await self.database.add_snipe(user[1], play['score']['beatmap']['id'], play['score']['user']['id'])
+
+    async def add_new_beatmap_snipes(self, play):
+        main_users = await self.database.get_all_users()
+        for _, user in enumerate(main_users):
+            main_play = await self.osu.get_score_data(play['score']['beatmap']['id'], user[1])
+            if main_play:
+                print("Adding new main user score")
+                await self.database.add_score(user[1], play['score']['beatmap']['id'], main_play['score']['score'], 0)
+                main_date = await self.convert_date(main_play['score']['created_at'])
+                friends = await self.database.get_user_friends(user[1])
+                for friend in friends:
+                    friend_play = await self.osu.get_score_data(play['score']['beatmap']['id'], friend[1])
+                    if friend_play:
+                        print("Adding new friend score")
+                        await self.database.add_score(friend[1], play['score']['beatmap']['id'], friend_play['score']['score'], 0)
+                        friend_date = await self.convert_date(friend_play['score']['created_at'])
+                        if await self.date_more_recent_than(friend_date, main_date):
+                            if friend_play['score']['score'] > main_play['score']['score']:
+                                if not(await self.database.get_user_snipes(friend_play['score']['user']['id'], play['score']['beatmap']['id'], main_play['score']['user']['id'])):
+                                    print(f"        [10] Adding passive snipe for friend against main user {play['score']['user']['username']}")
+                                    await self.database.add_snipe(friend_play['score']['user']['id'], main_play['score']['beatmap']['id'], main_play['score']['user']['id'])
+                        else:
+                            if main_play['score']['score'] > friend_play['score']['score']:
+                                if not(await self.database.get_user_snipes(play['score']['beatmap']['id'], play['score']['beatmap']['id'], friend_play['score']['user']['id'])):
+                                    print(f"        [20] Adding passive snipe for main user against friend")
+                                    await self.database.add_snipe(main_play['score']['user']['id'], play['score']['beatmap']['id'], friend_play['score']['user']['id'])
+    
 
     ## gets the new users data, username, and the channel that requested them to be added, and runs all the scanning submethods
     async def add_new_user(self, user_data, ctx, username):

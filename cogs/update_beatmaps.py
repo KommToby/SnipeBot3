@@ -11,18 +11,25 @@ class Update(commands.Cog):
         self.client = client
         self.database = DATABASE
         self.osu = AUTH
+        self.snipebot = snipe_bot_tracker
 
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def update(self, ctx):
         await ctx.send("ok fine")
-        beatmaps = await self.database.get_all_beatmaps()
-        for beatmap in beatmaps:
-            if beatmap[5] == None or beatmap[6] == None or beatmap[7] == None:
-                beatmapdata = await self.osu.get_beatmap(beatmap[0])
-                await self.database.update_beatmap_stars(beatmapdata['difficulty_rating'], beatmap[0])
-                await self.database.update_beatmap_length(beatmapdata['total_length'], beatmap[0])
-                await self.database.update_beatmap_bpm(beatmapdata['bpm'], beatmap[0])
+        beatmaps = open("beatmaps.txt", "r")
+        all_beatmaps = await self.database.get_all_beatmaps()
+        for line in beatmaps:
+            stripped_line = line.strip()
+            stripped_line = stripped_line.replace("/n", "")
+            in_beatmaps = False
+            for beatmap in all_beatmaps:
+                if str(stripped_line) ==  beatmap[0]:
+                    in_beatmaps = True
+            if in_beatmaps == False:
+                await self.snipebot.check_specific_beatmap(stripped_line)
+            else:
+                print(f"Skipping {stripped_line} as its already stored")
         await ctx.send("beatmaps updated, phew")
 
 

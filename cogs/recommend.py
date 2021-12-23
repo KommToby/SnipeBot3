@@ -16,10 +16,12 @@ class Recommend(commands.Cog): # must have commands.cog or this wont work
     @commands.command(aliases=['r'])
     async def recommend(self, ctx, user_id : str, *args):
         if not args:
-            args = []
-        if args[0] != "-min" and args[0] != "-max":
+            args = [""]
+        if args[0] != "-min" and args[0] != "-max" and args != [""]:
             await ctx.send('Usage: `-recommend "username" ("-min/max" "stars")`')
         else:
+            if args == [""]:
+                args = []
             main_user = await self.database.get_main_from_discord(ctx.channel.id)
             main_user = main_user[0]
             user_data = await self.osu.get_user_data(user_id)
@@ -43,12 +45,11 @@ class Recommend(commands.Cog): # must have commands.cog or this wont work
                         if add is True:
                             beatmap = await self.database.get_beatmap_data(score[1])
                             if beatmap[4] not in links:
-                                beatmaps.append(f"{beatmap[1]} - {beatmap[2]} [{beatmap[3]}]")
+                                beatmaps.append(beatmap)
                                 links.append(beatmap[4])
-                    if args == []:
+                    if args == [""]:
                         pass
                     else:
-                        beatmaps = await self.database.get_all_beatmaps()
                         links = []
                         for i, arg in enumerate(args):
                             if arg.lower() == "-min":
@@ -61,14 +62,14 @@ class Recommend(commands.Cog): # must have commands.cog or this wont work
                                     beatmaps, links = self.sort_max(beatmaps, args[i+1], links)
                                 else:
                                     await ctx.send('Usage: `-recommend "username" ("-min/max" "stars")`')
-                        new_beatmaps = []
-                        new_links = []
-                        for beatmap in beatmaps:
-                            if beatmap[4] not in new_links:
-                                    new_beatmaps.append(f"{beatmap[1]} - {beatmap[2]} [{beatmap[3]}]")
-                                    new_links.append(beatmap[4])
-                        beatmaps = new_beatmaps
-                        links = new_links
+                    new_beatmaps = []
+                    new_links = []
+                    for beatmap in beatmaps:
+                        if beatmap[4] not in new_links:
+                                new_beatmaps.append(f"{beatmap[1]} - {beatmap[2]} [{beatmap[3]}]")
+                                new_links.append(beatmap[4])
+                    beatmaps = new_beatmaps
+                    links = new_links
                     if len(beatmaps) > 0:
                         embed = await create_embeds.create_recommendation_embed2(beatmaps, user_data, links, ctx)
                         await ctx.send(embed=embed)

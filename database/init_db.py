@@ -278,6 +278,18 @@ class Database:
             (userid, discord_channel)
         ).fetchone()
 
+    async def get_main_username(self, main_user_id):
+        return self.cursor.execute(
+            "SELECT username FROM users WHERE user_id=?",
+            (main_user_id)
+        ).fetchone()
+
+    async def get_main_id(self, main_user_id):
+        return self.cursor.execute(
+            "SELECT user_id FROM users WHERE lower(username)=?",
+            (main_user_id)
+        ).fetchone()
+
     # ADDS
 
     async def add_score(self, user_id, beatmap_id, score, snipe):

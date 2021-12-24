@@ -18,50 +18,40 @@ class CheckDupe(commands.Cog): # must have commands.cog or this wont work
         second_occurences = 0
         snipes = await self.database.get_all_snipes()
         scores = await self.database.get_scores()
+
         async def run_snipes(snipes, occurences):
+            scanned_snipes = []
             for i, snipe in enumerate(snipes):
-                count = snipes.count(snipe)
-                snipestatus = False
-                while count > 1:
-                    snipestatus = True
-                    occurences += 1
-                    await self.database.delete_snipe(snipe[0], snipe[1], snipe[2])
-                    print(f"Deleted {snipe[0]} {snipe[1]} {snipe[2]} from db as it was a dupe")
-                    count = count - 1
-                if snipestatus is True:
-                    break
-            if snipestatus is True:
-                return False, occurences
-            else:
-                return True, occurences
-        status, occurences = await run_snipes(snipes, occurences)
-        while status is False:
-            snipes = await self.database.get_all_snipes()
-            status, occurences = await run_snipes(snipes, occurences)
+                if snipe not in scanned_snipes:
+                    count = snipes.count(snipe)
+                    if count>1:
+                        for _ in range(0, count):
+                            occurences += 1
+                            await self.database.delete_snipe(snipe[0], snipe[1], snipe[2])
+                            print(f"Deleted {snipe[0]} {snipe[1]} {snipe[2]} from snipes db as it was a dupe")
+                        scanned_snipes.append(snipe)
+                        print(f"added back")
+                        await self.database.add_snipe(snipe[0], snipe[1], snipe[2])
+            return occurences
+        occurences = await run_snipes(snipes, occurences)
 
         async def run_scores(scores, occurences):
+            scanned_scores = []
             for i, snipe in enumerate(scores):
-                count = scores.count(snipe)
-                snipestatus = False
-                while count > 1:
-                    snipestatus = True
-                    occurences += 1
-                    await self.database.delete_score(snipe[0], snipe[1], snipe[2])
-                    print(f"Deleted {snipe[0]} {snipe[1]} {snipe[2]} from db as it was a dupe")
-                    count = count - 1
-                if snipestatus is True:
-                    await self.database.add_score(snipe[0], snipe[1], snipe[2], 0)
-                    break
-            if snipestatus is True:
-                return False, occurences
-            else:
-                return True, occurences
-        status, second_occurences = await run_scores(scores, occurences)
-        while status is False:
-            scores = await self.database.get_scores()
-            status, second_occurences = await run_scores(scores, second_occurences)
+                if snipe not in scanned_scores:
+                    count = scores.count(snipe)
+                    if count>1:
+                        for _ in range(1, count):
+                            occurences += 1
+                            await self.database.delete_score(snipe[0], snipe[1], snipe[2])
+                            print(f"Deleted {snipe[0]} {snipe[1]} {snipe[2]} from scores db as it was a dupe")
+                        scanned_scores.append(snipe)
+                        print(f"added back")
+                        await self.database.add_score(snipe[0], snipe[1], snipe[2], snipe[3])
+            return occurences
+        second_occurences = await run_scores(scores, occurences)
 
-        await   ctx.send(f"check over. found {occurences} duped snipes\nand {second_occurences} duped scores.")
+        await ctx.send(f"check over. found:\n**{occurences}** duped snipes\n**{second_occurences}** duped scores.")
 
     @checkdupe.error
     async def on_command_error(self, ctx, error):

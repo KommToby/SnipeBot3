@@ -14,9 +14,7 @@ async def create_friend_leaderboard(leaderboard, main_user_name, main_snipes, ma
         if i <= 9:
             weight_difference = round(float(friend['snipe difference']), 2) - round(float(friend['local_weight']), 2)
             if weight_difference >=0:
-                weight_string = "+" + str(weight_difference)
-            else:
-                weight_string = "-" + str(weight_difference)
+                weight_string = "+" + str(round(weight_difference,2))
 
             friend_message = str(i+1) + ": " + friend['username']
             friend_description = "**Snipes: " + str(friend['snipes']) + \

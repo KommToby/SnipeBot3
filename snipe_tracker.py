@@ -332,6 +332,8 @@ class SnipeTracker:
             user_data = await self.osu.get_user_data(user_id)
             if user_data:
                 recent_plays = await self.osu.get_recent_plays(user_id)
+                await self.database.update_main_username(user_id, user_data['username'])
+                await self.database.update_friend_username(user_id, user_data['username'])
                 print(f"     checking main user {user_data['username']}")
                 if recent_plays:
                     for play in recent_plays:
@@ -345,6 +347,7 @@ class SnipeTracker:
             user_id = f"{friend[1]}"
             friend_data = await self.osu.get_user_data(user_id)
             if friend_data:
+                await self.database.update_friend_username(user_id, friend_data['username'])
                 print(f"     checking {friend_data['username']}")
                 main_users = await self.database.get_all_users()
                 ## Scans all main users here, which is why we dont need to check a user twice

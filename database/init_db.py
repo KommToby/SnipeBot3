@@ -31,7 +31,8 @@ class Database:
                 discord_channel varchar(32) not null,
                 user_id varchar(32),
                 last_score varchar(32),
-                ping int2
+                ping int2,
+                leaderboard int
             )
         ''') # dont need to store snipes and sniped, since you can just count from the snipes table
 
@@ -259,6 +260,14 @@ class Database:
             "SELECT * FROM snipes"
         ).fetchall()
 
+    async def get_stored_leaderboard(self, main_user_id, friend_user_id):
+        discord_channel = await self.get_main_discord(main_user_id)
+        discord_channel = discord_channel[0]
+        return self.cursor.execute(
+            "SELECT leaderboard FROM friends WHERE discord_channel=? AND user_id=?",
+            (discord_channel, friend_user_id)
+        ).fetchone()        
+
     # ADDS
 
     async def add_score(self, user_id, beatmap_id, score, snipe):
@@ -270,8 +279,8 @@ class Database:
 
     async def add_friend(self, discord_id, friend_id):
         self.cursor.execute(
-            "INSERT INTO friends VALUES(?,?,?,?)",
-            (discord_id, friend_id, 0, 0)  # second 0 = no ping on snipe
+            "INSERT INTO friends VALUES(?,?,?,?,?)",
+            (discord_id, friend_id, 0, 0, 0)  # second 0 = no ping on snipe - third 0 - leaderboard local 
         )
         self.db.commit()
 
@@ -324,6 +333,15 @@ class Database:
         self.cursor.execute(
             "UPDATE beatmaps SET bpm=? WHERE beatmap_id=?",
             (bpm, beatmap_id)
+        )
+        self.db.commit()
+
+    async def update_local_leaderboard(self, main_user_id, friend_id, weight):
+        discord_channel = await self.get_main_discord(main_user_id)
+        discord_channel = discord_channel[0]
+        self.cursor.execute(
+            "UPDATE friends SET leaderboard=? WHERE discord_channel=? AND user_id=?",
+            (weight, discord_channel, friend_id)
         )
         self.db.commit()
 

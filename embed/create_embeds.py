@@ -76,7 +76,7 @@ async def create_recommendation_embed2(beatmaps, user_data, links, ctx):
     embed.add_field(name=str(beatmaps[index]), value="[Link to map]("+(str(links[index]))+")")
     return embed
 
-async def create_recommendation_embed(beatmaps, user_data, links, ctx, friend, index):
+async def create_recommendation_embed(friend, user_data, beatmap, link):
     if friend == "largestnum":
         send_message = "**__map recommendation for "+str(user_data['username'])+"__**\n"
     else:
@@ -87,9 +87,9 @@ async def create_recommendation_embed(beatmaps, user_data, links, ctx, friend, i
         color=discord.Color.purple()
     )
     if friend == "largestnum":
-        embed.add_field(name=str(beatmaps), value="[Link to map]("+(str(links[index]))+")")
+        embed.add_field(name=str(beatmap), value="[Link to map]("+(str(link))+")")
     else:
-        embed.add_field(name=str(beatmaps[index]), value="[Link to map]("+(str(links[index]))+")")
+        embed.add_field(name=str(beatmap), value="[Link to map]("+(str(link))+")")
     return embed
 
 async def create_snipes_embed(user, snipes, sniped, total, play, sniped_play, position, score, not_sniped):

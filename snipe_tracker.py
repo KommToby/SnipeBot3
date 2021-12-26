@@ -395,7 +395,7 @@ class SnipeTracker:
                                             # play is by a main user on another server
                                             user_data = await self.osu.get_user_data(play['user']['id'])
                                             user_id = play['user']['id']
-                                            await self.check_main_play(self, play, user_id, user_data)
+                                            await self.check_main_play(play, user_id, user_data)
                     if len(main_user) == 1:
                         main_user = (main_user[0], 0)
                     if main_user[1] == user_id: # if the friend is the same person as a main user

@@ -21,7 +21,7 @@ async def create_friend_leaderboard(leaderboard, main_user_name, main_snipes, ma
             friend_message = str(i+1) + ": " + friend['username']
             friend_description = "**Snipes: " + str(friend['snipes']) + \
                 " | Sniped: " + \
-                str(friend['sniped']) + " | Snipe Weight: " + \
+                str(friend['sniped']) + " | Snipe PP: " + \
                 str(round(friend['snipe difference'], 2)) + "** (" + weight_string + ")"
             embed.add_field(name=friend_message,
                             value=friend_description, inline=False)
@@ -98,7 +98,7 @@ async def create_recommendation_embed(friend, user_data, beatmap, link):
         embed.add_field(name=str(beatmap), value="[Link to map]("+(str(link))+")")
     return embed
 
-async def create_snipes_embed(user, snipes, sniped, total, play, sniped_play, position, score, not_sniped):
+async def create_snipes_embed(user, snipes, sniped, total, play, sniped_play, position, score, not_sniped, not_sniped_main):
     snipes = len(snipes)
     sniped = len(sniped)
     total = len(total)
@@ -123,10 +123,12 @@ async def create_snipes_embed(user, snipes, sniped, total, play, sniped_play, po
         str(snipes) + "\n" + "**○ Times Sniped: **" + str(sniped) + \
         "\n▻ **Snipe Difference: **" + \
         str(snipe_difference) + \
-        "\n► **Snipe Weight: **" + \
+        "\n► **Snipe PP: **" + \
         str(score) + \
         "\n⯀ **Held Snipes: **" + \
         str(not_sniped) + \
+        "\n☐ **To-Snipe: **" + \
+        str(not_sniped_main) + \
         "\nContributed **" + str(snipe_percentage) + "%**" + " of snipes!"
 
     embed = discord.Embed(

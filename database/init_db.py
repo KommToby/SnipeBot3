@@ -185,14 +185,10 @@ class Database:
             (main_user_id,)
         ).fetchall()
 
-    async def get_user_friends(self, main_id):
-        main_discord = self.cursor.execute(
-            "SELECT discord_id FROM users WHERE user_id=?",
-            (main_id,)
-        ).fetchone()
+    async def get_user_friends(self, main_discord):
         return self.cursor.execute(
             "SELECT * FROM friends WHERE discord_channel=?",
-            (main_discord[0],)
+            (main_discord,)
         ).fetchall()
 
     async def get_main_discord(self, main_id):

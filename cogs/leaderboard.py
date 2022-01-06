@@ -20,7 +20,7 @@ class Leaderboard(commands.Cog): # must have commands.cog or this wont work
         leaderboard = []
         main_user_id = await self.database.get_main_from_discord(ctx.channel.id)
         main_user_id = main_user_id[0]
-        friends = await self.database.get_user_friends(main_user_id) # specifically get the list of friends for that user
+        friends = await self.database.get_user_friends(ctx.channel.id) # specifically get the list of friends for that user
         for _, friend in enumerate(friends):
             friend_leaderboard = await self.database.get_stored_leaderboard(main_user_id, friend[1])
             friend_leaderboard = friend_leaderboard[0]
@@ -48,7 +48,7 @@ class Leaderboard(commands.Cog): # must have commands.cog or this wont work
             sniped = len(sniped)
             not_sniped_back = len(not_sniped_back)        
             not_sniped_main = len(not_sniped_main)
-            snipe_weight = ((snipes + 2*not_sniped_back)/(not_sniped_main+sniped)*1000)
+            snipe_weight = ((snipes + 2*not_sniped_back)/(not_sniped_main+sniped+1)*1000)
             await self.database.update_local_leaderboard(main_user_id, friend[1], snipe_weight)
             leaderboard.append({'username': friend_data[0], 'snipes': snipes, 'sniped': sniped, 'snipe difference': snipe_weight, 'local_weight': friend_leaderboard})
         self.sort_friend_snipes(leaderboard)

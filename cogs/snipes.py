@@ -39,22 +39,26 @@ class Snipes(commands.Cog): # must have commands.cog or this wont work
 
     async def handle_leaderboard(self, main_user_id, friend_id):
         leaderboard = []
-        friends = await self.database.get_user_friends(main_user_id)
+        main_discord = await self.database.get_main_discord(main_user_id)
+        main_discord = main_discord[0]
+        friends = await self.database.get_user_friends(main_discord)
         for _, friend in enumerate(friends):
             snipes = await self.database.get_single_user_snipes(friend[1], main_user_id)
             sniped = await self.database.get_single_user_snipes(main_user_id, friend[1])
             not_sniped_back = []
-            for snipe in snipes:
+            not_sniped_main = [] # Maps that the friend has not sniped back off the main user
+            for sniped_play in sniped:
                 add = True
-                for sniped_play in sniped:
+                for snipe in snipes:
                     if snipe[1] == sniped_play[1]:
                         add = False
-                if add == True:
-                    not_sniped_back.append(snipe)
+                if add is True:
+                    not_sniped_main.append(sniped_play)
             snipes = len(snipes)
             sniped = len(sniped)
-            not_sniped_back = len(not_sniped_back)
-            snipe_difference = (not_sniped_back * (1/16)*snipes) / (sniped + 100 + snipes)
+            not_sniped_back = len(not_sniped_back)        
+            not_sniped_main = len(not_sniped_main)
+            snipe_difference = round((((snipes + 2*not_sniped_back)/((not_sniped_main+sniped)*1000+1))), 2)
             if str(friend_id) == friend[1]:
                 friend_data = await self.osu.get_user_data(friend[1])
                 friend_dict = {'username': friend_data['username'], 'snipes': snipes, 'sniped': sniped, 'snipe difference': snipe_difference}
@@ -89,7 +93,7 @@ class Snipes(commands.Cog): # must have commands.cog or this wont work
         not_sniped_back = len(not_sniped_back)        
         not_sniped_main = len(not_sniped_main)
 
-        snipe_difference = round((((snipes + 2*not_sniped_back)/(not_sniped_main+sniped)*1000)), 2)
+        snipe_difference = round((((snipes + 2*not_sniped_back)/((not_sniped_main+sniped)*1000+1))), 2)
         return leaderboard.index(friend_dict), snipe_difference, not_sniped_back, not_sniped_main
 
     @snipes.error

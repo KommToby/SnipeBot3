@@ -21,7 +21,9 @@ class SnipeTracker:
     ## When given a main user play, the method calculates which friends got sniped from that play, and then posts the embed.
     async def get_sniped_friends(self, play):
         sniped = []
-        friends = await self.database.get_user_friends(play["user_id"])
+        main_discord = await self.database.get_main_discord(play["user_id"])
+        main_discord = main_discord[0]
+        friends = await self.database.get_user_friends(main_discord)
         for friend in friends:
             friend_play = await self.osu.get_score_data(play["beatmap"]["id"], friend[1])
             user_id = f"{friend[1]}"
@@ -106,7 +108,9 @@ class SnipeTracker:
             is_friend = False # Initialise as false
             main_play = await self.osu.get_score_data(play['beatmap']['id'], user[1])
             if main_play:
-                main_user_friends = await self.database.get_user_friends(user[1])
+                main_discord = await self.database.get_main_discord(user[1])
+                main_discord = main_discord[0]
+                main_user_friends = await self.database.get_user_friends(main_discord)
                 all_friends = await self.database.get_all_friends()
                 main_date = await self.convert_date(main_play['score']['created_at'])
                 for main_friend in main_user_friends: # Only check friends of the main user (I think lmao)
@@ -127,7 +131,8 @@ class SnipeTracker:
                                             if await self.date_more_recent_than(play_date, friend_date) and str(play['user']['id']) == str(friend[1]) and str(self.new_user) != str(play['user_id']):
                                                 if play['score'] > main_play['score']['score']:
                                                     ## Active snipe via database
-                                                    await self.post_friend_snipe(main_play['score'], play, (user[1],))
+                                                    if friendstatus != "checkscore":
+                                                        await self.post_friend_snipe(main_play['score'], play, (user[1],))
                                             else:    
                                                 ## Passive snipe via database
                                                 print(f"        [1] Passive Snipe By {friend_play['score']['user']['username']} against {main_play['score']['user']['username']}")
@@ -198,7 +203,9 @@ class SnipeTracker:
                 print("Adding new main user score")
                 await self.database.add_score(user[1], play['score']['beatmap']['id'], main_play['score']['score'], 0)
                 main_date = await self.convert_date(main_play['score']['created_at'])
-                friends = await self.database.get_user_friends(user[1])
+                main_discord = await self.database.get_main_discord(user[1])
+                main_discord = main_discord[0]
+                friends = await self.database.get_user_friends(main_discord)
                 for friend in friends:
                     friend_play = await self.osu.get_score_data(play['score']['beatmap']['id'], friend[1])
                     if friend_play:
@@ -223,10 +230,11 @@ class SnipeTracker:
         self.new_user = user_data
         await self.scan_single_top(user_data)
         for _, beatmap in enumerate(beatmaps):
-            print("still scanning " + str(user_data))
-            play = await self.osu.get_score_data(beatmap[0], user_data)
-            if play:
-                await self.add_single_snipe(play)
+            # print("still scanning " + str(user_data))
+            # play = await self.osu.get_score_data(beatmap[0], user_data)
+            # if play:
+            #     await self.add_single_snipe(play)
+            pass
         self.new_user == ""
         await ctx.send(f"{username}'s plays have been scanned and scores are up to date.")
 
@@ -352,7 +360,9 @@ class SnipeTracker:
                 main_users = await self.database.get_all_users()
                 ## Scans all main users here, which is why we dont need to check a user twice
                 for main_user in main_users:
-                    main_user_friends = await self.database.get_user_friends(main_user[1])
+                    main_discord = await self.database.get_main_discord(main_user[1])
+                    main_discord = main_discord[0]
+                    main_user_friends = await self.database.get_user_friends(main_discord)
                     go_ahead = False
                     for main_friend in main_user_friends:
                         if str(user_id) == main_friend[1]:

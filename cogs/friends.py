@@ -15,7 +15,8 @@ class Friends(commands.Cog): # must have commands.cog or this wont work
     async def friends(self, ctx, user_id : str):
         main_user_id = await self.database.get_main_id(((user_id.lower()),))
         main_user_id = main_user_id[0]
-        friends = await self.database.get_user_friends(main_user_id)
+        discord = await self.database.get_main_discord(main_user_id)
+        friends = await self.database.get_user_friends(discord[0])
         if main_user_id is not None:
             main_username = main_user_id
             friendmessage = ""

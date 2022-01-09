@@ -83,20 +83,30 @@ async def create_recommendation_embed2(beatmaps, user_data, links, ctx):
     return embed
 
 async def create_recommendation_embed(friend, user_data, beatmap, link):
-    if friend == "largestnum":
-        send_message = "**__map recommendation for "+str(user_data['username'])+"__**\n"
+    if friend == "bestnum":
+        send_message = "**__(up to) 9 best map recommendations for "+str(user_data['username'])+"__**\n"
+        embed = discord.Embed(
+            title=send_message,
+            color=discord.Color.purple()
+        )
+        for i, beatmap_string in enumerate(beatmap):
+            embed.add_field(name=str(beatmap_string), value="[Link to map]("+(str(link[i]))+")", inline=False)
+        return embed
     else:
-        send_message = "**__Random map recommendation for "+str(user_data['username'])+" played by "+str(friend)+"__**\n"
+        if friend == "largestnum":
+            send_message = "**__map recommendation for "+str(user_data['username'])+"__**\n"
+        else:
+            send_message = "**__Random map recommendation for "+str(user_data['username'])+" played by "+str(friend)+"__**\n"
 
-    embed = discord.Embed(
-        title=send_message,
-        color=discord.Color.purple()
-    )
-    if friend == "largestnum":
-        embed.add_field(name=str(beatmap), value="[Link to map]("+(str(link))+")")
-    else:
-        embed.add_field(name=str(beatmap), value="[Link to map]("+(str(link))+")")
-    return embed
+        embed = discord.Embed(
+            title=send_message,
+            color=discord.Color.purple()
+        )
+        if friend == "largestnum" or friend == "bestnum":
+            embed.add_field(name=str(beatmap), value="[Link to map]("+(str(link))+")")
+        else:
+            embed.add_field(name=str(beatmap), value="[Link to map]("+(str(link))+")")
+        return embed
 
 async def create_snipes_embed(user, snipes, sniped, total, play, sniped_play, position, score, not_sniped, not_sniped_main):
     snipes = len(snipes)

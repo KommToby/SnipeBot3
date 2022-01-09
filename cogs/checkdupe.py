@@ -14,10 +14,13 @@ class CheckDupe(commands.Cog): # must have commands.cog or this wont work
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def checkdupe(self, ctx):
-        occurences = 0
-        second_occurences = 0
-        snipes = await self.database.get_all_snipes()
-        scores = await self.database.get_scores()
+        if str(ctx.message.author.id) == "150313781673721856":
+            occurences = 0
+            second_occurences = 0
+            snipes = await self.database.get_all_snipes()
+            scores = await self.database.get_scores()
+        else:
+            await ctx.send(f"You do not have permissions for that command.")
 
         async def run_snipes(snipes, occurences):
             scanned_snipes = []

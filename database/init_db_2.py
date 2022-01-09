@@ -5,7 +5,7 @@ from osuauth.osu_auth import OsuAuth
 class Database:
     def __init__(self):
         self.osu = OsuAuth()
-        self.db = sqlite3.connect('database.db')
+        self.db = sqlite3.connect('database2.db')
         self.cursor = self.db.cursor()
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS scores(
@@ -289,14 +289,11 @@ class Database:
     # ADDS
 
     async def add_score(self, user_id, beatmap_id, score, snipe):
-        if not (await self.get_user_beatmap_play_score(user_id, beatmap_id, score)):
-            self.cursor.execute(
-                "INSERT INTO scores VALUES(?,?,?,?)",
-                (user_id, beatmap_id, score, snipe)  # SNIPE 0 OR 1
-            )
-            self.db.commit()
-        else:
-            await self.replace_user_play(user_id, beatmap_id, score)
+        self.cursor.execute(
+            "INSERT INTO scores VALUES(?,?,?,?)",
+            (user_id, beatmap_id, score, snipe)  # SNIPE 0 OR 1
+        )
+        self.db.commit()
 
     async def add_friend(self, discord_id, friend_id):
         self.cursor.execute(
@@ -315,14 +312,11 @@ class Database:
         self.db.commit()
 
     async def add_beatmap(self, beatmap_id, artist, song_name, difficulty_name, url, stars, length, bpm):
-        if not(await self.get_beatmap(beatmap_id)):
-            self.cursor.execute(
-                "INSERT INTO beatmaps VALUES(?,?,?,?,?,?,?,?)",
-                (beatmap_id, artist, song_name, difficulty_name, url, stars, length, bpm)
-            )
-            self.db.commit()
-        else:
-            pass
+        self.cursor.execute(
+            "INSERT INTO beatmaps VALUES(?,?,?,?,?,?,?,?)",
+            (beatmap_id, artist, song_name, difficulty_name, url, stars, length, bpm)
+        )
+        self.db.commit()
 
     async def add_snipe(self, user_id, beatmap_id, second_user_id):
         self.cursor.execute(

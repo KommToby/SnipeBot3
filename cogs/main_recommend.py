@@ -5,6 +5,7 @@ from snipebot import DATABASE, AUTH, snipe_bot_tracker
 from embed import create_embeds
 import random
 import numpy as np
+import asyncio
 
 
 class MainRecommend(commands.Cog): # must have commands.cog or this wont work
@@ -32,20 +33,56 @@ class MainRecommend(commands.Cog): # must have commands.cog or this wont work
                 if user_data:
 
                     # I think the previous method was just to check scores that their friends have
-                    friends = await self.database.get_user_friends(userid)
+                    main_user = await self.database.get_main_from_discord(ctx.channel.id)
+                    userid = main_user[0]
+                    friends = await self.database.get_user_friends(ctx.channel.id)
                     main_user_scores = await self.database.get_all_scores(userid)
 
                     main_user_beatmaps = []
                     for main_user_score in main_user_scores:
                         if main_user_score[1] not in main_user_beatmaps:
+                            # maps that the main user has played
                             main_user_beatmaps.append(main_user_score[1])
 
                     friend_beatmaps = []
+                    friend_and_main_scores = []
+                    friend_and_main_beatmaps = []
                     for friend in friends:
                         local_friend_scores = await self.database.get_all_scores(friend[1])
                         for local_friend_score in local_friend_scores:
-                            if local_friend_score[1] not in friend_beatmaps and local_friend_score[1] not in main_user_beatmaps:
+                            # maps that friends have played that the main user hasnt
+                            if local_friend_score[1] not in main_user_beatmaps:
                                 friend_beatmaps.append(local_friend_score[1])
+                            # maps that both friends and the main user have played
+                            if local_friend_score[1] in main_user_beatmaps:
+                                friend_and_main_scores.append(local_friend_score)
+                        
+                        # Only worth checking if there are more than 5 friends who have played said map (efficiency)
+                    temp = []
+                    maximum = max(friend_beatmaps, key = friend_beatmaps.count)
+                    maximum = friend_beatmaps.count(maximum)
+                    countmin = round((1/2)*float(maximum))
+                    for friend_beatmap in friend_beatmaps:
+                        count = friend_beatmaps.count(friend_beatmap)
+                        if count > countmin and friend_beatmap not in temp:
+                            temp.append(friend_beatmap)
+                    friend_beatmaps = []
+                    for t in temp:
+                        friend_beatmaps.append(t)
+
+                    for friend_and_main_score in friend_and_main_scores:
+                        if friend_and_main_score[1] not in friend_and_main_beatmaps:
+                            friend_and_main_beatmaps.append(friend_and_main_score[1])
+
+                    # again only worth checking if there are more than 3 friends in this case
+                    temp = []
+                    for friend_and_main_beatmap in friend_and_main_beatmaps:
+                        count = friend_and_main_beatmaps.count(friend_and_main_beatmap)
+                        if count > 3 and friend_and_main_beatmap not in temp:
+                            temp.append(friend_and_main_beatmap)
+                    friend_and_main_beatmaps = []
+                    for t in temp:
+                        friend_and_main_beatmaps.append(t)
 
                     if len(friend_beatmaps) > 0:
                         if len(args) > 1:
@@ -68,6 +105,60 @@ class MainRecommend(commands.Cog): # must have commands.cog or this wont work
                                 beatmap = beatmaps[index]
                                 beatmap_string = f"{beatmap[2]} [{beatmap[3]}]"
                                 embed = await create_embeds.create_recommendation_embed("largestnum", user_data, beatmap_string, beatmap[4])
+                                await ctx.send(embed=embed)
+
+                            elif args[1] and args[1].lower() == "-best":
+
+                                # for every score that is stored in the database
+                                userid = str(userid)
+
+                                # Checks scores that have the best potential SnipeBack
+                                for i, score in enumerate(friend_and_main_beatmaps):
+                                    if i % 50 == 0:
+                                        await asyncio.sleep(0.01)
+                                    beatmap = await self.database.get_beatmap_data(score)
+                                    if beatmap not in beatmaps:
+                                        beatmaps.append(beatmap)
+                                        all_friends = await self.database.get_user_plays_from_beatmap(score)
+                                        main_score = await self.database.get_user_beatmap_play_with_zeros(userid, score)
+                                        localfriends = []
+                                        for friend in all_friends:
+                                            if main_score:
+                                                if int(friend[3]) > int(main_score[3]) and main_score[3] != '0':
+                                                    localfriends.append(friend)
+                                                    localfriends.append(friend)
+                                                    localfriends.append(friend)
+                                        friendnum = len(localfriends)
+                                        friends_num.append(friendnum)
+
+                                # Checks scores that have the most potential Snipes (-most)
+                                for i, score in enumerate(friend_beatmaps):
+                                    if len(friend_beatmaps) > 10:
+                                        if i % (round((len(friend_beatmaps))/10)):
+                                            await asyncio.sleep(0.01)
+                                    beatmap = await self.database.get_beatmap_data(score)
+                                    if beatmap not in beatmaps:
+                                        beatmaps.append(beatmap)
+                                        all_friends = await self.database.get_user_plays_from_beatmap(score)
+                                        localfriends = []
+                                        for friend in all_friends:
+                                            localfriends.append(friend)
+                                            localfriends.append(friend)
+                                        friendnum = len(localfriends)
+                                        friends_num.append(friendnum)
+                                
+                                links = []
+                                beatmap_strings = []
+                                for i in range(0,9):
+                                    if friends_num != []:
+                                        maxvalue = max(friends_num)
+                                        index = friends_num.index(maxvalue)
+                                        beatmap = beatmaps[index]
+                                        beatmap_strings.append(f"{beatmap[2]} [{beatmap[3]}]")
+                                        links.append(beatmap[4])
+                                        friends_num.remove(maxvalue)
+                                        beatmaps.remove(beatmaps[index])
+                                embed = await create_embeds.create_recommendation_embed("bestnum", user_data, beatmap_strings, links)
                                 await ctx.send(embed=embed)
 
                             elif args[1] and args[1].lower() == "-player":
@@ -122,6 +213,7 @@ class MainRecommend(commands.Cog): # must have commands.cog or this wont work
                             await ctx.send(embed=embed)
                     else:
                         await ctx.send("No recommendations at this time. Play some more maps and try again later.")
+
 
 
     @main_recommend.error

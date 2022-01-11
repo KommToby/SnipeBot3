@@ -58,7 +58,11 @@ class Snipes(commands.Cog): # must have commands.cog or this wont work
             sniped = len(sniped)
             not_sniped_back = len(not_sniped_back)        
             not_sniped_main = len(not_sniped_main)
-            snipe_difference = round(((snipes + 2*not_sniped_back)/(not_sniped_main+sniped+1)*1000), 2)
+            # reduction multiplier
+            multiplier = 1
+            if snipes < 100:
+                multiplier = (25/100) + (0.75 * (snipes/100))
+            snipe_difference = round((multiplier*((snipes + 2*not_sniped_back)/(not_sniped_main+sniped+1)*1000)), 2)
             if str(friend_id) == friend[1]:
                 friend_data = await self.osu.get_user_data(friend[1])
                 friend_dict = {'username': friend_data['username'], 'snipes': snipes, 'sniped': sniped, 'snipe difference': snipe_difference}
@@ -92,8 +96,10 @@ class Snipes(commands.Cog): # must have commands.cog or this wont work
         sniped = len(sniped)
         not_sniped_back = len(not_sniped_back)        
         not_sniped_main = len(not_sniped_main)
-
-        snipe_difference = round(((snipes + 2*not_sniped_back)/(not_sniped_main+sniped+1)*1000), 2)
+        multiplier = 1
+        if snipes < 100:
+            multiplier = (25/100) + (0.75 * (snipes/100))
+        snipe_difference = round((multiplier*((snipes + 2*not_sniped_back)/(not_sniped_main+sniped+1)*1000)), 2)
         return leaderboard.index(friend_dict), snipe_difference, not_sniped_back, not_sniped_main
 
     @snipes.error

@@ -156,6 +156,28 @@ async def create_snipes_embed(user, snipes, sniped, total, play, sniped_play, po
             value="[Link to map]("+str(sniped_play['score']['beatmap']['url'])+")", inline=False)
     return embed
 
+async def create_stats_embed(artists, diff, song, user_data, gd):
+    string = f"\n__**{user_data['username']}'s top 10 most popular Artists:**__\n```\n"
+    embed = discord.Embed(
+        title=f"osu! stats for {user_data['username']}",
+        color=discord.Colour.gold()
+    )
+    embed.set_author(name="Snipebot 3 by Komm",
+                    icon_url=f"https://osu.ppy.sh/images/flags/{user_data['country_code']}.png")
+    if user_data['avatar_url'][0] == "/":
+        embed.set_thumbnail(url=f"https://osu.ppy.sh{user_data['avatar_url']}")
+    else:
+        embed.set_thumbnail(url=user_data['avatar_url'])
+    
+    for artist in artists:
+        string = string + artist +"\n"
+    string = string + "```"
+
+    embed.description = string
+    embed.add_field(name=f"Average SR of all your stored plays: `{round(diff, 2)}`",
+                    value=f"**One of your most played songs: `{song}`**\n**Your favourite Guest Difficulty Mapper: `{gd}`**")
+    return embed
+
 async def create_profile_embed(user):
     embed = discord.Embed(
         title=f"osu! profile for {user['username']}",

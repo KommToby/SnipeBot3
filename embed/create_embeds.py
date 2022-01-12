@@ -156,7 +156,7 @@ async def create_snipes_embed(user, snipes, sniped, total, play, sniped_play, po
             value="[Link to map]("+str(sniped_play['score']['beatmap']['url'])+")", inline=False)
     return embed
 
-async def create_stats_embed(artists, diff, song, user_data, gd):
+async def create_stats_embed(artists, diff, song, user_data, gd, best_count, artist_count, gd_freq, maps, av_len, most_mapper, mapper_freq, gds, hosts):
     string = f"\n__**{user_data['username']}'s top 10 most popular Artists:**__\n```\n"
     embed = discord.Embed(
         title=f"osu! stats for {user_data['username']}",
@@ -169,13 +169,24 @@ async def create_stats_embed(artists, diff, song, user_data, gd):
     else:
         embed.set_thumbnail(url=user_data['avatar_url'])
     
-    for artist in artists:
-        string = string + artist +"\n"
+    for p, artist in enumerate(artists):
+        string = string + f"{artist} ({artist_count[p]})\n"
     string = string + "```"
 
     embed.description = string
-    embed.add_field(name=f"Average SR of all your stored plays: `{round(diff, 2)}`",
-                    value=f"**One of your most played songs: `{song}`**\n**Your favourite Guest Difficulty Mapper: `{gd}`**")
+    if av_len < 60:
+        av_len = f"{str(av_len)} seconds"
+    else:
+        mod = av_len%60
+        mod = round(mod)
+        if round(mod) < 10:
+            mod = f"0{str(mod)}"
+        else:
+            mod = str(mod)
+        av_len = f"{str(round(av_len/60))}:{mod}"
+    embed.add_field(name=f"Average SR of all your stored plays: `{round(diff, 2)}` ({maps} stored plays!)\nAverage length of your stored plays: `{av_len}`",
+                    value=f"**One of your most played songs: `{song}` ({best_count} instances)**\n**Your favourite Guest Difficulty Mapper: `{gd}` ({gd_freq} instances)**\n**Your favourite mapper: `{most_mapper}` ({hosts} Host | {gds} Guest instances)**")
+    embed.set_footer(text="Fact of the day: Did you know that Shii is the mapper of Lagtrain?", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Blue_question_mark_icon.svg/1200px-Blue_question_mark_icon.svg.png")
     return embed
 
 async def create_profile_embed(user):

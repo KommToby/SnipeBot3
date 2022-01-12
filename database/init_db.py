@@ -47,7 +47,8 @@ class Database:
                 url varchar(32),
                 stars int,
                 length int,
-                bpm int
+                bpm int,
+                mapper varchar(32)
             )
         ''')
 
@@ -116,6 +117,13 @@ class Database:
         return self.cursor.execute(
             "SELECT * FROM scores WHERE user_id=? AND score!=?",
             (user_id,"0")
+        ).fetchall()
+
+    async def get_mapper(self, mapper):
+        mapper = ((mapper.lower()),)
+        return self.cursor.execute(
+            "SELECT * FROM beatmaps WHERE lower(mapper)=?",
+            (mapper)
         ).fetchall()
 
     async def get_user_scores_with_zeros(self, user_id):
@@ -314,11 +322,11 @@ class Database:
         )
         self.db.commit()
 
-    async def add_beatmap(self, beatmap_id, artist, song_name, difficulty_name, url, stars, length, bpm):
+    async def add_beatmap(self, beatmap_id, artist, song_name, difficulty_name, url, stars, length, bpm, mapper, beatmapset_id):
         if not(await self.get_beatmap(beatmap_id)):
             self.cursor.execute(
-                "INSERT INTO beatmaps VALUES(?,?,?,?,?,?,?,?)",
-                (beatmap_id, artist, song_name, difficulty_name, url, stars, length, bpm)
+                "INSERT INTO beatmaps VALUES(?,?,?,?,?,?,?,?,?,?)",
+                (beatmap_id, artist, song_name, difficulty_name, url, stars, length, bpm, mapper, beatmapset_id)
             )
             self.db.commit()
         else:
@@ -382,6 +390,21 @@ class Database:
             (username, friend_user_id)
         )
         self.db.commit()
+
+    async def update_mapper(self, beatmap_id, mapper):
+        self.cursor.execute(
+            "UPDATE beatmaps SET mapper=? WHERE beatmap_id=?",
+            (mapper, beatmap_id)
+        )
+        self.db.commit()
+
+    async def update_beatmapset_id(self, beatmap_id, beatmapset_id):
+        self.cursor.execute(
+            "UPDATE beatmaps SET beatmapset_id=? WHERE beatmap_id=?",
+            (beatmapset_id, beatmap_id)
+        )
+        self.db.commit()
+
 
     # DELETES
     async def delete_snipe(self, user_id, beatmap_id, second_user_id):

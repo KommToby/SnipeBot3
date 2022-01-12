@@ -16,9 +16,15 @@ class Stats(commands.Cog):  # must have commands.cog or this wont work
     async def stats(self, ctx, user: str):
         artists = []
         stars = []
+        lengths = []
         ids = []
         song_names = []
         guest_diffs = []
+        beatmapsets = []
+        mappers = []
+        gd_beatmapsets = {}
+        hosts = 0
+        gds = 0
         user_data = await self.osu.get_user_data(user)
         user_id = str(user_data['id'])
         scores = await self.database.get_all_scores(user_id)
@@ -29,25 +35,43 @@ class Stats(commands.Cog):  # must have commands.cog or this wont work
                     if beatmap[0] not in ids:
                         if float(beatmap[5]) > 0.0:
                             stars.append(float(beatmap[5]))
+                        if int(beatmap[6]) > 0:
+                            lengths.append(int(beatmap[6]))
+
                     if beatmap[1] in artists and beatmap[2] not in song_names:
+                        beatmapsets.append(beatmap[9])
                         artists.append(beatmap[1])
                         song_names.append(beatmap[2])
                         ids.append(beatmap[0])
                         guest_diff = False
-                    elif beatmap[1] not in artists:
+                        mappers.append(str(beatmap[8]))
+
+                    elif beatmap[9] not in beatmapsets:
                         artists.append(beatmap[1])
+                        beatmapsets.append(beatmap[9])
                         song_names.append(beatmap[2])
                         ids.append(beatmap[0])
+                        mappers.append(str(beatmap[8]))
 
                     guest_diff = False
                     for stri in beatmap[3]:
                             if stri == "'":
                                 guest_diff = True
+                    guest_name = beatmap[3].split("'")[0]
                     if guest_diff == True:
-                        guest_diffs.append(beatmap[3].split("'")[0])
+                        guest_diffs.append(guest_name)
+                        g = True
+                        for bid in gd_beatmapsets:
+                            if gd_beatmapsets[bid] == guest_name and bid == beatmap:
+                                g = False
+                        if g is True:
+                            gd_beatmapsets[beatmap[9]] = guest_name
+                            mappers.append(guest_name)
 
         numarray = []
+        artist_count = []
         num = "none"
+        best_count = 0
         for j in range(0,10):
             counter = 0
             for i in artists:
@@ -56,8 +80,10 @@ class Stats(commands.Cog):  # must have commands.cog or this wont work
                     counter = curr_frequency
                     num = i
                     if j == 0:
+                        best_count = counter
                         song = song_names[(artists.index(i))]
             numarray.append(num)
+            artist_count.append(counter)
             
             old_artists = artists
             artists = []
@@ -75,31 +101,47 @@ class Stats(commands.Cog):  # must have commands.cog or this wont work
                 most_frequent = []
                 counter = curr_frequency
                 most_frequent.append(s)
+                best_count = curr_frequency
             elif curr_frequency == counter:
                 most_frequent.append(s)
 
         random_num = random.randint(0, len(most_frequent))
+        if random_num == len(most_frequent):
+            random_num = random_num-1
         song = most_frequent[random_num]
-
         counter = 0
+        gd_freq = 0
         for gd in guest_diffs:
             curr_frequency = guest_diffs.count(gd)
             if curr_frequency > counter:
                 counter = curr_frequency
                 most_gd = gd
+                gd_freq = counter
+
+        counter = 0
+        mapper_freq = 0
+        for gd in mappers:
+            curr_frequency = mappers.count(gd)
+            if curr_frequency > counter:
+                counter = curr_frequency
+                most_mapper = gd
+                mapper_freq = counter
 
         difficulty = 0.0
         for star in stars:
             difficulty = difficulty + float(star)
         diff = difficulty / float(len(stars))
+        maps = len(stars)
 
-        # string = f"\n__**ok fine this is {user_data['username']}'s top 10 most played artists or whatever**__\n```\n"
-        # for artist in numarray:
-        #     string = string + artist +"\n"
-        # string = string + f"```\n ok and your average sr of all ur stored plays is `{round(diff, 2)}` wow good job\nAND your most played song is `{song}` lol"
-        # await ctx.send(string)
+        av_len = 0
+        for length in lengths:
+            av_len = av_len + length
+        av_len = av_len / len(lengths)
 
-        embed = await self.embed.create_stats_embed(numarray, diff, song, user_data, most_gd)
+        gds = guest_diffs.count(most_mapper)
+        hosts = mapper_freq - gds
+
+        embed = await self.embed.create_stats_embed(numarray, diff, song, user_data, most_gd, best_count, artist_count, gd_freq, maps, av_len, most_mapper, mapper_freq, gds, hosts)
         await ctx.send(embed=embed)
 
     @stats.error

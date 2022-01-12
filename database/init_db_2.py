@@ -47,7 +47,8 @@ class Database:
                 url varchar(32),
                 stars int,
                 length int,
-                bpm int
+                bpm int,
+                mapper varchar(32)
             )
         ''')
 
@@ -289,11 +290,14 @@ class Database:
     # ADDS
 
     async def add_score(self, user_id, beatmap_id, score, snipe):
-        self.cursor.execute(
-            "INSERT INTO scores VALUES(?,?,?,?)",
-            (user_id, beatmap_id, score, snipe)  # SNIPE 0 OR 1
-        )
-        self.db.commit()
+        if not (await self.get_user_beatmap_play_score(user_id, beatmap_id, score)):
+            self.cursor.execute(
+                "INSERT INTO scores VALUES(?,?,?,?)",
+                (user_id, beatmap_id, score, snipe)  # SNIPE 0 OR 1
+            )
+            self.db.commit()
+        else:
+            await self.replace_user_play(user_id, beatmap_id, score)
 
     async def add_friend(self, discord_id, friend_id):
         self.cursor.execute(
@@ -312,11 +316,14 @@ class Database:
         self.db.commit()
 
     async def add_beatmap(self, beatmap_id, artist, song_name, difficulty_name, url, stars, length, bpm):
-        self.cursor.execute(
-            "INSERT INTO beatmaps VALUES(?,?,?,?,?,?,?,?)",
-            (beatmap_id, artist, song_name, difficulty_name, url, stars, length, bpm)
-        )
-        self.db.commit()
+        if not(await self.get_beatmap(beatmap_id)):
+            self.cursor.execute(
+                "INSERT INTO beatmaps VALUES(?,?,?,?,?,?,?,?)",
+                (beatmap_id, artist, song_name, difficulty_name, url, stars, length, bpm)
+            )
+            self.db.commit()
+        else:
+            pass
 
     async def add_snipe(self, user_id, beatmap_id, second_user_id):
         self.cursor.execute(

@@ -5,7 +5,7 @@ from osuauth.osu_auth import OsuAuth
 class Database:
     def __init__(self):
         self.osu = OsuAuth()
-        self.db = sqlite3.connect('database.db')
+        self.db = sqlite3.connect('database.db', timeout=5)
         self.cursor = self.db.cursor()
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS scores(

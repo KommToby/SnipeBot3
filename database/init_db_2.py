@@ -2,7 +2,7 @@ import sqlite3
 from osuauth.osu_auth import OsuAuth
 
 
-class Database:
+class Database2:
     def __init__(self):
         self.osu = OsuAuth()
         self.db = sqlite3.connect('database2.db')

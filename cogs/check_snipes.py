@@ -10,7 +10,7 @@ class CheckSnipes(commands.Cog): # must have commands.cog or this wont work
 
     def __init__(self, client):
         self.client = client
-        self.database = init_db_2.Database()
+        self.database = init_db_2.Database2()
         self.osu = AUTH
         self.main_database = DATABASE
 

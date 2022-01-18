@@ -29,49 +29,55 @@ class Stats(commands.Cog):  # must have commands.cog or this wont work
         user_id = str(user_data['id'])
         scores = await self.database.get_all_scores(user_id)
         beatmaps = await self.database.get_all_beatmaps()
-        for i, score in enumerate(scores):
-            for j, beatmap in enumerate(beatmaps):
-                if score[1] == beatmap[0] and score[2] != "0":
-                    if beatmap[0] not in ids:
-                        if float(beatmap[5]) > 0.0:
-                            stars.append(float(beatmap[5]))
-                        if int(beatmap[6]) > 0:
-                            lengths.append(int(beatmap[6]))
+        scoreids = []
+        for score in scores:
+            if score[1] not in scoreids:
+                scoreids.append(score[1])
+        scores = scoreids
+        for j, beatmap in enumerate(beatmaps):
+            if beatmap[0] in scores:
+                if beatmap[0] not in ids:
+                    if float(beatmap[5]) > 0.0:
+                        stars.append(float(beatmap[5]))
+                    if int(beatmap[6]) > 0:
+                        lengths.append(int(beatmap[6]))
 
-                    if beatmap[1] in artists and beatmap[2] not in song_names:
-                        beatmapsets.append(beatmap[9])
-                        artists.append(beatmap[1])
-                        song_names.append(beatmap[2])
-                        ids.append(beatmap[0])
-                        guest_diff = False
-                        mappers.append(str(beatmap[8]))
-
-                    elif beatmap[9] not in beatmapsets:
-                        artists.append(beatmap[1])
-                        beatmapsets.append(beatmap[9])
-                        song_names.append(beatmap[2])
-                        ids.append(beatmap[0])
-                        mappers.append(str(beatmap[8]))
-
+                if beatmap[1] in artists and beatmap[2] not in song_names:
+                    beatmapsets.append(beatmap[9])
+                    artists.append(beatmap[1])
+                    song_names.append(beatmap[2])
+                    ids.append(beatmap[0])
                     guest_diff = False
-                    for stri in beatmap[3]:
-                            if stri == "'":
-                                guest_diff = True
-                    guest_name = beatmap[3].split("'")[0]
-                    if guest_diff == True:
-                        guest_diffs.append(guest_name)
-                        g = True
-                        for bid in gd_beatmapsets:
-                            if gd_beatmapsets[bid] == guest_name and bid == beatmap:
-                                g = False
-                        if g is True:
-                            gd_beatmapsets[beatmap[9]] = guest_name
-                            mappers.append(guest_name)
+                    mappers.append(str(beatmap[8]))
+
+                elif beatmap[9] not in beatmapsets:
+                    artists.append(beatmap[1])
+                    beatmapsets.append(beatmap[9])
+                    song_names.append(beatmap[2])
+                    ids.append(beatmap[0])
+                    mappers.append(str(beatmap[8]))
+
+                guest_diff = False
+                for stri in beatmap[3]:
+                        if stri == "'":
+                            guest_diff = True
+                guest_name = beatmap[3].split("'")[0]
+                if guest_diff == True:
+                    guest_diffs.append(guest_name)
+                    g = True
+                    for bid in gd_beatmapsets:
+                        if gd_beatmapsets[bid] == guest_name and bid == beatmap:
+                            g = False
+                    if g is True:
+                        gd_beatmapsets[beatmap[9]] = guest_name
+                        mappers.append(guest_name)
 
         numarray = []
         artist_count = []
         num = "none"
         best_count = 0
+        count = []
+        check = []
         for j in range(0,10):
             counter = 0
             for i in artists:
@@ -92,6 +98,18 @@ class Stats(commands.Cog):  # must have commands.cog or this wont work
                     pass
                 else:
                     artists.append(i)
+
+        # for i in artists:
+        #     if i not in check:
+        #         count.append(artists.count(i))
+        #         check.append(i)
+
+        # for j in range(0,10):
+        #     maxval = count.index(max(count))
+        #     numarray.append(check[maxval])
+        #     artist_count.append(maxval)
+        #     count.remove(max(count))
+        #     check.remove(check[maxval])
 
         counter = 0
         most_frequent = []

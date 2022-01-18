@@ -4,15 +4,17 @@ from discord.ext import tasks
 
 from osuauth.osu_auth import OsuAuth
 from database.init_db import Database
+from database.init_db_2 import Database2
 from embed.create_embeds import *
 
 
 class SnipeTracker:
-    def __init__(self, bot: commands.Bot, auth: OsuAuth, database: Database):
+    def __init__(self, bot: commands.Bot, auth: OsuAuth, database: Database, database2: Database2):
         self.bot = bot
         self.osu = auth
         self.database = database
         self.new_user = ""
+        self.database2 = database2
 
     ## Submethod that just starts the indefinite loop
     def start_loop(self):
@@ -80,7 +82,7 @@ class SnipeTracker:
         play2 = play
         play = await self.osu.get_score_data(play['beatmap']['id'], play['user']['id'])
         if not(await self.database.get_beatmap(str(play2['beatmap']['id']))): # if beatmap isnt in the db
-            await self.database.add_beatmap(str(play2['beatmap']['id']), play2['beatmapset']['artist'], play2['beatmapset']['title'], play2['beatmap']['version'], play2['beatmap']['url'],play2['beatmap']['difficulty_rating'], play2['beatmap']['total_length'],play2['beatmap']['bpm'])
+            await self.database.add_beatmap(str(play2['beatmap']['id']), play2['beatmapset']['artist'], play2['beatmapset']['title'], play2['beatmap']['version'], play2['beatmap']['url'],play2['beatmap']['difficulty_rating'], play2['beatmap']['total_length'],play2['beatmap']['bpm'],play2['beatmapset']['creator'],play2['beatmapset']['id'])
             await self.add_single_snipe(play)
         else:
             if await self.verify_user(play2):
@@ -136,7 +138,7 @@ class SnipeTracker:
                                                     await self.post_friend_snipe(main_play['score'], play, (user[1],), friendstatus)
                                         else:    
                                             ## Passive snipe via database
-                                            print(f"        [1] Passive Snipe By {friend_play['score']['user']['username']} against {main_play['score']['user']['username']}")
+                                            # print(f"        [1] Passive Snipe By {friend_play['score']['user']['username']} against {main_play['score']['user']['username']}")
                                             await self.database.add_snipe(friend[1], play['beatmap']['id'], user[1])
                                             if not(await self.database.get_user_beatmap_play_score(friend[1], play['beatmap']['id'], play['score'])):
                                                 await self.database.add_score(friend[1], play['beatmap']['id'], play['score'], 0)
@@ -145,19 +147,19 @@ class SnipeTracker:
                                 if not(await self.database.get_user_snipes(user[1], play['beatmap']['id'], friend[1])):    
                                     if main_play['score']['score'] > play['score']:
                                         ## Passive snipe via global plays
-                                        print(f"        [2] Passive Snipe By {main_play['score']['user']['username']} against {friend_play['score']['user']['username']}")
+                                        # print(f"        [2] Passive Snipe By {main_play['score']['user']['username']} against {friend_play['score']['user']['username']}")
                                         await self.database.add_snipe(user[1], play['beatmap']['id'], friend[1])
                                         if not(await self.database.get_user_beatmap_play_score(user[1], play['beatmap']['id'], main_play['score']['score'])):
                                             await self.database.add_score(user[1], play['beatmap']['id'], main_play['score']['score'], 0)
                     else:
                         if not(await self.database.get_user_beatmap_play_with_zeros(friend[1], play['beatmap']['id'])):
-                            print(f"        [3] Adding empty score for friend who hasnt played map")
+                            # print(f"        [3] Adding empty score for friend who hasnt played map")
                             await self.database.add_score(friend[1], play['beatmap']['id'], 0, 0)
                         skip_friends.append(friend[1])
         all_friends = await self.database.get_all_friends()
         for friend in all_friends: # now to check the score for all friends stored (even if theyre not the friend of the main user)
             if not(await self.database.get_user_beatmap_play_with_zeros(friend[1], play['beatmap']['id'])):
-                print(f"        [4] Adding empty score for friend who hasnt played map for no main user")
+                # print(f"        [4] Adding empty score for friend who hasnt played map for no main user")
                 await self.database.add_score(friend[1], play['beatmap']['id'], 0, 0)
             else: # the user has got a play on the beatmap
                 if friend[1] not in skip_friends:
@@ -169,14 +171,15 @@ class SnipeTracker:
                             if friend_score > int(local_score[2]):
                                 await self.database.replace_user_play(friend[1], play['beatmap']['id'], friend_play['score']['score'])
                                 ## Non-snipe via global play
-                                print(f"        [5] Updating score for user whos main user hasnt played the map")
+                                # print(f"        [5] Updating score for user whos main user hasnt played the map")
                 else:
                     friend_play = await self.osu.get_score_data(play['beatmap']['id'], friend[1])
                     if friend_play:
                         print(f"ERROR\nERROR\nERROR!!!!")
                     else:
                         ## Non-play via global play
-                        print(f"        [6] Skipping user who hasnt played the map and has a 0 score stored")
+                        # print(f"        [6] Skipping user who hasnt played the map and has a 0 score stored")
+                        pass
 
     ## (for new added users) handles the passive snipes
     async def add_single_snipe(self, play):

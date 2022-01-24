@@ -298,8 +298,9 @@ class SnipeTracker:
                         sniped_friends = await self.get_sniped_friends(play)
                         discord_channel = await self.database.get_main_discord(user_id)
                         channel = self.bot.get_channel(int(discord_channel[0]))
+                        beatmap_data = await self.osu.get_beatmap(play['beatmap']['id'])
                         print(f"Posting new best for {user_data['username']}")
-                        await channel.send(embed=create_score_embed(play, sniped_friends))
+                        await channel.send(embed=create_score_embed(play, sniped_friends, beatmap_data))
                         friends = await self.database.get_all_friends()
                         main_users = await self.database.get_all_users()
                         for friend in friends:
@@ -316,8 +317,9 @@ class SnipeTracker:
                     sniped_friends = await self.get_sniped_friends(play)
                     discord_channel = await self.database.get_main_discord(user_id)
                     channel = self.bot.get_channel(int(discord_channel[0]))
+                    beatmap_data = await self.osu.get_beatmap(play['beatmap']['id'])
                     print(f"Posting new best for {user_data['username']}")
-                    await channel.send(embed=create_score_embed(play, sniped_friends))
+                    await channel.send(embed=create_score_embed(play, sniped_friends, beatmap_data))
 
     async def check_duplicate_friends(self, friends):
         ## Check for duplicates in the friends list
@@ -401,7 +403,8 @@ class SnipeTracker:
                                                                 print(f"Posting new best for {play['user']['username']}")
                                                                 discord_channel = await self.database.get_main_discord(main_user[1])
                                                                 channel = self.bot.get_channel(int(discord_channel[0]))
-                                                                await channel.send(embed=create_score_embed(play, sniped_friends))
+                                                                beatmap_data = await self.osu.get_beatmap(play['beatmap']['id'])
+                                                                await channel.send(embed=create_score_embed(play, sniped_friends, beatmap_data))
                                             
                                                 else:
                                                     local_play = await self.database.get_user_beatmap_play(play['user']['id'], play['beatmap']['id'])

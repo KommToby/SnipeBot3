@@ -223,14 +223,14 @@ def create_snipe_embed(play, main_user, beatmap_data):
     if not play['pp']:
         pp = "No "
     else:
-        pp = f"{play['pp']}"
+        pp = f"{round(float(play['pp']), 2)}"
 
     # TITLE MESSAGE HANDLING
     title_message = f"{play['user']['username']} just sniped {main_user} with {modstr}!"
 
     # SCORE MESSAGE HANDLING
-    score_message = f"score: {play['score']} | acc: {round((float(play['accuracy']) * 100), 2)}%" + \
-                    f"| combo: {play['max_combo']}x | pp: {pp}pp"
+    score_message = f"▸ {play['score']:,} ▸ {round((float(play['accuracy']) * 100), 2)}%" + \
+                    f"▸ {play['rank']} Rank ▸ pp: {pp}pp"
 
     # USER AVATAR HANDLING
     if play['user']['avatar_url'][0] == "/":
@@ -251,13 +251,13 @@ def create_snipe_embed(play, main_user, beatmap_data):
     embed.set_author(name='Snipebot 3 by Komm', icon_url=str(image))
 
     embed.add_field(
-        name=score_message, value="[link to map]("
+        name=score_message, value=f"**▸ [{play['statistics']['count_300']}/{play['statistics']['count_100']}/{play['statistics']['count_50']}/{play['statistics']['count_miss']}] ▸ {play['max_combo']}x/{beatmap_data['max_combo']}x ▸** [link to map]("
                                 + str(play['beatmap']['url'])
                                 + ")", inline=False)
     return embed
 
 
-def create_score_embed(play, sniped_friends):
+def create_score_embed(play, sniped_friends, beatmap_data):
     # MOD HANDLING
     if play['mods']:
         modstr = ""
@@ -270,12 +270,12 @@ def create_score_embed(play, sniped_friends):
     if not play['pp']:
         pp = "No "
     else:
-        pp = f"{play['pp']}"
+        pp = f"{round(float(play['pp']), 2)}"
 
     title_message = f"{play['user']['username']} just got a new high score with {modstr}!"
 
-    score_message = f"score: {play['score']} | acc: {round((float(play['accuracy']) * 100), 2)}%" + \
-                    f"| combo: {play['max_combo']}x | pp: {pp}pp"
+    score_message = f"▸ {play['score']:,} ▸ {round((float(play['accuracy']) * 100), 2)}%" + \
+                    f"▸ {play['rank']} Rank ▸ pp: {pp}pp"
 
     # NUMBER OF FRIENDS SNIPED HANDLING
     if not sniped_friends:
@@ -307,9 +307,9 @@ def create_score_embed(play, sniped_friends):
         embed.add_field(name=friend_num_message, value=friend_message, inline=False)
 
     embed.add_field(
-        name=score_message,
-        value=f"[link to map]({play['beatmap']['url']})",
-        inline=False
+        name=score_message, value=f"**▸ [{play['statistics']['count_300']}/{play['statistics']['count_100']}/{play['statistics']['count_50']}/{play['statistics']['count_miss']}] ▸ {play['max_combo']}x/{beatmap_data['max_combo']}x ▸** [link to map]("
+                                + str(play['beatmap']['url'])
+                                + ")", inline=False
     )
 
     return embed

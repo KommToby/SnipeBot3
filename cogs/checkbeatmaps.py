@@ -26,7 +26,7 @@ class CheckBeatmaps(commands.Cog): # must have commands.cog or this wont work
     @checkbeatmaps.error
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send('Usage: `-checkdupe`') 
+            await ctx.send('Usage: `-checkbeatmaps') 
 
 def setup(client):
     client.add_cog(CheckBeatmaps(client))

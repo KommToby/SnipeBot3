@@ -14,7 +14,6 @@ from discord.ext import commands
 from osuauth import osu_auth
 from help import Help
 from database import init_db
-from database import init_db_2
 from snipe_tracker import SnipeTracker
 
 
@@ -25,9 +24,8 @@ with open("config.json") as f:
 GUILD = None
 AUTH = osu_auth.OsuAuth()
 DATABASE = init_db.Database()
-DATABASE2 = init_db_2.Database2()
 client = commands.Bot(command_prefix="-", help_command=Help())
-snipe_bot_tracker = SnipeTracker(client, AUTH, DATABASE, DATABASE2)
+snipe_bot_tracker = SnipeTracker(client, AUTH, DATABASE)
 
 
 # called when bot is online

@@ -83,8 +83,10 @@ async def create_recommendation_embed2(beatmaps, user_data, links, ctx):
     return embed
 
 async def create_recommendation_embed(friend, user_data, beatmap, link):
-    if friend == "bestnum":
+    if friend == "bestnum" or friend == "playernum":
         send_message = "**__(up to) 9 best map recommendations for "+str(user_data['username'])+"__**\n"
+        if friend == "playernum":
+            send_message = "**__(up to) 9 recommendations for "+str(user_data['username'])+"__**\n"
         embed = discord.Embed(
             title=send_message,
             color=discord.Color.purple()

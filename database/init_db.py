@@ -95,6 +95,12 @@ class Database:
             (user_id, beatmap_id)
         ).fetchone()
 
+    async def get_user_beatmap_plays_with_zeros(self, user_id, beatmap_id):
+        return self.cursor.execute(
+            "SELECT * FROM scores WHERE user_id=? AND beatmap_id=?",
+            (user_id, beatmap_id)
+        ).fetchall()
+
     async def get_user_beatmap_plays(self, user_id, beatmap_id):
         return self.cursor.execute(
             "SELECT * FROM scores WHERE user_id=? AND beatmap_id=? AND score!=?",
@@ -131,6 +137,13 @@ class Database:
             "SELECT * FROM scores WHERE user_id=?",
             (user_id,)
         ).fetchall()
+
+    async def get_user_scores_only_zeros(self, user_id):
+        return self.cursor.execute(
+            "SELECT * FROM scores WHERE user_id=? AND score=?",
+            (user_id, "0")
+        ).fetchall()
+
 
     async def get_scores_from_beatmap(self, beatmap_id):
         return self.cursor.execute(

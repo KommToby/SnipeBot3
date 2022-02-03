@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-from database import init_db_2
 from snipebot import DATABASE, AUTH, snipe_bot_tracker
 import asyncio
 import time
@@ -10,7 +9,6 @@ class CheckSnipes(commands.Cog): # must have commands.cog or this wont work
 
     def __init__(self, client):
         self.client = client
-        self.database = init_db_2.Database2()
         self.osu = AUTH
         self.main_database = DATABASE
 

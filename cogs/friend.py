@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 from database.init_db import Database
-from database.init_db_2 import Database2
 from snipebot import DATABASE, AUTH, snipe_bot_tracker
 import asyncio
 

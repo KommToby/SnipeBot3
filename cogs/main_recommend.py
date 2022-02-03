@@ -181,11 +181,17 @@ class MainRecommend(commands.Cog): # must have commands.cog or this wont work
                                                 if beatmap not in beatmaps:
                                                     beatmaps.append(beatmap)
 
-                                            index = random.randint(0, len(friend_list)-1)
-                                            friend_name = friend_data['username']
-                                            beatmap = beatmaps[index]
-                                            beatmap_string = f"{beatmap[2]} [{beatmap[3]}]"
-                                            embed = await create_embeds.create_recommendation_embed(friend_name, user_data, beatmap_string, beatmap[4])
+                                            links = []
+                                            beatmap_strings = []
+                                            for i in range(0,9):
+                                                if friend_list != []:
+                                                    index = random.randint(0, len(friend_list)-1)
+                                                    beatmap = beatmaps[index]
+                                                    beatmap_strings.append(f"{beatmap[2]} [{beatmap[3]}]")
+                                                    links.append(beatmap[4])
+                                                    friend_list.remove(friend_list[index])
+                                                    beatmaps.remove(beatmaps[index])
+                                            embed = await create_embeds.create_recommendation_embed("playernum", user_data, beatmap_strings, links)
                                             await ctx.send(embed=embed)
                                         else:
                                             all_friends = await self.database.get_all_friends()

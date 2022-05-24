@@ -33,12 +33,13 @@ class CheckAllScores(commands.Cog): # must have commands.cog or this wont work
 
         await ctx.send(f"This will take around {round( ((len(beatmaps)*len(ids))*0.1)/(60*60), 2)} hours")
         for i, beatmap in enumerate(beatmaps):
-            if i >= 232:
+            if i >= 16992:
                 try:
                     print(f"Checking beatmap {i}/{len(beatmaps)}")
                     for user in ids:
                         play = await self.osu.get_score_data(beatmap[0], user)
                         if play:
+                            await asyncio.sleep(1)
                             score = play['score']['score']
                             # if this score is not stored in the database for them
                             if not(await self.database.get_user_beatmap_play_score(user, beatmap[0], score)):
@@ -48,6 +49,7 @@ class CheckAllScores(commands.Cog): # must have commands.cog or this wont work
                             else:
                                 pass
                         else:
+                            await asyncio.sleep(0.1)
                             # If they dont have a play on the map and dont have a 0 score stored, add one
                             if not(await self.database.get_user_beatmap_play_with_zeros(user, beatmap[0])):
                                 await self.database.add_score(user, beatmap[0], "0", "0")

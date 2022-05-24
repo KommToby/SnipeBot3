@@ -25,7 +25,7 @@ class CheckScores(commands.Cog): # must have commands.cog or this wont work
         await ctx.send(f"Estimated time to check scores: {round(((((len(beatmaps) * (len(friends) + 1)) * 0.25) / 60)/60), 2)} hours")
         print("checking scores")
         for i, beatmap in enumerate(beatmaps):
-            if i >= 0:
+            if i >= 8000:
                 print(f"Checking beatmap {i}")
                 # note for toby when youre back - its probably better to loop through each map and then through each player instead of each plaeyr
                 # and then every map. then you can store everything in an array

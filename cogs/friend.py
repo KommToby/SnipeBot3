@@ -33,8 +33,8 @@ class Friend(commands.Cog): # must have commands.cog or this wont work
                             await self.database.add_friend(ctx.channel.id, userid)
                             await ctx.send(str(user_id) + " has been added as a friend!")
                             beatmaps = await self.database.get_all_beatmaps()
-                            time1 = round(len(beatmaps) * 0.8, 2)
-                            time2 = round(len(beatmaps) * 1.9, 2)
+                            time1 = round(len(beatmaps) * 1.8, 2)
+                            time2 = round(len(beatmaps) * 2.9, 2)
                             # if there isnt another instance of the program checking new friends
                             if lines[0] == '0':
                                 file1 = open('done.txt', 'w')

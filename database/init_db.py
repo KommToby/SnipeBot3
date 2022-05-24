@@ -23,7 +23,8 @@ class Database:
                 last_score varchar(32),
                 snipes varchar(16),
                 times_sniped varchar(16),
-                username varchar(32)
+                username varchar(32),
+                recent_score varchar(32)
             )
         ''')  # discord_id is channel id, user id is users osu name / id
 
@@ -34,7 +35,8 @@ class Database:
                 last_score varchar(32),
                 ping int2,
                 leaderboard int,
-                username varchar(32)
+                username varchar(32),
+                recent_score varchar(32)
             )
         ''') # dont need to store snipes and sniped, since you can just count from the snipes table
 
@@ -307,6 +309,18 @@ class Database:
             (main_user_id)
         ).fetchone()
 
+    async def get_main_recent_score(self, main_user_id):
+        return self.cursor.execute(
+            "SELECT recent_score FROM users WHERE user_id=?",
+            (main_user_id)
+        ).fetchone()
+
+    async def get_friend_recent_score(self, user_id):
+        return self.cursor.execute(
+            "SELECT recent_score FROM friends WHERE user_id=?",
+            (user_id)
+        ).fetchone()
+
     # ADDS
 
     async def add_score(self, user_id, beatmap_id, score, snipe):
@@ -321,8 +335,8 @@ class Database:
 
     async def add_friend(self, discord_id, friend_id):
         self.cursor.execute(
-            "INSERT INTO friends VALUES(?,?,?,?,?,?)",
-            (discord_id, friend_id, 0, 0, 0, "")  # second 0 = no ping on snipe - third 0 - leaderboard local 
+            "INSERT INTO friends VALUES(?,?,?,?,?,?,?)",
+            (discord_id, friend_id, 0, 0, 0, "", 0)  # second 0 = no ping on snipe - third 0 - leaderboard local 
         )
         self.db.commit()
 
@@ -330,8 +344,8 @@ class Database:
         user_data = await self.osu.get_user_data(str(user_id))
         user_id = user_data['id']
         self.cursor.execute(
-            "INSERT INTO users VALUES(?,?,?,?,?,?)",
-            (discord_id, user_id, 0, 0, 0, "")
+            "INSERT INTO users VALUES(?,?,?,?,?,?,?)",
+            (discord_id, user_id, 0, 0, 0, "", 0)
         )
         self.db.commit()
 
@@ -415,6 +429,20 @@ class Database:
         self.cursor.execute(
             "UPDATE beatmaps SET beatmapset_id=? WHERE beatmap_id=?",
             (beatmapset_id, beatmap_id)
+        )
+        self.db.commit()
+
+    async def update_friend_recent_score(self, user_id, score):
+        self.cursor.execute(
+            "UPDATE friends SET recent_score=? WHERE user_id=?",
+            (score, user_id)
+        )
+        self.db.commit()
+    
+    async def update_main_recent_score(self, user_id, score):
+        self.cursor.execute(
+            "UPDATE users SET recent_score=? WHERE user_id=?",
+            (score, user_id)
         )
         self.db.commit()
 

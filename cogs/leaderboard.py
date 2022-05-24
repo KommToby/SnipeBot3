@@ -53,7 +53,7 @@ class Leaderboard(commands.Cog): # must have commands.cog or this wont work
                 multiplier = (25/100) + (0.75 * (snipes/100))
             snipe_weight = (multiplier*((snipes + 2*not_sniped_back)/(not_sniped_main+sniped+1)*1000))
             await self.database.update_local_leaderboard(main_user_id, friend[1], snipe_weight)
-            leaderboard.append({'username': friend_data[0], 'snipes': snipes, 'sniped': sniped, 'snipe difference': snipe_weight, 'local_weight': friend_leaderboard})
+            leaderboard.append({'username': friend_data[0], 'not_sniped_back': not_sniped_back, 'not_sniped_main': not_sniped_main, 'snipe difference': snipe_weight, 'local_weight': friend_leaderboard})
         self.sort_friend_snipes(leaderboard)
         main_snipes = await self.database.get_main_snipes(main_user_id)
         main_sniped = await self.database.get_main_sniped(main_user_id)

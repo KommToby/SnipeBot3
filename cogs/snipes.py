@@ -3,6 +3,7 @@ from discord.ext import commands
 from embed.create_embeds import create_snipes_embed
 from snipebot import DATABASE, AUTH
 import random
+import time
 
 class Snipes(commands.Cog): # must have commands.cog or this wont work
 
@@ -60,9 +61,11 @@ class Snipes(commands.Cog): # must have commands.cog or this wont work
             not_sniped_main = len(not_sniped_main)
             # reduction multiplier
             multiplier = 1
+            start_time = time.time()
             if snipes < 100:
                 multiplier = (25/100) + (0.75 * (snipes/100))
             snipe_difference = round((multiplier*((snipes + 2*not_sniped_back)/(not_sniped_main+sniped+1)*1000)), 2)
+            print(f"{time.time() - start_time} seconds")
             if str(friend_id) == friend[1]:
                 friend_data = await self.osu.get_user_data(friend[1])
                 friend_dict = {'username': friend_data['username'], 'snipes': snipes, 'sniped': sniped, 'snipe difference': snipe_difference}

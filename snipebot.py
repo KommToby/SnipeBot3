@@ -31,11 +31,14 @@ snipe_bot_tracker = SnipeTracker(client, AUTH, DATABASE)
 # called when bot is online
 @client.event
 async def on_ready():
-    print("Connected")
-    for filename in os.listdir("./cogs"):
-        if filename.endswith(".py"):
-            client.load_extension(f"cogs.{filename[:-3]}")
-    snipe_bot_tracker.start_loop()
+    try:
+        print("Connected")
+        for filename in os.listdir("./cogs"):
+            if filename.endswith(".py"):
+                client.load_extension(f"cogs.{filename[:-3]}")
+        snipe_bot_tracker.start_loop()
+    except:
+        pass
 
 
 @client.command(name="load")

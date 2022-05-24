@@ -9,6 +9,7 @@ class OsuAuth:
     def __init__(self):
         self._load_config()
         self.api_timer = time.time()
+        self.local_timer = time.time()
         self._get_auth_token()
 
     def _load_config(self):
@@ -40,8 +41,9 @@ class OsuAuth:
 
     async def get_api_v2(self, url: str, params=None):
         if time.time() - self.api_timer < 0.05:
-            await asyncio.sleep(0.05)
+            await asyncio.sleep(0.05 - (time.time() - self.api_timer))
         print("Ping Time: ", "%.2f" % (time.time()-self.api_timer) + "s", end="\r")
+        # print(f"Ping Time: {time.time() - self.api_timer}")
         self.api_timer = time.time()
         if params is None:
             params = {}
@@ -49,7 +51,7 @@ class OsuAuth:
             self._get_auth_token()
         headers = {"Authorization": f"Bearer {self.access_token}"}
         r = requests.get(
-            f"https://osu.ppy.sh/api/v2/{url}", headers=headers, params=params
+            f"https://osu.ppy.sh/api/v2/{url}", headers=headers, params=params, timeout=(5, 10)
         )
         self.api_timer = time.time()
         if r.status_code == 200:

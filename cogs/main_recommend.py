@@ -15,6 +15,13 @@ class MainRecommend(commands.Cog): # must have commands.cog or this wont work
         self.database = DATABASE
         self.osu = AUTH
 
+    def is_float(self, num):
+        try:
+            float(num)
+            return True
+        except ValueError:
+            return False
+
     @commands.command(aliases=['mr'])
     @commands.has_permissions(administrator=True)
     async def main_recommend(self, ctx, *args):
@@ -183,6 +190,25 @@ class MainRecommend(commands.Cog): # must have commands.cog or this wont work
 
                                             links = []
                                             beatmap_strings = []
+                                            if not args[3]:
+                                                pass
+                                            else:
+                                                if args[3].lower() == "-min":
+                                                    if not args[4]:
+                                                        pass
+                                                    else:
+                                                        if self.is_float(args[4]):
+                                                            beatmaps, links = self.sort_min(beatmaps, args[4], links)
+                                                        else:
+                                                            pass
+                                                elif args[3].lower() == "-max":
+                                                    if not args[4]:
+                                                        pass
+                                                    else:
+                                                        if self.is_float(args[4]):
+                                                            beatmaps, links = self.sort_max(beatmaps, args[4], links)
+                                                        else:
+                                                            pass
                                             for i in range(0,9):
                                                 if friend_list != []:
                                                     index = random.randint(0, len(friend_list)-1)
@@ -220,7 +246,27 @@ class MainRecommend(commands.Cog): # must have commands.cog or this wont work
                     else:
                         await ctx.send("No recommendations at this time. Play some more maps and try again later.")
 
+    def sort_max(self, beatmaps, max, links):
+        sorted_beatmaps = []
+        sorted_links = []
+        for i, beatmap in enumerate(beatmaps):
+            if beatmap[5] > float(max):
+                pass
+            else:
+                sorted_beatmaps.append(beatmap)
+                sorted_links.append(beatmap[4])
+        return sorted_beatmaps, sorted_links
 
+    def sort_min(self, beatmaps, min, links):
+        sorted_beatmaps = []
+        sorted_links = []
+        for i, beatmap in enumerate(beatmaps):
+            if beatmap[5] < float(min):
+                pass
+            else:
+                sorted_beatmaps.append(beatmap)
+                sorted_links.append(beatmap[4])
+        return sorted_beatmaps, sorted_links
 
     @main_recommend.error
     async def on_command_error(self, ctx, error):

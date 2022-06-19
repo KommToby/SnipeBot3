@@ -71,7 +71,7 @@ class Recommend(commands.Cog): # must have commands.cog or this wont work
                     beatmaps = new_beatmaps
                     links = new_links
                     if len(beatmaps) > 0:
-                        embed = await create_embeds.create_recommendation_embed2(beatmaps, user_data, links, ctx)
+                        embed = await create_embeds.create_recommendation_embed2(beatmaps, user_data, links)
                         await ctx.send(embed=embed)
                     else:
                         await ctx.send("No recommendations at this time. Play some more maps and try again later.")

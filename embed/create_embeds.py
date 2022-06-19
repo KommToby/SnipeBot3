@@ -71,15 +71,16 @@ async def create_snipeback_embed(beatmaps, username, links, user):
     embed.set_author(name='Snipebot 3 by Komm', icon_url=thumbnail)
     return embed
 
-async def create_recommendation_embed2(beatmaps, user_data, links, ctx):
+async def create_recommendation_embed2(beatmaps, user_data, links):
     index = random.randint(0, len(beatmaps)-1)
-    send_message = "**__Random map recommendation for "+str(user_data['username'])+"__**\n"
+    send_message = "**__(up to) 9 Random map recommendations for "+str(user_data['username'])+"__**\n"
 
     embed = discord.Embed(
         title=send_message,
         color=discord.Color.purple()
     )
-    embed.add_field(name=str(beatmaps[index]), value="[Link to map]("+(str(links[index]))+")")
+    for i, beatmap_string in enumerate(beatmaps):
+        embed.add_field(name=str(beatmap_string), value="[Link to map]("+(str(links[i]))+")", inline=False)
     return embed
 
 async def create_recommendation_embed(friend, user_data, beatmap, link):

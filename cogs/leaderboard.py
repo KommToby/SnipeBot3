@@ -49,9 +49,9 @@ class Leaderboard(commands.Cog): # must have commands.cog or this wont work
             not_sniped_back = len(not_sniped_back)        
             not_sniped_main = len(not_sniped_main)
             multiplier = 1
-            if snipes < 100:
-                multiplier = (25/100) + (0.75 * (snipes/100))
-            snipe_weight = (multiplier*((snipes + 2*not_sniped_back)/(not_sniped_main+sniped+1)*1000))
+            if snipes < 1000:
+                multiplier = (25/100) + (0.75 * (snipes/1000))
+            snipe_weight = (multiplier*((3*snipes + 7*not_sniped_back)/(2*not_sniped_main+(snipes/not_sniped_back)*sniped+1)*1000))
             await self.database.update_local_leaderboard(main_user_id, friend[1], snipe_weight)
             leaderboard.append({'username': friend_data[0], 'not_sniped_back': not_sniped_back, 'not_sniped_main': not_sniped_main, 'snipe difference': snipe_weight, 'local_weight': friend_leaderboard})
         self.sort_friend_snipes(leaderboard)

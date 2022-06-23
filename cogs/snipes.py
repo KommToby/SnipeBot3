@@ -100,9 +100,9 @@ class Snipes(commands.Cog): # must have commands.cog or this wont work
         not_sniped_back = len(not_sniped_back)        
         not_sniped_main = len(not_sniped_main)
         multiplier = 1
-        if snipes < 100:
-            multiplier = (25/100) + (0.75 * (snipes/100))
-        snipe_difference = round((multiplier*((snipes + 2*not_sniped_back)/(not_sniped_main+sniped+1)*1000)), 2)
+        if snipes < 1000:
+            multiplier = (25/100) + (0.75 * (snipes/1000))
+        snipe_difference = round((multiplier*((3*snipes + 7*not_sniped_back)/(2*not_sniped_main+(snipes/not_sniped_back)*sniped+1)*1000)), 2)
         return leaderboard.index(friend_dict), snipe_difference, not_sniped_back, not_sniped_main
 
     @snipes.error

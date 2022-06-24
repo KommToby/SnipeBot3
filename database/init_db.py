@@ -85,6 +85,12 @@ class Database:
             (user_id,)
         ).fetchone()
 
+    async def get_total_scores(self, user_id):
+        return self.cursor.execute(
+            "SELECT score FROM scores WHERE user_id=? AND score!=?",
+            (user_id, "0")
+        ).fetchall()
+
     async def get_user_beatmap_play(self, user_id, beatmap_id):
         return self.cursor.execute(
             "SELECT * FROM scores WHERE user_id=? AND beatmap_id=? AND score!=?",

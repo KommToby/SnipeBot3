@@ -47,6 +47,13 @@ class Snipes(commands.Cog): # must have commands.cog or this wont work
             snipes = await self.database.get_single_user_snipes(friend[1], main_user_id)
             sniped = await self.database.get_single_user_snipes(main_user_id, friend[1])
             not_sniped_back = []
+            for snipe in snipes:
+                add = True
+                for sniped_play in sniped:
+                    if snipe[1] == sniped_play[1]:
+                        add = False
+                if add is True:
+                    not_sniped_back.append(snipe)
             not_sniped_main = [] # Maps that the friend has not sniped back off the main user
             for sniped_play in sniped:
                 add = True
@@ -60,11 +67,13 @@ class Snipes(commands.Cog): # must have commands.cog or this wont work
             not_sniped_back = len(not_sniped_back)        
             not_sniped_main = len(not_sniped_main)
             # reduction multiplier
-            multiplier = 1
             start_time = time.time()
-            if snipes < 100:
-                multiplier = (25/100) + (0.75 * (snipes/100))
-            snipe_difference = round((multiplier*((snipes + 2*not_sniped_back)/(not_sniped_main+sniped+1)*1000)), 2)
+            multiplier = 1
+            total_scores = await self.database.get_all_scores(main_user_id)
+            total_scores = len(total_scores)
+            if snipes < total_scores:
+                multiplier = (5/100) + (0.95 * (snipes/total_scores))
+            snipe_difference = round((multiplier*((3*snipes + 7*not_sniped_back)/(2*not_sniped_main+(snipes/not_sniped_back)*sniped+1)*4000)), 2)
             print(f"{time.time() - start_time} seconds")
             if str(friend_id) == friend[1]:
                 friend_data = await self.osu.get_user_data(friend[1])
@@ -100,9 +109,11 @@ class Snipes(commands.Cog): # must have commands.cog or this wont work
         not_sniped_back = len(not_sniped_back)        
         not_sniped_main = len(not_sniped_main)
         multiplier = 1
-        if snipes < 1000:
-            multiplier = (25/100) + (0.75 * (snipes/1000))
-        snipe_difference = round((multiplier*((3*snipes + 7*not_sniped_back)/(2*not_sniped_main+(snipes/not_sniped_back)*sniped+1)*1000)), 2)
+        total_scores = await self.database.get_all_scores(main_user_id)
+        total_scores = len(total_scores)
+        if snipes < total_scores:
+            multiplier = (5/100) + (0.95 * (snipes/total_scores))
+        snipe_difference = round((multiplier*((3*snipes + 7*not_sniped_back)/(2*not_sniped_main+(snipes/not_sniped_back)*sniped+1)*4000)), 2)
         return leaderboard.index(friend_dict), snipe_difference, not_sniped_back, not_sniped_main
 
     @snipes.error

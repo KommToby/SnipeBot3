@@ -17,8 +17,8 @@ class SnipeTracker:
 
 
     ## Submethod that just starts the indefinite loop
-    def start_loop(self):
-        self.tracker_loop.start()
+    async def start_loop(self):
+        await self.tracker_loop()
 
     ## When given a main user play, the method calculates which friends got sniped from that play, and then posts the embed.
     async def get_sniped_friends(self, play):
@@ -354,131 +354,288 @@ class SnipeTracker:
                     friends.pop(i)
         return friends
 
-    @tasks.loop(seconds=30.0)
-    async def tracker_loop(self):
-        local_time = time.time()
-        try:
-            start_time = time.time()
-            users = await self.database.get_all_users()
-            for data in users:
-                user_id = f"{data[1]}"
-                user_data = await self.osu.get_user_data(user_id)
-                if user_data:
-                    recent_plays = await self.osu.get_recent_plays(user_id)
-                    recent_score = await self.database.get_main_recent_score((user_id,))
-                    recent_score = recent_score[0]
-                    await self.database.update_main_username(user_id, user_data['username'])
-                    await self.database.update_friend_username(user_id, user_data['username'])
-                    print(f"     checking main user {user_data['username']} [{round((time.time() - local_time), 2)}s]")
-                    local_time = time.time()
-                    if recent_plays:
-                        # if True:
-                        for play in recent_plays:
-                            if int(play['score']) != int(recent_score):
-                                await self.check_main_play(play, user_id, user_data)
-                            else:
-                                await self.database.update_main_recent_score(user_id, recent_plays[0]['score'])
-                                break
-                        else:
-                            pass
+    async def check_active(self, actives):
+        for friend in actives:
+            user_id = f"{friend}"
+            friend_data = await self.osu.get_user_data(user_id)
+            if friend_data:
+                await self.database.update_friend_username(user_id, friend_data['username'])
+                print(f"     checking active {friend_data['username']} ")
+                local_time = time.time()
+                ## Scans all main users here, which is why we dont need to check a user twice
+                recent_plays = await self.osu.get_recent_plays(user_id)
+                recent_score = await self.database.get_friend_recent_score((user_id,))
+                recent_score = recent_score[0]
+                if recent_plays: # friend recent plays
+                    if int(recent_plays[0]['score']) != int(recent_score):
+                        main_users = await self.database.get_all_users()
+                        for main_user in main_users:
+                            main_discord = await self.database.get_main_discord(main_user[1])
+                            main_discord = main_discord[0]
+                            main_user_friends = await self.database.get_user_friends(main_discord)
+                            go_ahead = False
+                            main_user = (main_user[1],)
+                            main_user_id = f"{main_user[0]}"
+                            for play in recent_plays: # For friends play in friends recent plays
+                                if int(play['score']) != int(recent_score):
+                                    goahead2 = True
+                                    local_score = await self.database.get_user_beatmap_play_with_zeros(user_id, str(play['beatmap']['id']))
+                                    if local_score:
+                                        if str(play['score']) == local_score[2]:
+                                            goahead2 = False
+                                    if goahead2 == True:
+                                        for main_friend in main_user_friends:
+                                            if str(user_id) == main_friend[1]:
+                                                go_ahead = True 
+                                        if go_ahead is True: # Go ahead is if the user being checked (in friends) is a friend of the selected main user
+                                            beatmap_id = f"{play['beatmap']['id']}"
+                                            main_user_play = await self.osu.get_score_data(beatmap_id, main_user_id)#
+                                            if main_user_play:
+                                                await self.check_beatmap(play, False)
+                                                if int(play['score']) > int(main_user_play['score']['score']):
+                                                    if not await self.database.get_user_beatmap_play_score(play['user']['id'], play['beatmap']['id'], play['score']):
+                                                        if not(await self.database.get_user_beatmap_play(play['user']['id'], play['beatmap']['id'])):
+                                                            await self.database.add_score(str(friend_data['id']), str(play['beatmap']['id']), str(play['score']),0)
+                                                            if not(await self.database.get_user_snipe_on_beatmap(play['user']['id'], main_user_play['score']['beatmap']['id'], main_user_play['score']['user']['id'])) and str(self.new_user) != str(play['user']['id']):
+                                                                await self.post_friend_snipe(main_user_play['score'], play, main_user)
+                                                                main_users = await self.database.get_all_users()
+                                                                for main_user in main_users:
+                                                                    if str(main_user[1]) == str(play['user']['id']):
+                                                                        sniped_friends = await self.get_sniped_friends(play)
+                                                                        print(f"Posting new best for {play['user']['username']}")
+                                                                        discord_channel = await self.database.get_main_discord(main_user[1])
+                                                                        channel = self.bot.get_channel(int(discord_channel[0]))
+                                                                        beatmap_data = await self.osu.get_beatmap(play['beatmap']['id'])
+                                                                        await channel.send(embed=create_score_embed(play, sniped_friends, beatmap_data))
+                                                    
+                                                        else:
+                                                            local_play = await self.database.get_user_beatmap_play(play['user']['id'], play['beatmap']['id'])
+                                                            if play['score'] > int(local_play[2]):
+                                                                friend_online_play = await self.osu.get_score_data(play['beatmap']['id'],friend_data['id'])
+                                                                if str(play['score']) == str(friend_online_play['score']['score']):
+                                                                    await self.database.replace_user_play(play['user']['id'], play['beatmap']['id'], play['score'])
+                                                                    if not(await self.database.get_user_snipe_on_beatmap(play['user']['id'], main_user_play['score']['beatmap']['id'], main_user_play['score']['user']['id'])) and str(self.new_user) != str(play['user']['id']):
+                                                                        await self.post_friend_snipe(main_user_play['score'], play, main_user)
+                                                elif int(play['score']) == int(main_user_play['score']['score']):
+                                                    if str(play['user']['id'] == main_user_id):
+                                                        # play is by a main user on another server
+                                                        user_data = await self.osu.get_user_data(play['user']['id'])
+                                                        user_id = play['user']['id']
+                                                        await self.check_main_play(play, user_id, user_data)
+                                else:
+                                    await self.database.update_friend_recent_score(user_id, recent_plays[0]['score'])
+                                    break
+                        if len(main_user) == 1:
+                            main_user = (main_user[0], 0)
+                        if main_user[1] == user_id: # if the friend is the same person as a main user
+                            main_user = (main_user[1],)
+                            main_user_id = f"{main_user[0]}"
+                            recent_plays = await self.osu.get_recent_plays(user_id)
+                            if recent_plays:
+                                for play in recent_plays:
+                                    beatmap_id = f"{play['beatmap']['id']}"
+                                    main_user_play = await self.osu.get_score_data(beatmap_id, main_user_id)
+                                    if main_user_play:
+                                        if int(play['score']) == int(main_user_play['score']['score']):
+                                            if str(play['user']['id'] == main_user_id):
+                                                # play is by a main user on another server
+                                                user_data = await self.osu.get_user_data(play['user']['id'])
+                                                user_id = play['user']['id']
+                                                await self.check_main_play(play, user_id, user_data)
+                    else:
+                        actives.remove(friend)
+                        pass # because the play is identical
 
-            friends = await self.database.get_all_friends()
-            # Dupe removal for friends since we dont need to check them twice as it scans every main user below
-            # It also removes any main users, since they get checked in a different section of the program
-            friends = await self.check_duplicate_friends(friends)
-            for friend in friends:
-                user_id = f"{friend[1]}"
-                friend_data = await self.osu.get_user_data(user_id)
-                if friend_data:
-                    await self.database.update_friend_username(user_id, friend_data['username'])
-                    print(f"     checking {friend_data['username']} [{round((time.time() - local_time), 2)}s]")
-                    local_time = time.time()
-                    ## Scans all main users here, which is why we dont need to check a user twice
-                    recent_plays = await self.osu.get_recent_plays(user_id)
-                    recent_score = await self.database.get_friend_recent_score((user_id,))
-                    recent_score = recent_score[0]
-                    if recent_plays: # friend recent plays
-                        if int(recent_plays[0]['score']) != int(recent_score):
-                            main_users = await self.database.get_all_users()
-                            for main_user in main_users:
-                                main_discord = await self.database.get_main_discord(main_user[1])
-                                main_discord = main_discord[0]
-                                main_user_friends = await self.database.get_user_friends(main_discord)
-                                go_ahead = False
-                                main_user = (main_user[1],)
-                                main_user_id = f"{main_user[0]}"
-                                for play in recent_plays: # For friends play in friends recent plays
+    async def check_active_main(self, active_users):
+        for active_user in active_users:
+            user_id = active_user
+            user_data = await self.osu.get_user_data(active_user)
+            if user_data:
+                recent_plays = await self.osu.get_recent_plays(active_user)
+                recent_score = await self.database.get_main_recent_score((active_user,))
+                recent_score = recent_score[0]
+                await self.database.update_main_username(active_user, user_data['username'])
+                await self.database.update_friend_username(active_user, user_data['username'])
+                print(f"     checking active main user {user_data['username']}]")
+                local_time = time.time()
+                if recent_plays:
+                    # if True:
+                    for play in recent_plays:
+                        if int(play['score']) != int(recent_score):
+                            await self.check_main_play(play, user_id, user_data)
+                        else:
+                            await self.database.update_main_recent_score(active_user, recent_plays[0]['score'])
+                            break
+                    else:
+                        pass
+
+    async def tracker_loop(self):
+        while True:
+            try:
+                local_time = time.time()
+                active_users = []
+                active_friends = []
+                checked_people = 0
+                checked_users = []
+                try:
+                    start_time = time.time()
+                    check_time = time.time()
+                    users = await self.database.get_all_users()
+                    for data in users:
+                        if checked_people > 15:
+                            if active_users != []:
+                                await self.check_active_main(active_users)
+                            checked_people = 0
+                            check_time = time.time()
+                        user_id = f"{data[1]}"
+                        user_data = await self.osu.get_user_data(user_id)
+                        if user_data:
+                            recent_plays = await self.osu.get_recent_plays(user_id)
+                            recent_score = await self.database.get_main_recent_score((user_id,))
+                            recent_score = recent_score[0]
+                            await self.database.update_main_username(user_id, user_data['username'])
+                            await self.database.update_friend_username(user_id, user_data['username'])
+                            print(f"     checking main user {user_data['username']} [{round((time.time() - local_time), 2)}s]")
+                            local_time = time.time()
+                            if recent_plays:
+                                thistime = 0 # for seeing if the active user was given in thsi loop or not
+                                # if True:
+                                for play in recent_plays:
                                     if int(play['score']) != int(recent_score):
-                                        goahead2 = True
-                                        local_score = await self.database.get_user_beatmap_play_with_zeros(user_id, str(play['beatmap']['id']))
-                                        if local_score:
-                                            if str(play['score']) == local_score[2]:
-                                                goahead2 = False
-                                        if goahead2 == True:
-                                            for main_friend in main_user_friends:
-                                                if str(user_id) == main_friend[1]:
-                                                    go_ahead = True 
-                                            if go_ahead is True: # Go ahead is if the user being checked (in friends) is a friend of the selected main user
-                                                beatmap_id = f"{play['beatmap']['id']}"
-                                                main_user_play = await self.osu.get_score_data(beatmap_id, main_user_id)#
-                                                if main_user_play:
-                                                    await self.check_beatmap(play, False)
-                                                    if int(play['score']) > int(main_user_play['score']['score']):
-                                                        if not await self.database.get_user_beatmap_play_score(play['user']['id'], play['beatmap']['id'], play['score']):
-                                                            if not(await self.database.get_user_beatmap_play(play['user']['id'], play['beatmap']['id'])):
-                                                                await self.database.add_score(str(friend_data['id']), str(play['beatmap']['id']), str(play['score']),0)
-                                                                if not(await self.database.get_user_snipe_on_beatmap(play['user']['id'], main_user_play['score']['beatmap']['id'], main_user_play['score']['user']['id'])) and str(self.new_user) != str(play['user']['id']):
-                                                                    await self.post_friend_snipe(main_user_play['score'], play, main_user)
-                                                                    main_users = await self.database.get_all_users()
-                                                                    for main_user in main_users:
-                                                                        if str(main_user[1]) == str(play['user']['id']):
-                                                                            sniped_friends = await self.get_sniped_friends(play)
-                                                                            print(f"Posting new best for {play['user']['username']}")
-                                                                            discord_channel = await self.database.get_main_discord(main_user[1])
-                                                                            channel = self.bot.get_channel(int(discord_channel[0]))
-                                                                            beatmap_data = await self.osu.get_beatmap(play['beatmap']['id'])
-                                                                            await channel.send(embed=create_score_embed(play, sniped_friends, beatmap_data))
-                                                        
-                                                            else:
-                                                                local_play = await self.database.get_user_beatmap_play(play['user']['id'], play['beatmap']['id'])
-                                                                if play['score'] > int(local_play[2]):
-                                                                    friend_online_play = await self.osu.get_score_data(play['beatmap']['id'],friend_data['id'])
-                                                                    if str(play['score']) == str(friend_online_play['score']['score']):
-                                                                        await self.database.replace_user_play(play['user']['id'], play['beatmap']['id'], play['score'])
+                                        if user_id not in active_users:
+                                            active_users.append(user_id)
+                                            thistime = 1
+                                        await self.check_main_play(play, user_id, user_data)
+                                        await self.database.update_main_recent_score(user_id, recent_plays[0]['score'])
+                                    else:
+                                        if user_id in active_users:
+                                            if (time.time() - check_time) > 300:
+                                                active_users.remove(user_id)
+                                        await self.database.update_main_recent_score(user_id, recent_plays[0]['score'])
+                                        break
+                                else:
+                                    pass
+                            checked_people += 1
+                            if user_id not in checked_users:
+                                checked_users.append(user_id)
+
+                    friends = await self.database.get_all_friends()
+                    # Dupe removal for friends since we dont need to check them twice as it scans every main user below
+                    # It also removes any main users, since they get checked in a different section of the program
+                    friends = await self.check_duplicate_friends(friends)
+                    for friend in friends:
+                        if checked_people > 15:
+                            if active_friends != []:
+                                await self.check_active(active_friends)
+                            if active_users != []:
+                                await self.check_active_main(active_users)
+                            check_time = time.time()
+                            checked_people = 0
+                        user_id = f"{friend[1]}"
+                        friend_data = await self.osu.get_user_data(user_id)
+                        if friend_data:
+                            await self.database.update_friend_username(user_id, friend_data['username'])
+                            print(f"     checking {friend_data['username']} [{round((time.time() - local_time), 2)}s]")
+                            local_time = time.time()
+                            ## Scans all main users here, which is why we dont need to check a user twice
+                            recent_plays = await self.osu.get_recent_plays(user_id)
+                            recent_score = await self.database.get_friend_recent_score((user_id,))
+                            recent_score = recent_score[0]
+                            if recent_plays: # friend recent plays
+                                thistime = 0
+                                if int(recent_plays[0]['score']) != int(recent_score):
+                                    if user_id not in active_friends:
+                                        active_friends.append(user_id)
+                                        thistime = 1
+                                    main_users = await self.database.get_all_users()
+                                    for main_user in main_users:
+                                        main_discord = await self.database.get_main_discord(main_user[1])
+                                        main_discord = main_discord[0]
+                                        main_user_friends = await self.database.get_user_friends(main_discord)
+                                        go_ahead = False
+                                        main_user = (main_user[1],)
+                                        main_user_id = f"{main_user[0]}"
+                                        for play in recent_plays: # For friends play in friends recent plays
+                                            if int(play['score']) != int(recent_score):
+                                                goahead2 = True
+                                                local_score = await self.database.get_user_beatmap_play_with_zeros(user_id, str(play['beatmap']['id']))
+                                                if local_score:
+                                                    if str(play['score']) == local_score[2]:
+                                                        goahead2 = False
+                                                if goahead2 == True:
+                                                    for main_friend in main_user_friends:
+                                                        if str(user_id) == main_friend[1]:
+                                                            go_ahead = True 
+                                                    if go_ahead is True: # Go ahead is if the user being checked (in friends) is a friend of the selected main user
+                                                        beatmap_id = f"{play['beatmap']['id']}"
+                                                        main_user_play = await self.osu.get_score_data(beatmap_id, main_user_id)#
+                                                        if main_user_play:
+                                                            await self.check_beatmap(play, False)
+                                                            if int(play['score']) > int(main_user_play['score']['score']):
+                                                                if not await self.database.get_user_beatmap_play_score(play['user']['id'], play['beatmap']['id'], play['score']):
+                                                                    if not(await self.database.get_user_beatmap_play(play['user']['id'], play['beatmap']['id'])):
+                                                                        await self.database.add_score(str(friend_data['id']), str(play['beatmap']['id']), str(play['score']),0)
                                                                         if not(await self.database.get_user_snipe_on_beatmap(play['user']['id'], main_user_play['score']['beatmap']['id'], main_user_play['score']['user']['id'])) and str(self.new_user) != str(play['user']['id']):
                                                                             await self.post_friend_snipe(main_user_play['score'], play, main_user)
-                                                    elif int(play['score']) == int(main_user_play['score']['score']):
+                                                                            main_users = await self.database.get_all_users()
+                                                                            for main_user in main_users:
+                                                                                if str(main_user[1]) == str(play['user']['id']):
+                                                                                    sniped_friends = await self.get_sniped_friends(play)
+                                                                                    print(f"Posting new best for {play['user']['username']}")
+                                                                                    discord_channel = await self.database.get_main_discord(main_user[1])
+                                                                                    channel = self.bot.get_channel(int(discord_channel[0]))
+                                                                                    beatmap_data = await self.osu.get_beatmap(play['beatmap']['id'])
+                                                                                    await channel.send(embed=create_score_embed(play, sniped_friends, beatmap_data))
+                                                                
+                                                                    else:
+                                                                        local_play = await self.database.get_user_beatmap_play(play['user']['id'], play['beatmap']['id'])
+                                                                        if play['score'] > int(local_play[2]):
+                                                                            friend_online_play = await self.osu.get_score_data(play['beatmap']['id'],friend_data['id'])
+                                                                            if str(play['score']) == str(friend_online_play['score']['score']):
+                                                                                await self.database.replace_user_play(play['user']['id'], play['beatmap']['id'], play['score'])
+                                                                                if not(await self.database.get_user_snipe_on_beatmap(play['user']['id'], main_user_play['score']['beatmap']['id'], main_user_play['score']['user']['id'])) and str(self.new_user) != str(play['user']['id']):
+                                                                                    await self.post_friend_snipe(main_user_play['score'], play, main_user)
+                                                            elif int(play['score']) == int(main_user_play['score']['score']):
+                                                                if str(play['user']['id'] == main_user_id):
+                                                                    # play is by a main user on another server
+                                                                    user_data = await self.osu.get_user_data(play['user']['id'])
+                                                                    user_id = play['user']['id']
+                                                                    await self.check_main_play(play, user_id, user_data)
+                                                await self.database.update_friend_recent_score(user_id, recent_plays[0]['score'])
+                                            else:
+                                                await self.database.update_friend_recent_score(user_id, recent_plays[0]['score'])
+                                                break
+                                    if len(main_user) == 1:
+                                        main_user = (main_user[0], 0)
+                                    if main_user[1] == user_id: # if the friend is the same person as a main user
+                                        main_user = (main_user[1],)
+                                        main_user_id = f"{main_user[0]}"
+                                        recent_plays = await self.osu.get_recent_plays(user_id)
+                                        if recent_plays:
+                                            for play in recent_plays:
+                                                beatmap_id = f"{play['beatmap']['id']}"
+                                                main_user_play = await self.osu.get_score_data(beatmap_id, main_user_id)
+                                                if main_user_play:
+                                                    if int(play['score']) == int(main_user_play['score']['score']):
                                                         if str(play['user']['id'] == main_user_id):
                                                             # play is by a main user on another server
                                                             user_data = await self.osu.get_user_data(play['user']['id'])
                                                             user_id = play['user']['id']
                                                             await self.check_main_play(play, user_id, user_data)
-                                    else:
-                                        await self.database.update_friend_recent_score(user_id, recent_plays[0]['score'])
-                                        break
-                            if len(main_user) == 1:
-                                main_user = (main_user[0], 0)
-                            if main_user[1] == user_id: # if the friend is the same person as a main user
-                                main_user = (main_user[1],)
-                                main_user_id = f"{main_user[0]}"
-                                recent_plays = await self.osu.get_recent_plays(user_id)
-                                if recent_plays:
-                                    for play in recent_plays:
-                                        beatmap_id = f"{play['beatmap']['id']}"
-                                        main_user_play = await self.osu.get_score_data(beatmap_id, main_user_id)
-                                        if main_user_play:
-                                            if int(play['score']) == int(main_user_play['score']['score']):
-                                                if str(play['user']['id'] == main_user_id):
-                                                    # play is by a main user on another server
-                                                    user_data = await self.osu.get_user_data(play['user']['id'])
-                                                    user_id = play['user']['id']
-                                                    await self.check_main_play(play, user_id, user_data)
-                        else:
-                            pass # because the play is identical
-        except:
-            pass
+                                else:
+                                    if user_id in active_friends:
+                                        if (time.time() - check_time) > 300:
+                                            active_friends.remove(user_id)
+                                    pass # because the play is identical
+                            checked_people += 1
+                            if user_id not in checked_users:
+                                checked_users.append(user_id)
+                except:
+                    pass
 
-        print(f"Snipe loop took {round(time.time() - start_time, 2)} seconds")
+                print(f"Snipe loop took {round(time.time() - start_time, 2)} seconds")
+            except:
+                pass
 
     ## method that takes in the main users global play, and their local play, and from that info adds the snipes to database, and posts the embed to discord
     async def post_friend_snipe(self, main_user_play, play, main_user):
@@ -491,7 +648,3 @@ class SnipeTracker:
         beatmap_data = await self.osu.get_beatmap(main_user_play['beatmap']['id'])
         await channel.send(embed=create_snipe_embed(play, main_user_username, beatmap_data))
 
-
-    @tracker_loop.before_loop
-    async def before_tracker(self):
-        await self.bot.wait_until_ready()

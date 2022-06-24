@@ -36,7 +36,7 @@ async def on_ready():
         for filename in os.listdir("./cogs"):
             if filename.endswith(".py"):
                 client.load_extension(f"cogs.{filename[:-3]}")
-        snipe_bot_tracker.start_loop()
+        await snipe_bot_tracker.start_loop()
     except:
         pass
 

@@ -80,7 +80,8 @@ async def create_recommendation_embed2(beatmaps, user_data, links):
         color=discord.Color.purple()
     )
     for i, beatmap_string in enumerate(beatmaps):
-        embed.add_field(name=str(beatmap_string), value="[Link to map]("+(str(links[i]))+")", inline=False)
+        if i < 9:
+            embed.add_field(name=str(beatmap_string), value="[Link to map]("+(str(links[i]))+")", inline=False)
     return embed
 
 async def create_recommendation_embed(friend, user_data, beatmap, link):

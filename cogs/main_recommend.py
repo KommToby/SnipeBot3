@@ -190,11 +190,11 @@ class MainRecommend(commands.Cog): # must have commands.cog or this wont work
 
                                             links = []
                                             beatmap_strings = []
-                                            if not args[3]:
+                                            if len(args) < 4:
                                                 pass
                                             else:
                                                 if args[3].lower() == "-min":
-                                                    if not args[4]:
+                                                    if len(args) < 5:
                                                         pass
                                                     else:
                                                         if self.is_float(args[4]):
@@ -202,7 +202,7 @@ class MainRecommend(commands.Cog): # must have commands.cog or this wont work
                                                         else:
                                                             pass
                                                 elif args[3].lower() == "-max":
-                                                    if not args[4]:
+                                                    if len(args) < 5:
                                                         pass
                                                     else:
                                                         if self.is_float(args[4]):
@@ -210,12 +210,17 @@ class MainRecommend(commands.Cog): # must have commands.cog or this wont work
                                                         else:
                                                             pass
                                             for i in range(0,9):
-                                                if friend_list != []:
-                                                    index = random.randint(0, len(friend_list)-1)
+                                                if beatmaps != []:
+                                                    # index = random.randint(0, len(friend_list)-1) not sure if this stuff is required for non minmax stuff so i commented it out
+                                                    # beatmap = beatmaps[index]
+                                                    # beatmap_strings.append(f"{beatmap[2]} [{beatmap[3]}]")
+                                                    # links.append(beatmap[4])
+                                                    # friend_list.remove(friend_list[index])
+                                                    # beatmaps.remove(beatmaps[index])
+                                                    index = random.randint(0, len(beatmaps)-1)
                                                     beatmap = beatmaps[index]
                                                     beatmap_strings.append(f"{beatmap[2]} [{beatmap[3]}]")
                                                     links.append(beatmap[4])
-                                                    friend_list.remove(friend_list[index])
                                                     beatmaps.remove(beatmaps[index])
                                             embed = await create_embeds.create_recommendation_embed("playernum", user_data, beatmap_strings, links)
                                             await ctx.send(embed=embed)

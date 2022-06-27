@@ -72,9 +72,8 @@ class Snipes(commands.Cog): # must have commands.cog or this wont work
             total_scores = await self.database.get_all_scores(main_user_id)
             total_scores = len(total_scores)
             if snipes < total_scores:
-                multiplier = (5/100) + (0.95 * (snipes/total_scores))
-            snipe_difference = round((multiplier*((3*snipes + 7*not_sniped_back)/(2*not_sniped_main+(snipes/not_sniped_back)*sniped+1)*4000)), 2)
-            print(f"{time.time() - start_time} seconds")
+                multiplier = (5/100) + (0.95 * (snipes/(total_scores+1)))
+            snipe_difference = round((multiplier*((3*snipes + 7*not_sniped_back)/(2*not_sniped_main+(snipes/(not_sniped_back+1))*sniped+1)*4000)), 2)
             if str(friend_id) == friend[1]:
                 friend_data = await self.osu.get_user_data(friend[1])
                 friend_dict = {'username': friend_data['username'], 'snipes': snipes, 'sniped': sniped, 'snipe difference': snipe_difference}

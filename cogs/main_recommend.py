@@ -209,6 +209,7 @@ class MainRecommend(commands.Cog): # must have commands.cog or this wont work
                                                             beatmaps, links = self.sort_max(beatmaps, args[4], links)
                                                         else:
                                                             pass
+                                            new_links = []
                                             for i in range(0,9):
                                                 if beatmaps != []:
                                                     # index = random.randint(0, len(friend_list)-1) not sure if this stuff is required for non minmax stuff so i commented it out
@@ -220,9 +221,9 @@ class MainRecommend(commands.Cog): # must have commands.cog or this wont work
                                                     index = random.randint(0, len(beatmaps)-1)
                                                     beatmap = beatmaps[index]
                                                     beatmap_strings.append(f"{beatmap[2]} [{beatmap[3]}]")
-                                                    links.append(beatmap[4])
-                                                    beatmaps.remove(beatmaps[index])
-                                            embed = await create_embeds.create_recommendation_embed("playernum", user_data, beatmap_strings, links)
+                                                    new_links.append(beatmap[4])
+                                                    beatmaps.remove(beatmap)
+                                            embed = await create_embeds.create_recommendation_embed("playernum", user_data, beatmap_strings, new_links)
                                             await ctx.send(embed=embed)
                                         else:
                                             all_friends = await self.database.get_all_friends()

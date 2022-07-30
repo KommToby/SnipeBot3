@@ -37,8 +37,8 @@ async def on_ready():
             if filename.endswith(".py"):
                 client.load_extension(f"cogs.{filename[:-3]}")
         await snipe_bot_tracker.start_loop()
-    except:
-        pass
+    except Exception as e:
+        print(f"Error occured: {e}")
 
 
 @client.command(name="load")

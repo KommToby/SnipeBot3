@@ -72,16 +72,29 @@ async def create_snipeback_embed(beatmaps, username, links, user):
     return embed
 
 async def create_recommendation_embed2(beatmaps, user_data, links):
-    index = random.randint(0, len(beatmaps)-1)
     send_message = "**__(up to) 9 Random map recommendations for "+str(user_data['username'])+"__**\n"
 
     embed = discord.Embed(
         title=send_message,
         color=discord.Color.purple()
     )
-    for i, beatmap_string in enumerate(beatmaps):
-        if i < 9:
-            embed.add_field(name=str(beatmap_string), value="[Link to map]("+(str(links[i]))+")", inline=False)
+
+    if len(beatmaps) < 9:
+        for i, beatmap_string in enumerate(beatmaps):
+            if i < 9:
+                embed.add_field(name=str(beatmap_string), value="[Link to map]("+(str(links[i]))+")", inline=False)
+    else:
+        used_ind = []
+        for i in range(0,9):
+            index = random.randint(0, len(beatmaps)-1)
+            if index not in used_ind:
+                used_ind.append(index)
+            else:
+                while index in used_ind:
+                    index = random.randint(0, len(beatmaps)-1)
+                used_ind.append(index)
+            embed.add_field(name=str(beatmaps[index]), value="[Link to map]("+(str(links[index]))+")", inline=False)
+
     return embed
 
 async def create_recommendation_embed(friend, user_data, beatmap, link):

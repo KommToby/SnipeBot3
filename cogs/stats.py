@@ -99,18 +99,6 @@ class Stats(commands.Cog):  # must have commands.cog or this wont work
                 else:
                     artists.append(i)
 
-        # for i in artists:
-        #     if i not in check:
-        #         count.append(artists.count(i))
-        #         check.append(i)
-
-        # for j in range(0,10):
-        #     maxval = count.index(max(count))
-        #     numarray.append(check[maxval])
-        #     artist_count.append(maxval)
-        #     count.remove(max(count))
-        #     check.remove(check[maxval])
-
         counter = 0
         most_frequent = []
         for s in song_names:
